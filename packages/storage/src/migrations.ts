@@ -1,0 +1,153 @@
+export const migrations = [
+  {
+    version: 1,
+    sql: `
+      CREATE TABLE IF NOT EXISTS schema_migrations (
+        version INTEGER PRIMARY KEY,
+        applied_at TEXT NOT NULL
+      );
+
+      CREATE TABLE sources (
+        id TEXT PRIMARY KEY,
+        type TEXT NOT NULL,
+        title TEXT NOT NULL,
+        external_id TEXT,
+        completeness TEXT NOT NULL,
+        sensitivity TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        version INTEGER NOT NULL DEFAULT 1,
+        UNIQUE(type, external_id)
+      );
+
+      CREATE TABLE captures (
+        id TEXT PRIMARY KEY,
+        source_id TEXT NOT NULL REFERENCES sources(id),
+        text TEXT NOT NULL,
+        content_hash TEXT NOT NULL,
+        sensitivity TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        version INTEGER NOT NULL DEFAULT 1,
+        UNIQUE(source_id, content_hash)
+      );
+
+      CREATE TABLE evidence (
+        id TEXT PRIMARY KEY,
+        capture_id TEXT NOT NULL REFERENCES captures(id),
+        source_id TEXT NOT NULL REFERENCES sources(id),
+        quote TEXT,
+        locator TEXT,
+        created_at TEXT NOT NULL
+      );
+
+      CREATE TABLE review_candidates (
+        id TEXT PRIMARY KEY,
+        capture_id TEXT NOT NULL REFERENCES captures(id),
+        candidate_type TEXT NOT NULL,
+        title TEXT NOT NULL,
+        summary TEXT,
+        status TEXT NOT NULL DEFAULT 'pending',
+        sensitivity TEXT NOT NULL,
+        outcome_id TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        version INTEGER NOT NULL DEFAULT 1
+      );
+
+      CREATE TABLE open_loops (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        notes TEXT,
+        status TEXT NOT NULL,
+        priority INTEGER NOT NULL DEFAULT 1,
+        due_at TEXT,
+        scheduled_for TEXT,
+        source_id TEXT REFERENCES sources(id),
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        version INTEGER NOT NULL DEFAULT 1
+      );
+
+      CREATE TABLE decisions (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        summary TEXT,
+        source_id TEXT REFERENCES sources(id),
+        created_at TEXT NOT NULL
+      );
+
+      CREATE TABLE reference_items (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        summary TEXT,
+        source_id TEXT REFERENCES sources(id),
+        created_at TEXT NOT NULL
+      );
+
+      CREATE TABLE audit_events (
+        sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+        event_id TEXT NOT NULL UNIQUE,
+        aggregate_type TEXT NOT NULL,
+        aggregate_id TEXT NOT NULL,
+        event_type TEXT NOT NULL,
+        payload_json TEXT NOT NULL,
+        actor TEXT NOT NULL,
+        occurred_at TEXT NOT NULL,
+        schema_version INTEGER NOT NULL
+      );
+
+      CREATE TABLE outbox_events (
+        sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+        event_id TEXT NOT NULL UNIQUE,
+        event_type TEXT NOT NULL,
+        payload_json TEXT NOT NULL,
+        occurred_at TEXT NOT NULL
+      );
+
+      CREATE TRIGGER audit_events_no_update BEFORE UPDATE ON audit_events BEGIN
+        SELECT RAISE(ABORT, 'audit_events is append-only');
+      END;
+      CREATE TRIGGER audit_events_no_delete BEFORE DELETE ON audit_events BEGIN
+        SELECT RAISE(ABORT, 'audit_events is append-only');
+      END;
+      CREATE TRIGGER outbox_events_no_update BEFORE UPDATE ON outbox_events BEGIN
+        SELECT RAISE(ABORT, 'outbox_events is append-only');
+      END;
+      CREATE TRIGGER outbox_events_no_delete BEFORE DELETE ON outbox_events BEGIN
+        SELECT RAISE(ABORT, 'outbox_events is append-only');
+      END;
+
+      CREATE TABLE idempotency_records (
+        idempotency_key TEXT PRIMARY KEY,
+        operation TEXT NOT NULL,
+        request_hash TEXT NOT NULL,
+        response_json TEXT NOT NULL,
+        created_at TEXT NOT NULL
+      );
+
+      CREATE TABLE jobs (
+        id TEXT PRIMARY KEY,
+        type TEXT NOT NULL,
+        status TEXT NOT NULL,
+        progress INTEGER NOT NULL DEFAULT 0,
+        error_code TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+
+      CREATE VIRTUAL TABLE search_documents USING fts5(
+        entity_type UNINDEXED,
+        entity_id UNINDEXED,
+        source_id UNINDEXED,
+        title,
+        body,
+        tokenize='unicode61'
+      );
+
+      CREATE INDEX idx_open_loops_status ON open_loops(status, due_at, priority);
+      CREATE INDEX idx_reviews_status ON review_candidates(status, updated_at);
+      CREATE INDEX idx_captures_source ON captures(source_id);
+      CREATE INDEX idx_evidence_capture ON evidence(capture_id);
+    `,
+  },
+] as const;

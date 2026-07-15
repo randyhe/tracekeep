@@ -1,0 +1,303 @@
+import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import Fastify from "fastify";
+import { z, ZodError } from "zod";
+import {
+  captureInputSchema,
+  dailyLogInputSchema,
+  openLoopPatchSchema,
+  reviewActionSchema,
+  sensitivitySchema,
+} from "@atlas/contracts";
+import {
+  AtlasStorage,
+  IdempotencyConflictError,
+  StorageConflictError,
+  StorageNotFoundError,
+  fingerprint,
+  type CaptureBundle,
+  type CaptureRecordInput,
+} from "@atlas/storage";
+
+const idParamsSchema = z.object({ id: z.string().uuid() });
+const reviewQuerySchema = z.object({ status: z.enum(["pending", "accepted", "rejected"]).default("pending") });
+const openLoopQuerySchema = z.object({ status: z.enum(["open", "waiting", "scheduled", "done", "dismissed"]).optional() });
+const searchQuerySchema = z.object({ q: z.string().trim().min(1).max(500), limit: z.coerce.number().int().min(1).max(100).default(20) });
+
+export interface BuildAppOptions {
+  storage: AtlasStorage;
+  logger?: boolean;
+}
+
+export function buildApp(options: BuildAppOptions): FastifyInstance {
+  // Request logging remains disabled in V1 because URLs can contain private search text.
+  const app = Fastify({ logger: false, bodyLimit: 12 * 1024 * 1024 });
+  const { storage } = options;
+
+  app.addHook("onRequest", async (request, reply) => {
+    const origin = request.headers.origin;
+    if (origin === "http://127.0.0.1:5173" || origin === "http://localhost:5173") {
+      reply.header("Access-Control-Allow-Origin", origin);
+      reply.header("Vary", "Origin");
+      reply.header("Access-Control-Allow-Headers", "Content-Type, Idempotency-Key");
+      reply.header("Access-Control-Allow-Methods", "GET, POST, PATCH, OPTIONS");
+    }
+  });
+  app.options("/*", async (_request, reply) => reply.status(204).send());
+
+  app.setErrorHandler((error, _request, reply) => {
+    if (error instanceof ZodError) {
+      return sendError(reply, 400, "VALIDATION_ERROR", "Request validation failed", error.issues);
+    }
+    if (error instanceof StorageNotFoundError) return sendError(reply, 404, "NOT_FOUND", error.message);
+    if (error instanceof StorageConflictError) {
+      return sendError(reply, 409, "VERSION_CONFLICT", error.message, { currentVersion: error.currentVersion });
+    }
+    if (error instanceof IdempotencyConflictError) return sendError(reply, 409, "IDEMPOTENCY_CONFLICT", error.message);
+    if ((error as { code?: string }).code === "FST_ERR_CTP_BODY_TOO_LARGE") {
+      return sendError(reply, 413, "PAYLOAD_TOO_LARGE", "Request payload is too large");
+    }
+    return sendError(reply, 500, "INTERNAL_ERROR", "The request could not be completed");
+  });
+
+  app.get("/api/v1/health/live", async () => ({ status: "ok", service: "atlasd" }));
+  app.get("/api/v1/health/ready", async (_request, reply) => {
+    const integrity = storage.integrityCheck();
+    if (integrity !== "ok") return reply.status(503).send({ status: "not_ready", integrity });
+    return { status: "ready", integrity, schemaVersion: 1 };
+  });
+  app.get("/api/v1/cost-status", async () => ({
+    mode: "subscription_only",
+    platformApiEnabled: false,
+    paidTranscriptionEnabled: false,
+    externalHostingEnabled: false,
+    monthlyExternalBudgetUsd: 0,
+  }));
+  app.get("/api/v1/jobs", async () => ({ jobs: storage.listJobs() }));
+
+  app.get("/api/v1/today", async () => ({ items: storage.getToday(3), generatedAt: new Date().toISOString() }));
+  app.get("/api/v1/open-loops", async (request) => {
+    const query = openLoopQuerySchema.parse(request.query);
+    return { items: storage.listOpenLoops(query.status) };
+  });
+  app.patch("/api/v1/open-loops/:id", async (request) => {
+    const { id } = idParamsSchema.parse(request.params);
+    const body = openLoopPatchSchema.parse(request.body);
+    return idempotent(request, storage, "open-loop.patch", { id, body }, () => ({ item: storage.updateOpenLoop(id, body) }));
+  });
+
+  app.post("/api/v1/captures", async (request) => {
+    const body = captureInputSchema.parse(request.body);
+    return idempotent(request, storage, "capture.create", body, () => {
+      const bundle = storage.createCaptureBundle({
+        source: { type: body.sourceType, title: body.title ?? "Manual capture", sensitivity: body.sensitivity },
+        text: body.text,
+        candidateTitle: body.title ?? deriveTitle(body.text),
+      });
+      return publicBundle(bundle);
+    });
+  });
+
+  app.get("/api/v1/reviews", async (request) => {
+    const query = reviewQuerySchema.parse(request.query);
+    return { items: storage.listReviews(query.status).map(publicCandidate) };
+  });
+  app.post("/api/v1/reviews/:id/actions", async (request) => {
+    const { id } = idParamsSchema.parse(request.params);
+    const body = reviewActionSchema.parse(request.body);
+    return idempotent(request, storage, "review.action", { id, body }, () => storage.actOnReview(id, body));
+  });
+
+  app.get("/api/v1/search", async (request) => {
+    const query = searchQuerySchema.parse(request.query);
+    return { results: storage.search(query.q, query.limit) };
+  });
+  app.get("/api/v1/sources", async () => ({
+    items: storage.listSources().map((source) => source.sensitivity === "restricted"
+      ? { ...source, title: "[restricted source]" }
+      : source),
+  }));
+
+  app.post("/api/v1/imports/manual", async (request) => {
+    const body = captureInputSchema.parse({ ...(request.body as object), sourceType: "manual" });
+    return idempotent(request, storage, "import.manual", body, () => ({
+      items: [
+        publicBundle(
+          storage.createCaptureBundle({
+            source: {
+              type: "manual",
+              title: body.title ?? "Manual import",
+              externalId: `manual:${fingerprint(body.text)}`,
+              sensitivity: body.sensitivity,
+            },
+            text: body.text,
+            candidateTitle: body.title ?? deriveTitle(body.text),
+          }),
+        ),
+      ],
+    }));
+  });
+
+  app.post("/api/v1/imports/daily-log", async (request) => {
+    const body = dailyLogInputSchema.parse(request.body);
+    return idempotent(request, storage, "import.daily-log", body, () => {
+      const input: CaptureRecordInput = {
+        source: {
+          type: "daily_log",
+          title: `Daily log ${body.date}`,
+          externalId: body.path ?? body.date,
+          completeness: "full",
+          sensitivity: body.sensitivity,
+        },
+        text: body.content,
+        candidateTitle: `Review daily log ${body.date}`,
+        candidateType: "reference",
+        ...(body.path ? { locator: body.path } : {}),
+      };
+      return { items: [publicBundle(storage.createCaptureBundle(input))] };
+    });
+  });
+
+  app.post("/api/v1/imports/chatgpt-export", async (request) => {
+    const normalized = normalizeChatGptExport(request.body);
+    return idempotent(request, storage, "import.chatgpt-export", normalized, () => ({
+      items: normalized.conversations.map((conversation) => {
+        const text = conversation.messages.map((message) => `${message.role}: ${message.content}`).join("\n\n");
+        return publicBundle(
+          storage.createCaptureBundle({
+            source: {
+              type: "chatgpt_export",
+              title: conversation.title,
+              externalId: conversation.id,
+              completeness: "export_backfilled",
+              sensitivity: normalized.sensitivity,
+            },
+            text,
+            candidateTitle: conversation.title,
+            candidateType: "reference",
+            locator: `chatgpt-export:${conversation.id}`,
+          }),
+        );
+      }),
+    }));
+  });
+
+  app.get("/api/v1/exports/sanitized", async () => storage.sanitizedExport());
+  app.post("/api/v1/backups", async (request) => {
+    const key = requireIdempotencyKey(request);
+    const hash = fingerprint({ operation: "backup.create" });
+    const replay = storage.readIdempotent<{ backup: { fileName: string; createdAt: string } }>(key, "backup.create", hash);
+    if (replay) return replay;
+    const result = { backup: await storage.createBackup() };
+    storage.saveIdempotent(key, "backup.create", hash, result);
+    return result;
+  });
+
+  return app;
+}
+
+function idempotent<T>(
+  request: FastifyRequest,
+  storage: AtlasStorage,
+  operation: string,
+  input: unknown,
+  execute: () => T,
+): T {
+  const key = requireIdempotencyKey(request);
+  return storage.executeIdempotent(key, operation, fingerprint(input), execute).value;
+}
+
+function requireIdempotencyKey(request: FastifyRequest): string {
+  const raw = request.headers["idempotency-key"];
+  const key = Array.isArray(raw) ? raw[0] : raw;
+  if (!key || key.length < 8 || key.length > 200) {
+    throw new ZodError([
+      { code: "custom", path: ["Idempotency-Key"], message: "A unique Idempotency-Key header (8-200 characters) is required" },
+    ]);
+  }
+  return key;
+}
+
+function publicBundle(bundle: CaptureBundle): CaptureBundle {
+  if (bundle.capture.sensitivity !== "restricted") return bundle;
+  return {
+    ...bundle,
+    capture: { ...bundle.capture, text: "[restricted]" },
+    evidence: {
+      id: bundle.evidence.id,
+      captureId: bundle.evidence.captureId,
+      sourceId: bundle.evidence.sourceId,
+      ...(bundle.evidence.locator ? { locator: bundle.evidence.locator } : {}),
+      createdAt: bundle.evidence.createdAt,
+    },
+    candidate: publicCandidate(bundle.candidate),
+  };
+}
+
+function publicCandidate<T extends { sensitivity: string; title: string; summary?: string }>(candidate: T): T {
+  if (candidate.sensitivity !== "restricted") return candidate;
+  const { summary: _summary, ...safe } = candidate;
+  return { ...safe, title: "[restricted candidate]" } as T;
+}
+
+function deriveTitle(text: string): string {
+  const firstLine = text.split(/\r?\n/, 1)[0]?.trim() || "Untitled capture";
+  return firstLine.length > 120 ? `${firstLine.slice(0, 117)}...` : firstLine;
+}
+
+interface NormalizedConversation {
+  id: string;
+  title: string;
+  messages: Array<{ role: string; content: string }>;
+}
+
+function normalizeChatGptExport(input: unknown): { conversations: NormalizedConversation[]; sensitivity: z.infer<typeof sensitivitySchema> } {
+  const container = input as { conversations?: unknown; sensitivity?: unknown } | undefined;
+  const rawConversations = Array.isArray(input) ? input : container?.conversations;
+  if (!Array.isArray(rawConversations) || rawConversations.length === 0 || rawConversations.length > 1_000) {
+    throw new ZodError([{ code: "custom", path: ["conversations"], message: "Expected 1-1000 exported conversations" }]);
+  }
+  const sensitivity = sensitivitySchema.parse(container?.sensitivity ?? "personal");
+  const conversations = rawConversations.map((raw, index) => normalizeConversation(raw, index));
+  return { conversations, sensitivity };
+}
+
+function normalizeConversation(raw: unknown, index: number): NormalizedConversation {
+  if (!raw || typeof raw !== "object") throw invalidConversation(index);
+  const record = raw as Record<string, unknown>;
+  const id = stringValue(record.id) ?? stringValue(record.conversation_id) ?? `export-${fingerprint(record).slice(0, 24)}`;
+  const title = stringValue(record.title) ?? `ChatGPT conversation ${index + 1}`;
+  const messages: Array<{ role: string; content: string }> = [];
+  if (Array.isArray(record.messages)) {
+    for (const rawMessage of record.messages) {
+      if (!rawMessage || typeof rawMessage !== "object") continue;
+      const message = rawMessage as Record<string, unknown>;
+      const content = stringValue(message.content);
+      if (content) messages.push({ role: stringValue(message.role) ?? "unknown", content });
+    }
+  } else if (record.mapping && typeof record.mapping === "object") {
+    for (const node of Object.values(record.mapping as Record<string, unknown>)) {
+      const message = (node as { message?: unknown } | undefined)?.message;
+      if (!message || typeof message !== "object") continue;
+      const messageRecord = message as Record<string, unknown>;
+      const author = messageRecord.author as Record<string, unknown> | undefined;
+      const contentObject = messageRecord.content as Record<string, unknown> | undefined;
+      const parts = contentObject?.parts;
+      const content = Array.isArray(parts) ? parts.filter((part): part is string => typeof part === "string").join("\n") : undefined;
+      if (content) messages.push({ role: stringValue(author?.role) ?? "unknown", content });
+    }
+  }
+  if (messages.length === 0) throw invalidConversation(index);
+  return { id, title: title.slice(0, 500), messages };
+}
+
+function invalidConversation(index: number): ZodError {
+  return new ZodError([{ code: "custom", path: ["conversations", index], message: "Conversation has no readable messages" }]);
+}
+
+function stringValue(value: unknown): string | undefined {
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
+function sendError(reply: FastifyReply, status: number, code: string, message: string, details?: unknown) {
+  return reply.status(status).send({ error: { code, message, ...(details === undefined ? {} : { details }) } });
+}
