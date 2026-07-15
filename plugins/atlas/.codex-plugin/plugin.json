@@ -1,0 +1,23 @@
+{
+  "name": "atlas",
+  "version": "0.1.0",
+  "description": "Capture, review, search, and advance local Atlas open loops from Codex.",
+  "author": {
+    "name": "Local developer"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Atlas",
+    "shortDescription": "Local memory and action capture for Codex.",
+    "longDescription": "Atlas connects Codex to a local review-first memory and action service. Capture ideas and open loops, see today's focus, search local evidence, and review candidates without paid APIs or cloud hosting.",
+    "developerName": "Local developer",
+    "category": "Productivity",
+    "capabilities": ["local-mcp", "capture", "search", "review"],
+    "defaultPrompt": [
+      "Use Atlas to capture this as a reviewed local item.",
+      "Show my Atlas focus for today.",
+      "Search Atlas and include the supporting sources."
+    ]
+  },
+  "mcpServers": "./.mcp.json"
+}
