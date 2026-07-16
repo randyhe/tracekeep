@@ -31,6 +31,10 @@ export interface ReviewCandidate {
   version: number;
   evidence?: Evidence[];
   duplicateOf?: string;
+  status?: "pending" | "accepted" | "rejected";
+  updatedAt?: string;
+  outcomeAction?: "created" | "merged";
+  outcomeId?: string;
 }
 
 export interface SearchResult {

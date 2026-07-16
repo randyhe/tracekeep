@@ -1,4 +1,34 @@
-import type { CostStatus, ReviewCandidate, SearchResult, SourceRecord, TodayData } from "./types";
+import type { CostStatus, OpenLoop, ReviewCandidate, SearchResult, SourceRecord, TodayData } from "./types";
+
+export interface ImportResult {
+  items: Array<{ candidate?: unknown; candidates?: unknown[] }>;
+  sourceCount?: number;
+  candidateCount?: number;
+}
+
+interface WireOpenLoop {
+  id: string;
+  title: string;
+  notes?: string;
+  status: OpenLoop["status"];
+  version: number;
+  dueAt?: string;
+  updatedAt?: string;
+  evidence?: Array<{ id: string; sourceId: string; quote?: string; locator?: string; createdAt: string }>;
+}
+
+export function normalizeOpenLoop(item: WireOpenLoop): OpenLoop {
+  return {
+    id: item.id,
+    title: item.title,
+    status: item.status,
+    version: item.version,
+    ...(item.notes ? { summary: item.notes } : {}),
+    ...(item.dueAt ? { dueAt: item.dueAt } : {}),
+    ...(item.updatedAt ? { updatedAt: item.updatedAt } : {}),
+    ...(item.evidence?.length ? { evidence: item.evidence.map((evidence) => ({ id: evidence.id, label: evidence.locator ?? "Source evidence", occurredAt: evidence.createdAt, excerpt: evidence.quote })) } : {}),
+  };
+}
 
 export class ApiError extends Error {
   constructor(
@@ -32,15 +62,16 @@ export const api = {
   health: () => request<{ status: string; version?: string }>("/health/ready"),
   today: async (): Promise<TodayData> => {
     const [result, reviewResult] = await Promise.all([
-      request<{ items: TodayData["focus"]; generatedAt?: string }>("/today"),
+      request<{ items: WireOpenLoop[]; generatedAt?: string }>("/today"),
       request<ReviewCandidate[] | { items: ReviewCandidate[] }>("/reviews?status=pending").catch(() => [] as ReviewCandidate[]),
     ]);
     const now = Date.now();
     const reviews = Array.isArray(reviewResult) ? reviewResult : reviewResult.items;
+    const items = result.items.map(normalizeOpenLoop);
     return {
-      focus: result.items,
-      overdue: result.items.filter((item) => item.dueAt && new Date(item.dueAt).getTime() < now),
-      waiting: result.items.filter((item) => item.status === "waiting"),
+      focus: items,
+      overdue: items.filter((item) => item.dueAt && new Date(item.dueAt).getTime() < now),
+      waiting: items.filter((item) => item.status === "waiting"),
       reviewCount: reviews.length,
       generatedAt: result.generatedAt,
     };
@@ -55,18 +86,22 @@ export const api = {
     headers: { "Idempotency-Key": idempotencyKey() },
     body: JSON.stringify({ expectedVersion, status, scheduledFor }),
   }),
+  openLoops: async () => {
+    const result = await request<{ items: WireOpenLoop[] }>("/open-loops");
+    return result.items.map(normalizeOpenLoop);
+  },
   search: async (query: string): Promise<{ results: SearchResult[]; partial?: boolean; partialReason?: string }> => {
     const result = await request<{ results: Array<{ entityType: string; entityId: string; title: string; snippet?: string; sourceId?: string }> }>(`/search?q=${encodeURIComponent(query)}&limit=30`);
     return { results: result.results.map((item): SearchResult => ({ id: item.entityId, type: item.entityType, title: item.title, summary: item.snippet, evidence: item.sourceId ? [{ id: item.sourceId, label: "Source record" }] : [] })) };
   },
-  reviews: async () => {
-    const result = await request<ReviewCandidate[] | { items: ReviewCandidate[] }>("/reviews?status=pending");
+  reviews: async (status: "pending" | "accepted" | "rejected" = "pending") => {
+    const result = await request<ReviewCandidate[] | { items: ReviewCandidate[] }>(`/reviews?status=${status}`);
     return Array.isArray(result) ? { items: result } : result;
   },
-  review: (id: string, action: "accept" | "reject", expectedVersion: number, changes?: object) => request(`/reviews/${encodeURIComponent(id)}/actions`, {
+  review: (id: string, action: "accept" | "edit" | "reject" | "undo" | "merge", expectedVersion: number, changes?: object) => request<{ candidate: ReviewCandidate }>(`/reviews/${encodeURIComponent(id)}/actions`, {
     method: "POST",
     headers: { "Idempotency-Key": idempotencyKey() },
-    body: JSON.stringify({ action, expectedVersion, changes }),
+    body: JSON.stringify({ action, expectedVersion, ...changes }),
   }),
   sources: async (): Promise<{ sources: SourceRecord[]; partial?: boolean; partialReason?: string }> => {
     const result = await request<Array<{ id: string; type: string; title: string; completeness: SourceRecord["completeness"]; updatedAt: string }> | { items: Array<{ id: string; type: string; title: string; completeness: SourceRecord["completeness"]; updatedAt: string }> } | { sources: SourceRecord[] }>("/sources");
@@ -90,7 +125,24 @@ export const api = {
     });
     return { backupId: result.backup.fileName, createdAt: result.backup.createdAt };
   },
+  importChatGpt: (payload: unknown, sensitivity: "personal" | "work_summary_only" | "restricted") => request<ImportResult>("/imports/chatgpt-export", {
+    method: "POST",
+    headers: { "Idempotency-Key": idempotencyKey() },
+    body: JSON.stringify(Array.isArray(payload) ? { conversations: payload, sensitivity } : { ...(payload as object), sensitivity }),
+  }),
+  importDailyLog: (input: { date: string; content: string; path?: string; sensitivity: "personal" | "work_summary_only" | "restricted" }) => request<ImportResult>("/imports/daily-log", {
+    method: "POST",
+    headers: { "Idempotency-Key": idempotencyKey() },
+    body: JSON.stringify(input),
+  }),
 };
+
+export function importCounts(result: ImportResult): { sourceCount: number; candidateCount: number } {
+  return {
+    sourceCount: result.sourceCount ?? result.items.length,
+    candidateCount: result.candidateCount ?? result.items.reduce((total, item) => total + (item.candidates?.length ?? (item.candidate ? 1 : 0)), 0),
+  };
+}
 
 export function isVersionConflict(error: unknown): boolean {
   return error instanceof ApiError && (error.status === 409 || error.code === "VERSION_CONFLICT");

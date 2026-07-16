@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "items": [
+    { "title": "Finalize the Build Week demo script", "text": "Finalize the Build Week demo script", "status": "open" },
+    { "title": "Waiting for the synthetic video review", "text": "Waiting for the synthetic video review", "status": "waiting" },
+    { "title": "Verify the release links on submission day", "text": "Verify the release links on submission day", "status": "scheduled", "scheduledFor": "2026-07-20T17:00:00.000Z" }
+  ]
+}

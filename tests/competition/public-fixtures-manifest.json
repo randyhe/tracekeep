@@ -1,0 +1,9 @@
+{
+  "publicFixtures": [
+    "fixtures/development.json"
+  ],
+  "excludedInternalPaths": [
+    "holdout/"
+  ],
+  "note": "Public repository and Windows release preparation must use this allowlist. Holdout data and manifests are internal competition QA evidence."
+}
