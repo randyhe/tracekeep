@@ -2,12 +2,14 @@
 
 ## Core promise
 
-Atlas helps a user recover and advance important open loops mentioned in conversations.
+Atlas helps a user remember what mattered and resume what was interrupted, directly from the conversations they already use.
 
 ## P0 requirements
 
 | ID | Requirement | Acceptance summary |
 |---|---|---|
+| CONV-01 | Conversation-first entry | From a Codex conversation, explicitly capture an Open Loop, Decision, or Reference with source `codex`; normal use does not require opening the Web dashboard. |
+| RECALL-01 | Interrupted-work recall | From a Codex conversation, retrieve unfinished items, today's focus, or sourced search results from Atlas rather than model memory. |
 | CAP-01 | Quick capture | Save confirmed text without AI and return a sourced candidate within 2 seconds p95. |
 | LOOP-01 | Open-loop lifecycle | Support open, waiting, scheduled, done, and dismissed with optimistic concurrency. |
 | TODAY-01 | Daily focus | Return at most three ranked actionable open loops using deterministic local rules. |

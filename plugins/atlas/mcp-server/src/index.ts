@@ -5,19 +5,21 @@ import { z } from "zod";
 import { resolveAtlasBaseUrl } from "./base-url.js";
 
 const baseUrl = resolveAtlasBaseUrl();
+const authToken = process.env.ATLAS_AUTH_TOKEN?.trim();
 
 type HttpMethod = "GET" | "POST" | "PATCH";
 
 async function atlas(path: string, method: HttpMethod = "GET", body?: unknown) {
+  const headers = new Headers();
+  if (authToken) headers.set("authorization", `Bearer ${authToken}`);
   const init: RequestInit = {
     method,
     signal: AbortSignal.timeout(10_000),
+    headers,
   };
   if (body !== undefined) {
-    init.headers = {
-      "content-type": "application/json",
-      "idempotency-key": randomUUID(),
-    };
+    headers.set("content-type", "application/json");
+    headers.set("idempotency-key", randomUUID());
     init.body = JSON.stringify(body);
   }
   const response = await fetch(`${baseUrl}${path}`, init);
@@ -40,13 +42,17 @@ function result(value: unknown) {
   return { content: [{ type: "text" as const, text: JSON.stringify(value, null, 2) }] };
 }
 
-const server = new McpServer({ name: "atlas", version: "0.1.0" });
+const server = new McpServer({ name: "atlas-memory-local", version: "0.1.0" });
 
-server.tool("capture", "Create review-first candidates from user-confirmed text.", {
+server.tool("capture", "Save user-confirmed text from the current Codex conversation as a review-first Atlas candidate.", {
   text: z.string().min(1).max(20_000),
-  sourceId: z.string().optional(),
+  title: z.string().min(1).max(300).optional(),
+  candidateType: z.enum(["open_loop", "decision", "reference"]).default("open_loop"),
   sensitivity: z.enum(["personal", "work_summary_only", "restricted"]).default("personal"),
-}, async (input) => result(await atlas("/api/v1/captures", "POST", input)));
+}, async (input) => result(await atlas("/api/v1/captures", "POST", {
+  ...input,
+  sourceType: "codex",
+})));
 
 server.tool("get_today", "Get at most three current Atlas focus items.", {}, async () =>
   result(await atlas("/api/v1/today")));

@@ -1,5 +1,6 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import Fastify from "fastify";
+import { timingSafeEqual } from "node:crypto";
 import { z, ZodError } from "zod";
 import {
   captureInputSchema,
@@ -27,23 +28,35 @@ const searchQuerySchema = z.object({ q: z.string().trim().min(1).max(500), limit
 export interface BuildAppOptions {
   storage: AtlasStorage;
   logger?: boolean;
+  authToken?: string;
 }
 
 export function buildApp(options: BuildAppOptions): FastifyInstance {
   // Request logging remains disabled in V1 because URLs can contain private search text.
   const app = Fastify({ logger: false, bodyLimit: 12 * 1024 * 1024 });
   const { storage } = options;
+  const authToken = options.authToken?.trim();
 
   app.addHook("onRequest", async (request, reply) => {
     const origin = request.headers.origin;
     if (origin === "http://127.0.0.1:5173" || origin === "http://localhost:5173") {
       reply.header("Access-Control-Allow-Origin", origin);
       reply.header("Vary", "Origin");
-      reply.header("Access-Control-Allow-Headers", "Content-Type, Idempotency-Key");
+      reply.header("Access-Control-Allow-Headers", "Authorization, Content-Type, Idempotency-Key");
       reply.header("Access-Control-Allow-Methods", "GET, POST, PATCH, OPTIONS");
     }
   });
   app.options("/*", async (_request, reply) => reply.status(204).send());
+
+  app.addHook("onRequest", async (request, reply) => {
+    if (!authToken || request.method === "OPTIONS" || isPublicRoute(request.url)) return;
+    const bearer = request.headers.authorization?.startsWith("Bearer ")
+      ? request.headers.authorization.slice("Bearer ".length)
+      : undefined;
+    const session = readCookie(request.headers.cookie, "atlas_session");
+    if (secureEqual(bearer, authToken) || secureEqual(session, authToken)) return;
+    return sendError(reply, 401, "AUTH_REQUIRED", "Atlas authentication is required");
+  });
 
   app.setErrorHandler((error, _request, reply) => {
     if (error instanceof ZodError) {
@@ -73,6 +86,13 @@ export function buildApp(options: BuildAppOptions): FastifyInstance {
     externalHostingEnabled: false,
     monthlyExternalBudgetUsd: 0,
   }));
+  app.post("/api/v1/auth/session", async (request, reply) => {
+    if (!authToken) return reply.status(204).send();
+    const body = z.object({ token: z.string().min(32).max(512) }).parse(request.body);
+    if (!secureEqual(body.token, authToken)) return sendError(reply, 401, "AUTH_INVALID", "Atlas authentication failed");
+    reply.header("Set-Cookie", `atlas_session=${encodeURIComponent(authToken)}; HttpOnly; SameSite=Strict; Path=/`);
+    return reply.status(204).send();
+  });
   app.get("/api/v1/jobs", async () => ({ jobs: storage.listJobs() }));
 
   app.get("/api/v1/today", async () => ({ items: storage.getToday(3).map(publicOpenLoop), generatedAt: new Date().toISOString() }));
@@ -94,8 +114,9 @@ export function buildApp(options: BuildAppOptions): FastifyInstance {
     const body = captureInputSchema.parse(request.body);
     return idempotent(request, storage, "capture.create", body, () => {
       const bundle = storage.createCaptureBundle({
-        source: { type: body.sourceType, title: body.title ?? "Manual capture", sensitivity: body.sensitivity },
+        source: { type: body.sourceType, title: body.title ?? defaultSourceTitle(body.sourceType), sensitivity: body.sensitivity },
         text: body.text,
+        ...(body.candidateType ? { candidateType: body.candidateType } : {}),
         candidateTitle: body.title ?? deriveTitle(body.text),
       });
       return publicBundle(bundle);
@@ -285,6 +306,36 @@ function publicOpenLoopEvidence(item: ReturnType<AtlasStorage["getOpenLoopEviden
 function deriveTitle(text: string): string {
   const firstLine = text.split(/\r?\n/, 1)[0]?.trim() || "Untitled capture";
   return firstLine.length > 120 ? `${firstLine.slice(0, 117)}...` : firstLine;
+}
+
+function isPublicRoute(url: string): boolean {
+  const path = url.split("?", 1)[0];
+  return path === "/api/v1/health/live" || path === "/api/v1/health/ready" || path === "/api/v1/auth/session";
+}
+
+function readCookie(header: string | undefined, name: string): string | undefined {
+  if (!header) return undefined;
+  for (const part of header.split(";")) {
+    const separator = part.indexOf("=");
+    if (separator < 0 || part.slice(0, separator).trim() !== name) continue;
+    try { return decodeURIComponent(part.slice(separator + 1).trim()); }
+    catch { return undefined; }
+  }
+  return undefined;
+}
+
+function secureEqual(left: string | undefined, right: string): boolean {
+  if (!left) return false;
+  const leftBuffer = Buffer.from(left);
+  const rightBuffer = Buffer.from(right);
+  return leftBuffer.length === rightBuffer.length && timingSafeEqual(leftBuffer, rightBuffer);
+}
+
+function defaultSourceTitle(sourceType: z.infer<typeof captureInputSchema>["sourceType"]): string {
+  if (sourceType === "codex") return "Codex conversation capture";
+  if (sourceType === "daily_log") return "Daily log capture";
+  if (sourceType === "chatgpt_export") return "ChatGPT export capture";
+  return "Manual capture";
 }
 
 interface NormalizedConversation {

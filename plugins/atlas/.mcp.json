@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "atlas": {
+    "atlas-memory-local": {
       "command": "node",
       "args": ["./mcp-server/dist/index.js"],
       "env": {

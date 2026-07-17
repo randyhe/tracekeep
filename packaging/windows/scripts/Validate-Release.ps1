@@ -5,9 +5,12 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+Add-Type -AssemblyName System.Security
 $release = [System.IO.Path]::GetFullPath($ReleaseDirectory)
 $required = @(
     "Start Atlas.cmd",
+    "Install Atlas.cmd",
+    "Uninstall Atlas.cmd",
     "Reset Demo.cmd",
     "bundled-node\node.exe",
     "app\apps\atlasd\dist\main.js",
@@ -18,6 +21,12 @@ $required = @(
     "LICENSE",
     "THIRD-PARTY-NOTICES.md",
     "scripts\Start-Atlas.ps1",
+    "scripts\Install-Atlas.ps1",
+    "scripts\Uninstall-Atlas.ps1",
+    "plugin\atlas\.codex-plugin\plugin.json",
+    "plugin\atlas\.mcp.json",
+    "plugin\atlas\mcp-server\dist\index.js",
+    "plugin\atlas\scripts\Start-Mcp.ps1",
     "scripts\Reset-Demo.ps1"
 )
 
@@ -38,7 +47,7 @@ foreach ($pattern in $forbiddenPatterns) {
 $startScript = Join-Path $release "scripts\Start-Atlas.ps1"
 if (Test-Path -LiteralPath $startScript) {
     $startText = Get-Content -LiteralPath $startScript -Raw
-    foreach ($requiredToken in @("127.0.0.1", "4310..4319", "ATLAS_DATA_DIR", "work", "demo-data")) {
+    foreach ($requiredToken in @("127.0.0.1", "4310..4319", "ATLAS_DATA_DIR", "ATLAS_AUTH_TOKEN", "atlas-port.txt")) {
         if (-not $startText.Contains($requiredToken)) {
             $errors.Add("Start script is missing required safety token: $requiredToken")
         }
@@ -67,10 +76,21 @@ $nodeVersion = & (Join-Path $release "bundled-node\node.exe") --version
 $workPath = Join-Path $release "work"
 $runtimeProcessId = $null
 try {
+    New-Item -ItemType Directory -Path $workPath -Force | Out-Null
+    $tokenBytes = New-Object byte[] 32
+    $random = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+    try { $random.GetBytes($tokenBytes) } finally { $random.Dispose() }
+    $token = [Convert]::ToBase64String($tokenBytes)
+    $protected = [System.Security.Cryptography.ProtectedData]::Protect(
+        [System.Text.Encoding]::UTF8.GetBytes($token),
+        $null,
+        [System.Security.Cryptography.DataProtectionScope]::CurrentUser
+    )
+    [System.IO.File]::WriteAllBytes((Join-Path $workPath "auth-token.dpapi"), $protected)
     $launcher = Join-Path $release "Start Atlas.cmd"
     $startInfo = [System.Diagnostics.ProcessStartInfo]::new()
     $startInfo.FileName = $env:ComSpec
-    $startInfo.Arguments = "/d /c call `"$launcher`" --no-browser"
+    $startInfo.Arguments = "/d /c `"`"$launcher`" --demo --no-browser`""
     $startInfo.WorkingDirectory = $release
     $startInfo.UseShellExecute = $false
     $startInfo.CreateNoWindow = $true
@@ -86,7 +106,7 @@ try {
         Select-Object -First 1
     if (-not $listener) { throw "Runtime smoke test did not find the required loopback listener." }
     $health = Invoke-RestMethod "http://127.0.0.1:$($listener.LocalPort)/api/v1/health/ready"
-    $loops = Invoke-RestMethod "http://127.0.0.1:$($listener.LocalPort)/api/v1/open-loops"
+    $loops = Invoke-RestMethod "http://127.0.0.1:$($listener.LocalPort)/api/v1/open-loops" -Headers @{ Authorization = "Bearer $token" }
     if ($health.status -ne "ready" -or $health.schemaVersion -ne 2) { throw "Runtime smoke health or schema check failed." }
     if (@($loops.items).Count -ne 3) { throw "Synthetic demo seed did not create exactly three open loops." }
 }

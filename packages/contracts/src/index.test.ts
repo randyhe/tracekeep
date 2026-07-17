@@ -9,6 +9,14 @@ describe("contracts", () => {
     });
   });
 
+  it("accepts a typed Codex conversation capture", () => {
+    expect(captureInputSchema.parse({
+      text: "We decided to keep Atlas local-first.",
+      sourceType: "codex",
+      candidateType: "decision",
+    })).toMatchObject({ sourceType: "codex", candidateType: "decision" });
+  });
+
   it("requires an actual open-loop update", () => {
     expect(() => openLoopPatchSchema.parse({ expectedVersion: 1 })).toThrow();
   });
