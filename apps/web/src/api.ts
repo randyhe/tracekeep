@@ -1,4 +1,4 @@
-import type { CostStatus, OpenLoop, ReviewCandidate, SearchResult, SourceRecord, TodayData } from "./types";
+import type { CostStatus, Evidence, OpenLoop, ReviewCandidate, SearchResult, SourceRecord, TodayData } from "./types";
 
 export interface ImportResult {
   items: Array<{ candidate?: unknown; candidates?: unknown[] }>;
@@ -13,8 +13,14 @@ interface WireOpenLoop {
   status: OpenLoop["status"];
   version: number;
   dueAt?: string;
+  scheduledFor?: string;
   updatedAt?: string;
   evidence?: Array<{ id: string; sourceId: string; quote?: string; locator?: string; createdAt: string }>;
+}
+
+interface WireOpenLoopEvidence {
+  evidence: { id: string; sourceId: string; quote?: string; locator?: string; createdAt: string };
+  source: { id: string; type: string; title: string };
 }
 
 export function normalizeOpenLoop(item: WireOpenLoop): OpenLoop {
@@ -25,6 +31,7 @@ export function normalizeOpenLoop(item: WireOpenLoop): OpenLoop {
     version: item.version,
     ...(item.notes ? { summary: item.notes } : {}),
     ...(item.dueAt ? { dueAt: item.dueAt } : {}),
+    ...(item.scheduledFor ? { scheduledFor: item.scheduledFor } : {}),
     ...(item.updatedAt ? { updatedAt: item.updatedAt } : {}),
     ...(item.evidence?.length ? { evidence: item.evidence.map((evidence) => ({ id: evidence.id, label: evidence.locator ?? "Source evidence", occurredAt: evidence.createdAt, excerpt: evidence.quote })) } : {}),
   };
@@ -61,17 +68,20 @@ function idempotencyKey() {
 export const api = {
   health: () => request<{ status: string; version?: string }>("/health/ready"),
   today: async (): Promise<TodayData> => {
-    const [result, reviewResult] = await Promise.all([
+    const [result, reviewResult, openLoopResult] = await Promise.all([
       request<{ items: WireOpenLoop[]; generatedAt?: string }>("/today"),
       request<ReviewCandidate[] | { items: ReviewCandidate[] }>("/reviews?status=pending").catch(() => [] as ReviewCandidate[]),
+      request<{ items: WireOpenLoop[] }>("/open-loops"),
     ]);
     const now = Date.now();
     const reviews = Array.isArray(reviewResult) ? reviewResult : reviewResult.items;
     const items = result.items.map(normalizeOpenLoop);
+    const openLoops = openLoopResult.items.map(normalizeOpenLoop);
     return {
       focus: items,
-      overdue: items.filter((item) => item.dueAt && new Date(item.dueAt).getTime() < now),
-      waiting: items.filter((item) => item.status === "waiting"),
+      overdue: openLoops.filter((item) => item.dueAt && new Date(item.dueAt).getTime() < now && !["done", "dismissed"].includes(item.status)),
+      waiting: openLoops.filter((item) => item.status === "waiting"),
+      upcoming: openLoops.filter((item) => item.status === "scheduled"),
       reviewCount: reviews.length,
       generatedAt: result.generatedAt,
     };
@@ -81,18 +91,45 @@ export const api = {
     headers: { "Idempotency-Key": idempotencyKey() },
     body: JSON.stringify({ text, sourceType: "manual" }),
   }),
-  updateLoop: (id: string, expectedVersion: number, status: string, scheduledFor?: string) => request(`/open-loops/${encodeURIComponent(id)}`, {
-    method: "PATCH",
-    headers: { "Idempotency-Key": idempotencyKey() },
-    body: JSON.stringify({ expectedVersion, status, scheduledFor }),
-  }),
+  updateLoop: async (id: string, expectedVersion: number, status: string, scheduledFor?: string | null) => {
+    const result = await request<{ item: WireOpenLoop }>(`/open-loops/${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      headers: { "Idempotency-Key": idempotencyKey() },
+      body: JSON.stringify({ expectedVersion, status, scheduledFor }),
+    });
+    return normalizeOpenLoop(result.item);
+  },
   openLoops: async () => {
     const result = await request<{ items: WireOpenLoop[] }>("/open-loops");
     return result.items.map(normalizeOpenLoop);
   },
+  openLoopEvidence: async (id: string): Promise<Evidence[]> => {
+    const result = await request<{ items: WireOpenLoopEvidence[] }>(`/open-loops/${encodeURIComponent(id)}/evidence`);
+    return result.items.map((item) => ({
+      id: item.evidence.id,
+      label: item.source.title,
+      sourceTitle: item.source.title,
+      sourceType: item.source.type,
+      occurredAt: item.evidence.createdAt,
+      ...(item.evidence.locator ? { locator: item.evidence.locator } : {}),
+      ...(item.evidence.quote ? { excerpt: item.evidence.quote } : {}),
+    }));
+  },
   search: async (query: string): Promise<{ results: SearchResult[]; partial?: boolean; partialReason?: string }> => {
-    const result = await request<{ results: Array<{ entityType: string; entityId: string; title: string; snippet?: string; sourceId?: string }> }>(`/search?q=${encodeURIComponent(query)}&limit=30`);
-    return { results: result.results.map((item): SearchResult => ({ id: item.entityId, type: item.entityType, title: item.title, summary: item.snippet, evidence: item.sourceId ? [{ id: item.sourceId, label: "Source record" }] : [] })) };
+    const result = await request<{ results: Array<{ entityType: string; entityId: string; title: string; snippet?: string; sourceId?: string; sourceTitle?: string; sourceType?: string; sourceLocator?: string }> }>(`/search?q=${encodeURIComponent(query)}&limit=30`);
+    return { results: result.results.map((item): SearchResult => ({
+      id: item.entityId,
+      type: item.entityType,
+      title: item.title,
+      summary: item.snippet,
+      evidence: item.sourceId ? [{
+        id: item.sourceId,
+        label: item.sourceTitle ?? "Source record",
+        ...(item.sourceTitle ? { sourceTitle: item.sourceTitle } : {}),
+        ...(item.sourceType ? { sourceType: item.sourceType } : {}),
+        ...(item.sourceLocator ? { locator: item.sourceLocator } : {}),
+      }] : [],
+    })) };
   },
   reviews: async (status: "pending" | "accepted" | "rejected" = "pending") => {
     const result = await request<ReviewCandidate[] | { items: ReviewCandidate[] }>(`/reviews?status=${status}`);

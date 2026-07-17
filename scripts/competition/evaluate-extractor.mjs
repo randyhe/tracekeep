@@ -1,13 +1,17 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { canonicalTextSha256, verifyDatasetManifest } from "./evaluation-integrity.mjs";
 
 const repositoryRoot = resolve(import.meta.dirname, "../..");
 const fixturePath = resolve(repositoryRoot, process.argv[2] ?? "tests/competition/fixtures/development.json");
 const outputPath = process.argv[3] ? assertCompetitionOutput(process.argv[3]) : undefined;
 const extractorPath = resolve(repositoryRoot, "apps/atlasd/dist/extractor.js");
 const { extractCandidates, COMPETITION_EXTRACTOR_VERSION } = await import(pathToFileURL(extractorPath).href);
-const dataset = JSON.parse(await readFile(fixturePath, "utf8"));
+const fixtureBytes = await readFile(fixturePath);
+const dataset = JSON.parse(fixtureBytes.toString("utf8"));
+const datasetSha256 = canonicalTextSha256(fixtureBytes);
+const manifestIntegrity = await verifyDatasetManifest(fixturePath, dataset, datasetSha256);
 
 const classes = ["open_loop", "decision"];
 const totals = Object.fromEntries(classes.map((name) => [name, { tp: 0, fp: 0, fn: 0 }]));
@@ -38,7 +42,11 @@ const metrics = Object.fromEntries(classes.map((name) => [name, summarize(totals
 const macroF1 = average(classes.map((name) => metrics[name].f1));
 const report = {
   dataset: dataset.dataset,
-  datasetSha256: await sha256(await readFile(fixturePath)),
+  datasetSha256,
+  integrity: {
+    canonicalLineEndings: "LF",
+    ...manifestIntegrity,
+  },
   extractorVersion: COMPETITION_EXTRACTOR_VERSION,
   sampleCount: dataset.samples.length,
   metrics,
@@ -79,10 +87,6 @@ function wilson(successes, trials) {
 function ratio(numerator, denominator) { return denominator ? numerator / denominator : 0; }
 function average(values) { return values.reduce((sum, value) => sum + value, 0) / values.length; }
 function normalize(value) { return value.normalize("NFKC").toLocaleLowerCase().replace(/[\s\p{P}\p{S}]+/gu, ""); }
-async function sha256(value) {
-  const { createHash } = await import("node:crypto");
-  return createHash("sha256").update(value).digest("hex");
-}
 function assertCompetitionOutput(path) {
   const target = resolve(repositoryRoot, path);
   const allowed = resolve(repositoryRoot, "work/competition-runs");

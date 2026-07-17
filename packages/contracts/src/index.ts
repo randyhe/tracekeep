@@ -198,6 +198,9 @@ export interface SearchResult {
   title: string;
   snippet: string;
   sourceId?: string;
+  sourceTitle?: string;
+  sourceType?: SourceType;
+  sourceLocator?: string;
 }
 
 export interface SanitizedExport {

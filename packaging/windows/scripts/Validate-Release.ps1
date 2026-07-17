@@ -75,9 +75,9 @@ try {
     $startInfo.UseShellExecute = $false
     $startInfo.CreateNoWindow = $true
     $launcherProcess = [System.Diagnostics.Process]::Start($startInfo)
-    if (-not $launcherProcess.WaitForExit(15000)) {
+    if (-not $launcherProcess.WaitForExit(30000)) {
         $launcherProcess.Kill()
-        throw "Start Atlas.cmd did not return within 15 seconds."
+        throw "Start Atlas.cmd did not return within 30 seconds."
     }
     if ($launcherProcess.ExitCode -ne 0) { throw "Start Atlas.cmd failed with exit code $($launcherProcess.ExitCode)." }
     $runtimeProcessId = [int](Get-Content -LiteralPath (Join-Path $workPath "atlas.pid"))

@@ -47,6 +47,32 @@ describe("atlasd", () => {
 
     const search = await app.inject({ method: "GET", url: "/api/v1/search?q=Atlas" });
     expect(search.json().results.length).toBeGreaterThan(0);
+    expect(search.json().results[0]).toMatchObject({
+      sourceTitle: "Finish Atlas integration",
+      sourceType: "manual",
+    });
+  });
+
+  it("returns human-readable imported source metadata in search", async () => {
+    const imported = await app.inject({
+      method: "POST",
+      url: "/api/v1/imports/daily-log",
+      headers: { "idempotency-key": "search-source-metadata-0001" },
+      payload: {
+        date: "2026-07-16",
+        path: "C:\\synthetic\\daily-log.md",
+        content: "Decision: use English captions for the demo.",
+        sensitivity: "personal",
+      },
+    });
+    expect(imported.statusCode).toBe(200);
+
+    const search = await app.inject({ method: "GET", url: "/api/v1/search?q=captions" });
+    expect(search.json().results).toEqual([expect.objectContaining({
+      sourceTitle: "Daily log 2026-07-16",
+      sourceType: "daily_log",
+      sourceLocator: "C:\\synthetic\\daily-log.md",
+    })]);
   });
 
   it("replays a capture without duplicating it", async () => {

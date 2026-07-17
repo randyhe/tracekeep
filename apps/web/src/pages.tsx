@@ -1,8 +1,9 @@
 import { useMemo, useRef, useState } from "react";
 import { api, importCounts, isVersionConflict } from "./api";
-import { CompletenessBadge, EvidenceList, LoopCard, PageHeader, PartialBanner, SkeletonCards, StatusPanel, formatDate } from "./components";
+import { CompletenessBadge, EvidenceList, LoopCard, OpenLoopEvidencePanel, PageHeader, PartialBanner, SkeletonCards, StatusPanel, formatDate } from "./components";
 import { useAsync, usePersistentDraft } from "./hooks";
 import { Icon } from "./icons";
+import { getReviewUndoState } from "./review-state";
 import type { OpenLoop, ReviewCandidate } from "./types";
 
 function ActionError({ message, conflict }: { message?: string; conflict?: boolean }) {
@@ -14,23 +15,49 @@ export function TodayPage() {
   const state = useAsync(api.today, []);
   const [busyId, setBusyId] = useState<string>();
   const [actionError, setActionError] = useState<{ message: string; conflict: boolean }>();
+  const [lastAction, setLastAction] = useState<{ before: OpenLoop; after: OpenLoop; message: string }>();
   async function changeStatus(item: OpenLoop, status: OpenLoop["status"], scheduledFor?: string) {
-    setBusyId(item.id); setActionError(undefined);
-    state.setData((current) => current ? { ...current, focus: current.focus.filter((loop) => loop.id !== item.id) } : current);
-    try { await api.updateLoop(item.id, item.version, status, scheduledFor); state.reload(); }
+    setBusyId(item.id); setActionError(undefined); setLastAction(undefined);
+    try {
+      const after = await api.updateLoop(item.id, item.version, status, status === "scheduled" ? scheduledFor : null);
+      const message = status === "open" ? "Moved back to Today." : status === "waiting" ? "Moved to Waiting." : status === "scheduled" ? "Scheduled for next week." : status === "done" ? "Marked done." : "Status updated.";
+      setLastAction({ before: item, after, message }); state.reload();
+    }
     catch (error) { setActionError({ message: error instanceof Error ? error.message : "Unknown error", conflict: isVersionConflict(error) }); state.reload(); }
     finally { setBusyId(undefined); }
+  }
+  async function undoLastAction() {
+    if (!lastAction) return;
+    setBusyId(lastAction.after.id); setActionError(undefined);
+    try {
+      await api.updateLoop(lastAction.after.id, lastAction.after.version, lastAction.before.status, lastAction.before.scheduledFor ?? null);
+      setLastAction(undefined); state.reload();
+    } catch (error) {
+      setActionError({ message: error instanceof Error ? error.message : "Undo failed", conflict: isVersionConflict(error) }); state.reload();
+    } finally { setBusyId(undefined); }
   }
   return <>
     <PageHeader eyebrow="Daily focus" title="Continue what matters." description="Three open loops worth moving forward today." />
     {state.loading && !state.data ? <SkeletonCards /> : state.error ? <StatusPanel kind="error" title="Atlas could not load today"><p>{state.error.message}</p><button className="button quiet" onClick={state.reload}>Try again</button></StatusPanel> : state.data ? <>
       {state.data.partial && <PartialBanner reason={state.data.partialReason} />}
       <ActionError message={actionError?.message} conflict={actionError?.conflict} />
+      {lastAction && <div className="inline-alert success status-undo" role="status"><strong>{lastAction.message}</strong><button className="button quiet compact" disabled={busyId === lastAction.after.id} onClick={undoLastAction}>Undo</button></div>}
       <section aria-labelledby="focus-heading" data-testid="today-focus"><div className="section-heading"><div><p className="eyebrow">Your focus</p><h2 id="focus-heading">Top {state.data.focus.length || 3}</h2></div><span className="as-of">{state.data.generatedAt ? `Updated ${formatDate(state.data.generatedAt)}` : "Deterministic local ranking"}</span></div>
       {state.data.focus.length ? <div className="card-stack">{state.data.focus.slice(0, 3).map((item) => <LoopCard key={item.id} item={item} busy={busyId === item.id} onStatus={(status, date) => changeStatus(item, status, date)} />)}</div> : <StatusPanel kind="empty" title="Nothing needs your attention"><p>Your focus list is clear. Capture an idea when something comes up.</p></StatusPanel>}</section>
       <div className="summary-grid"><article><span className="summary-number">{state.data.overdue.length}</span><h3>Overdue</h3><p>Items past their intended date.</p></article><article><span className="summary-number">{state.data.waiting.length}</span><h3>Waiting</h3><p>Commitments that depend on someone else.</p></article><article><span className="summary-number">{state.data.reviewCount}</span><h3>To review</h3><p>Candidates that need your judgement.</p></article></div>
+      <DeferredSection title="Waiting" description="Bring an item back when you no longer need to wait." items={state.data.waiting} busyId={busyId} onRestore={(item) => changeStatus(item, "open")} />
+      <DeferredSection title="Upcoming" description="Scheduled items stay out of Today until their date arrives." items={state.data.upcoming} busyId={busyId} onRestore={(item) => changeStatus(item, "open")} />
     </> : null}
   </>;
+}
+
+function DeferredSection({ title, description, items, busyId, onRestore }: { title: string; description: string; items: OpenLoop[]; busyId?: string; onRestore: (item: OpenLoop) => void }) {
+  if (!items.length) return null;
+  const headingId = `deferred-${title.toLowerCase()}`;
+  return <section className="deferred-section" aria-labelledby={headingId}>
+    <div className="section-heading"><div><p className="eyebrow">Manage later</p><h2 id={headingId}>{title}</h2></div><span className="as-of">{description}</span></div>
+    <div className="deferred-list">{items.map((item) => <article key={item.id} data-testid={`deferred-${item.id}`}><div><h3>{item.title}</h3>{item.scheduledFor && <p>Scheduled {formatDate(item.scheduledFor)}</p>}</div><button className="button quiet compact" disabled={busyId === item.id} onClick={() => onRestore(item)}>Back to Today</button></article>)}</div>
+  </section>;
 }
 
 type SpeechRecognitionConstructor = new () => { continuous: boolean; interimResults: boolean; lang: string; start(): void; stop(): void; onresult: ((event: { results: ArrayLike<{ 0: { transcript: string }; isFinal: boolean }> }) => void) | null; onend: (() => void) | null; onerror: (() => void) | null };
@@ -100,10 +127,13 @@ export function ReviewPage() {
   return <>
     <PageHeader eyebrow="Review queue" title="A few things need your judgement." description="Edit, merge, accept, or reject with a visible history you can undo." />
     <div className="review-tabs" role="tablist" aria-label="Review status">
-      {(["pending", "accepted", "rejected"] as const).map((status) => <button key={status} role="tab" aria-selected={tab === status} data-testid={`review-tab-${status}`} onClick={() => setTab(status)}>{status === "pending" ? "To review" : status === "accepted" ? "Accepted" : "Rejected"}</button>)}
+      {(["pending", "accepted", "rejected"] as const).map((status) => <button key={status} role="tab" aria-selected={tab === status} data-testid={`review-tab-${status}`} onClick={() => { setTab(status); setError(undefined); }}>{status === "pending" ? "To review" : status === "accepted" ? "Accepted" : "Rejected"}</button>)}
     </div>
     <ActionError message={error?.message} conflict={error?.conflict}/>
-    {state.loading ? <SkeletonCards/> : state.error ? <StatusPanel kind="error" title="Review queue unavailable"><p>{state.error.message}</p><button className="button quiet" onClick={state.reload}>Try again</button></StatusPanel> : sorted.length ? <div className="review-list" data-testid="review-queue">{sorted.map((item) => <article className="review-card" data-testid={`review-${item.id}`} key={item.id}>
+    {state.loading ? <SkeletonCards/> : state.error ? <StatusPanel kind="error" title="Review queue unavailable"><p>{state.error.message}</p><button className="button quiet" onClick={state.reload}>Try again</button></StatusPanel> : sorted.length ? <div className="review-list" data-testid="review-queue">{sorted.map((item) => {
+      const undoState = getReviewUndoState(item, loops.data ?? [], loops.loading);
+      const undoReasonId = `undo-reason-${item.id}`;
+      return <article className="review-card" data-testid={`review-${item.id}`} key={item.id}>
       <div className="review-top"><div><span className="badge">{item.candidateType ?? "Candidate"}</span>{item.sensitivity && <span className={`badge sensitivity-${item.sensitivity}`}>{item.sensitivity.replaceAll("_", " ")}</span>}{item.outcomeAction && <span className="badge">{item.outcomeAction}</span>}</div>{item.updatedAt && <span className="confidence">Updated {formatDate(item.updatedAt)}</span>}</div>
       {item.outcomeId && <div className="outcome-reference" data-testid={`outcome-${item.id}`}><strong>{item.outcomeAction === "merged" ? "Merged into" : "Created outcome"}</strong><span>{loops.data?.find((loop) => loop.id === item.outcomeId)?.title ?? "Open loop"}</span><code>{item.outcomeId}</code></div>}
       {item.duplicateOf && <div className="duplicate-hint" data-testid={`duplicate-${item.id}`}><strong>Possible duplicate</strong><span>{loops.data?.find((loop) => loop.id === item.duplicateOf)?.title ?? "Existing open loop"}</span></div>}
@@ -111,14 +141,16 @@ export function ReviewPage() {
         <label htmlFor={`edit-title-${item.id}`}>Title</label><input id={`edit-title-${item.id}`} value={editTitle} onChange={(event) => setEditTitle(event.target.value)} required maxLength={500}/>
         <label htmlFor={`edit-summary-${item.id}`}>Summary</label><textarea id={`edit-summary-${item.id}`} value={editSummary} onChange={(event) => setEditSummary(event.target.value)} rows={4}/>
         <div className="review-actions"><button className="button primary" disabled={busy === item.id || !editTitle.trim()}>Save changes</button><button className="button quiet" type="button" onClick={() => setEditing(undefined)}>Cancel</button></div>
-      </form> : <><h2>{item.title}</h2>{item.summary && <p>{item.summary}</p>}<EvidenceList evidence={item.evidence}/></>}
+      </form> : <><h2>{item.title}</h2>{item.summary && <p>{item.summary}</p>}<EvidenceList evidence={item.evidence}/>{tab === "accepted" && item.outcomeId && <OpenLoopEvidencePanel openLoopId={item.outcomeId}/>}</>}
       {merging === item.id && <form className="merge-panel" data-testid={`merge-form-${item.id}`} onSubmit={(event) => { event.preventDefault(); const target = loops.data?.find((loop) => loop.id === mergeTarget); if (target) decide(item, "merge", { targetOpenLoopId: target.id, targetExpectedVersion: target.version }); }}>
         <label htmlFor={`merge-target-${item.id}`}>Existing open loop to keep</label><select id={`merge-target-${item.id}`} value={mergeTarget} onChange={(event) => setMergeTarget(event.target.value)} required><option value="">Choose an active open loop…</option>{loops.data?.filter((loop) => !["done", "dismissed"].includes(loop.status)).map((loop) => <option key={loop.id} value={loop.id}>{loop.title} · {loop.status}</option>)}</select>
         <p>The candidate’s evidence will be attached to the selected open loop. Its title and status stay unchanged.</p>
         <div className="review-actions"><button className="button primary" disabled={!mergeTarget || busy === item.id}>Merge evidence</button><button className="button quiet" type="button" onClick={() => setMerging(undefined)}>Cancel</button></div>
       </form>}
-      {!editing && !merging && <div className="review-actions">{tab === "pending" ? <><button className="button primary" data-testid={`accept-${item.id}`} disabled={busy === item.id} onClick={() => decide(item, "accept")}><Icon name="check"/>Accept</button><button className="button quiet" data-testid={`edit-${item.id}`} onClick={() => { setEditing(item.id); setEditTitle(item.title); setEditSummary(item.summary ?? ""); }}>Edit</button><button className="button quiet" data-testid={`merge-${item.id}`} disabled={loops.loading || !loops.data?.length} onClick={() => { setMerging(item.id); setMergeTarget(item.duplicateOf ?? ""); }}>Merge</button><button className="button danger-quiet" data-testid={`reject-${item.id}`} disabled={busy === item.id} onClick={() => decide(item, "reject")}>Reject</button></> : <button className="button quiet" data-testid={`undo-${item.id}`} disabled={busy === item.id} onClick={() => decide(item, "undo")}><Icon name="refresh"/>Undo {tab === "accepted" ? "acceptance" : "rejection"}</button>}</div>}
-    </article>)}</div> : <StatusPanel kind="empty" title={tab === "pending" ? "Review complete" : "No history yet"}><p>{tab === "pending" ? "There are no candidates waiting for you." : `No ${tab} candidates to show.`}</p></StatusPanel>}
+      {!editing && !merging && <div className="review-actions">{tab === "pending" ? <><button className="button primary" data-testid={`accept-${item.id}`} disabled={busy === item.id} onClick={() => decide(item, "accept")}><Icon name="check"/>Accept</button><button className="button quiet" data-testid={`edit-${item.id}`} onClick={() => { setEditing(item.id); setEditTitle(item.title); setEditSummary(item.summary ?? ""); }}>Edit</button><button className="button quiet" data-testid={`merge-${item.id}`} disabled={loops.loading || !loops.data?.length} onClick={() => { setMerging(item.id); setMergeTarget(item.duplicateOf ?? ""); }}>Merge</button><button className="button danger-quiet" data-testid={`reject-${item.id}`} disabled={busy === item.id} onClick={() => decide(item, "reject")}>Reject</button></> : <button className="button quiet" data-testid={`undo-${item.id}`} disabled={busy === item.id || !undoState.allowed} aria-describedby={!undoState.allowed ? undoReasonId : undefined} onClick={() => decide(item, "undo")}><Icon name="refresh"/>Undo {tab === "accepted" ? "acceptance" : "rejection"}</button>}</div>}
+      {tab === "accepted" && !undoState.allowed && !loops.loading && <div className="undo-unavailable" id={undoReasonId} data-testid={`undo-unavailable-${item.id}`}><strong>Undo unavailable</strong><span>{undoState.reason}</span>{undoState.outcome && <a href="/today">Manage in Today</a>}</div>}
+    </article>;
+    })}</div> : <StatusPanel kind="empty" title={tab === "pending" ? "Review complete" : "No history yet"}><p>{tab === "pending" ? "There are no candidates waiting for you." : `No ${tab} candidates to show.`}</p></StatusPanel>}
   </>;
 }
 
