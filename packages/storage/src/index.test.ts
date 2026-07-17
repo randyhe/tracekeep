@@ -29,6 +29,30 @@ describe("AtlasStorage", () => {
     storage.close();
   });
 
+  it("keeps waiting and future scheduled items out of Today focus", () => {
+    const storage = createStorage();
+    const waitingBundle = storage.createCaptureBundle({
+      source: { type: "manual", title: "Waiting capture", sensitivity: "personal" },
+      text: "Wait for the review",
+      candidateTitle: "Wait for the review",
+    });
+    const waiting = storage.actOnReview(waitingBundle.candidate.id, { action: "accept", expectedVersion: 1 }).outcome!;
+    storage.updateOpenLoop(waiting.id, { expectedVersion: waiting.version, status: "waiting" });
+
+    const scheduledBundle = storage.createCaptureBundle({
+      source: { type: "manual", title: "Scheduled capture", sensitivity: "personal" },
+      text: "Check next week",
+      candidateTitle: "Check next week",
+    });
+    const scheduled = storage.actOnReview(scheduledBundle.candidate.id, { action: "accept", expectedVersion: 1 }).outcome!;
+    storage.updateOpenLoop(scheduled.id, { expectedVersion: scheduled.version, status: "scheduled", scheduledFor: "2999-01-01T00:00:00.000Z" });
+
+    expect(storage.getToday()).toEqual([]);
+    expect(storage.listOpenLoops("waiting")).toHaveLength(1);
+    expect(storage.listOpenLoops("scheduled")).toHaveLength(1);
+    storage.close();
+  });
+
   it("creates and replays multiple candidates for one capture atomically", () => {
     const storage = createStorage();
     const input = {
@@ -46,6 +70,23 @@ describe("AtlasStorage", () => {
     expect(replay.candidates.map((candidate) => candidate.id)).toEqual(first.candidates.map((candidate) => candidate.id));
     expect(new Set(first.candidates.map((candidate) => candidate.captureId))).toEqual(new Set([first.capture.id]));
     expect(storage.listReviews()).toHaveLength(2);
+    storage.close();
+  });
+
+  it("returns safe source metadata with search results", () => {
+    const storage = createStorage();
+    storage.createCaptureWithCandidates({
+      source: { type: "chatgpt_export", title: "Synthetic planning conversation", externalId: "search-source", sensitivity: "personal" },
+      text: "Decision: use SQLite for Atlas.",
+      candidates: [{ candidateType: "decision", title: "Use SQLite for Atlas" }],
+      locator: "chatgpt-export:search-source",
+    });
+
+    expect(storage.search("SQLite")).toEqual([expect.objectContaining({
+      sourceTitle: "Synthetic planning conversation",
+      sourceType: "chatgpt_export",
+      sourceLocator: "chatgpt-export:search-source",
+    })]);
     storage.close();
   });
 

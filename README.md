@@ -60,7 +60,7 @@ ChatGPT Export is limited to 12 MB per HTTP request and 1,000 conversations. It 
 
 ## Competition testing
 
-The repeatable synthetic harness is documented in [`tests/competition/README.md`](tests/competition/README.md). The visible 30-sample Development set produces Open Loop TP 18 / FP 0 / FN 0 and Decision TP 6 / FP 0 / FN 0. After rule freeze, QA generated and ran the separate 50-sample Holdout once: Open Loop TP 35 / FP 0 / FN 0 with a Wilson 95% precision/recall interval of 90.11%–100%. Ten samples remain explicitly pending BA/QA double-label and user arbitration. These results are not retention evidence or a real 14-day Alpha.
+The repeatable synthetic harness is documented in [`tests/competition/README.md`](tests/competition/README.md). The visible 30-sample Development set produces Open Loop TP 18 / FP 0 / FN 0 and Decision TP 6 / FP 0 / FN 0. After rule freeze, QA generated and ran the separate 50-sample Holdout once: Open Loop TP 35 / FP 0 / FN 0 with a Wilson 95% precision/recall interval of 90.11%–100%. Ten samples remain explicitly pending BA/QA double-label and user arbitration. These results are not retention evidence or a real 14-day Alpha. The consolidated public result and remaining human conditions are in [`docs/competition/readiness-2026-07-16.md`](docs/competition/readiness-2026-07-16.md).
 
 The dated Codex/MCP probe is in [`docs/competition/capability-probe-2026-07-15.md`](docs/competition/capability-probe-2026-07-15.md). In this environment the Web entry point passed, while Atlas MCP tools were not exposed by the Codex host and therefore remain **Experimental** with a text/Web fallback.
 

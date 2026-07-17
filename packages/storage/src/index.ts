@@ -579,7 +579,7 @@ export class AtlasStorage {
         .prepare(
           `SELECT * FROM open_loops
            WHERE deleted_at IS NULL
-             AND status IN ('open', 'waiting', 'scheduled')
+             AND status IN ('open', 'scheduled')
              AND (status != 'scheduled' OR scheduled_for IS NULL OR scheduled_for <= ?)
            ORDER BY
              CASE WHEN due_at IS NOT NULL AND due_at <= ? THEN 0 ELSE 1 END,
@@ -597,9 +597,21 @@ export class AtlasStorage {
     if (!ftsQuery) return [];
     const rows = this.db
       .prepare(
-        `SELECT entity_type, entity_id, source_id, title,
+        `SELECT search_documents.entity_type, search_documents.entity_id,
+                search_documents.source_id, search_documents.title,
+                sources.title AS source_title, sources.type AS source_type,
+                (SELECT evidence.locator
+                   FROM evidence
+                  WHERE evidence.source_id = search_documents.source_id
+                    AND evidence.locator IS NOT NULL
+                  ORDER BY evidence.created_at DESC
+                  LIMIT 1) AS source_locator,
                 snippet(search_documents, 4, '', '', '...', 18) AS snippet
-         FROM search_documents WHERE search_documents MATCH ? LIMIT ?`,
+           FROM search_documents
+           LEFT JOIN sources ON sources.id = search_documents.source_id
+          WHERE search_documents MATCH ?
+            AND (sources.sensitivity IS NULL OR sources.sensitivity <> 'restricted')
+          LIMIT ?`,
       )
       .all(ftsQuery, Math.min(Math.max(limit, 1), 100)) as Row[];
     return rows.map((row) => ({
@@ -608,6 +620,9 @@ export class AtlasStorage {
       title: String(row.title),
       snippet: String(row.snippet),
       ...(row.source_id ? { sourceId: String(row.source_id) } : {}),
+      ...(optionalString(row.source_title) ? { sourceTitle: String(row.source_title) } : {}),
+      ...(optionalString(row.source_type) ? { sourceType: String(row.source_type) as SourceType } : {}),
+      ...(optionalString(row.source_locator) ? { sourceLocator: String(row.source_locator) } : {}),
     }));
   }
 

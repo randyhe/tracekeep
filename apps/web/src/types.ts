@@ -5,6 +5,8 @@ export interface Evidence {
   id?: string;
   label?: string;
   sourceTitle?: string;
+  sourceType?: string;
+  locator?: string;
   occurredAt?: string;
   excerpt?: string;
 }
@@ -17,6 +19,7 @@ export interface OpenLoop {
   version: number;
   project?: string;
   dueAt?: string;
+  scheduledFor?: string;
   updatedAt?: string;
   evidence?: Evidence[];
 }
@@ -35,6 +38,7 @@ export interface ReviewCandidate {
   updatedAt?: string;
   outcomeAction?: "created" | "merged";
   outcomeId?: string;
+  outcomeVersion?: number;
 }
 
 export interface SearchResult {
@@ -61,6 +65,7 @@ export interface TodayData {
   focus: OpenLoop[];
   overdue: OpenLoop[];
   waiting: OpenLoop[];
+  upcoming: OpenLoop[];
   reviewCount: number;
   generatedAt?: string;
   partial?: boolean;

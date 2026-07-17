@@ -10,13 +10,14 @@ $outputRoot = [System.IO.Path]::GetFullPath($OutputDirectory)
 $stage = Join-Path $outputRoot "Atlas-Demo-Windows-x64"
 $zipPath = "$stage.zip"
 $hashPath = "$zipPath.sha256"
+$corepackPath = (Get-Command corepack.cmd -ErrorAction Stop).Source
 
 if (-not $outputRoot.StartsWith([System.IO.Path]::GetFullPath($PSScriptRoot), [System.StringComparison]::OrdinalIgnoreCase)) {
     throw "OutputDirectory must remain inside packaging/windows."
 }
 
 if (-not $SkipBuild) {
-    & pnpm --dir $repositoryRoot build
+    & $corepackPath pnpm --dir $repositoryRoot build
     if ($LASTEXITCODE -ne 0) { throw "pnpm build failed." }
 }
 
@@ -28,7 +29,7 @@ New-Item -ItemType Directory -Path (Join-Path $stage "bundled-node") -Force | Ou
 New-Item -ItemType Directory -Path (Join-Path $stage "scripts") -Force | Out-Null
 New-Item -ItemType Directory -Path (Join-Path $stage "demo-seed") -Force | Out-Null
 
-& pnpm --dir $repositoryRoot --filter @atlas/atlasd deploy --prod --legacy (Join-Path $stage "app\apps\atlasd")
+& $corepackPath pnpm --dir $repositoryRoot --config.node-linker=hoisted --filter @atlas/atlasd deploy --prod --legacy (Join-Path $stage "app\apps\atlasd")
 if ($LASTEXITCODE -ne 0) { throw "pnpm deploy failed." }
 Copy-Item -LiteralPath (Join-Path $repositoryRoot "apps\web\dist") -Destination (Join-Path $stage "app\apps\web\dist") -Recurse -Force
 
@@ -48,6 +49,16 @@ Copy-Item -LiteralPath (Join-Path $PSScriptRoot "demo-seed\demo-data.json") -Des
 if ($LASTEXITCODE -ne 0) { throw "Release validation failed." }
 
 Compress-Archive -LiteralPath $stage -DestinationPath $zipPath -CompressionLevel Optimal
+$extractedValidationRoot = Join-Path $outputRoot ".validate-extracted-$([System.Guid]::NewGuid().ToString('N'))"
+try {
+    Expand-Archive -LiteralPath $zipPath -DestinationPath $extractedValidationRoot
+    $extractedRelease = Join-Path $extractedValidationRoot "Atlas-Demo-Windows-x64"
+    & (Join-Path $PSScriptRoot "scripts\Validate-Release.ps1") -ReleaseDirectory $extractedRelease
+    if ($LASTEXITCODE -ne 0) { throw "Extracted ZIP validation failed." }
+}
+finally {
+    Remove-Item -LiteralPath $extractedValidationRoot -Recurse -Force -ErrorAction SilentlyContinue
+}
 $hash = (Get-FileHash -LiteralPath $zipPath -Algorithm SHA256).Hash.ToLowerInvariant()
 Set-Content -LiteralPath $hashPath -Value "$hash  $([System.IO.Path]::GetFileName($zipPath))" -Encoding ascii
 
