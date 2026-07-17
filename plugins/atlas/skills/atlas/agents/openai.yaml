@@ -1,4 +1,4 @@
 interface:
   display_name: "Atlas"
-  short_description: "Capture and advance your local Atlas open loops"
-  default_prompt: "Use $atlas to capture this as a reviewed local open loop."
+  short_description: "Remember ideas and resume unfinished work in chat"
+  default_prompt: "Use $atlas to remember this idea or action from our conversation."
