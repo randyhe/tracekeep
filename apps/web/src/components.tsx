@@ -1,4 +1,5 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import { api } from "./api";
 import { Icon } from "./icons";
 import type { Completeness, Evidence, OpenLoop } from "./types";
 
@@ -26,10 +27,40 @@ export function PartialBanner({ reason }: { reason?: string }) {
 
 export function EvidenceList({ evidence }: { evidence?: Evidence[] }) {
   if (!evidence?.length) return <span className="muted">No source excerpt available</span>;
-  return <div className="evidence-list">{evidence.slice(0, 2).map((item, index) => <details key={item.id ?? index}>
-    <summary>{item.sourceTitle ?? item.label ?? "Source"}{item.occurredAt ? ` · ${formatDate(item.occurredAt)}` : ""}</summary>
+  return <div className="evidence-list">{evidence.map((item, index) => <details key={item.id ?? index}>
+    <summary>{item.sourceTitle ?? item.label ?? "Source"}{item.sourceType ? ` · ${formatSourceType(item.sourceType)}` : ""}{item.occurredAt ? ` · ${formatDate(item.occurredAt)}` : ""}</summary>
+    {item.locator && <p className="source-locator"><span>Locator</span><code>{item.locator}</code></p>}
     {item.excerpt && <blockquote>{item.excerpt}</blockquote>}
   </details>)}</div>;
+}
+
+function formatSourceType(value: string): string {
+  return value.replaceAll("_", " ").replace(/\b\w/g, (character) => character.toUpperCase());
+}
+
+export function OpenLoopEvidencePanel({ openLoopId }: { openLoopId: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const [evidence, setEvidence] = useState<Evidence[]>();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string>();
+  async function toggle() {
+    if (expanded) { setExpanded(false); return; }
+    setExpanded(true);
+    if (evidence) return;
+    setLoading(true); setError(undefined);
+    try { setEvidence(await api.openLoopEvidence(openLoopId)); }
+    catch (reason) { setError(reason instanceof Error ? reason.message : "Evidence could not be loaded"); }
+    finally { setLoading(false); }
+  }
+  const panelId = `evidence-panel-${openLoopId}`;
+  return <div className="open-loop-evidence">
+    <button className="button quiet compact" type="button" data-testid={`evidence-${openLoopId}`} aria-expanded={expanded} aria-controls={panelId} onClick={toggle}>
+      {expanded ? "Hide evidence" : "View evidence"}{evidence ? ` (${evidence.length})` : ""}
+    </button>
+    {expanded && <div id={panelId} className="evidence-panel" role="region" aria-label="Source evidence">
+      {loading ? <span className="muted">Loading evidence…</span> : error ? <span className="inline-alert" role="alert">{error}</span> : <EvidenceList evidence={evidence}/>}
+    </div>}
+  </div>;
 }
 
 export function LoopCard({ item, busy, onStatus }: { item: OpenLoop; busy?: boolean; onStatus: (status: OpenLoop["status"], scheduledFor?: string) => void }) {
@@ -39,7 +70,7 @@ export function LoopCard({ item, busy, onStatus }: { item: OpenLoop; busy?: bool
       <div className="loop-meta"><span>{item.project ?? "Unsorted"}</span>{item.dueAt && <span>Due {formatDate(item.dueAt)}</span>}</div>
       <h3>{item.title}</h3>
       {item.summary && <p>{item.summary}</p>}
-      <EvidenceList evidence={item.evidence} />
+      <OpenLoopEvidencePanel openLoopId={item.id} />
       <div className="inline-actions">
         <button className="button primary compact" data-testid={`complete-${item.id}`} disabled={busy} onClick={() => onStatus("done")}><Icon name="check" />Done</button>
         <button className="button quiet compact" disabled={busy} onClick={() => onStatus("waiting")}><Icon name="clock" />Waiting</button>

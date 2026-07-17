@@ -150,4 +150,37 @@ export const migrations = [
       CREATE INDEX idx_evidence_capture ON evidence(capture_id);
     `,
   },
+  {
+    version: 2,
+    sql: `
+      ALTER TABLE review_candidates ADD COLUMN outcome_action TEXT;
+      ALTER TABLE review_candidates ADD COLUMN outcome_version INTEGER;
+      ALTER TABLE open_loops ADD COLUMN deleted_at TEXT;
+      ALTER TABLE open_loops ADD COLUMN sensitivity TEXT NOT NULL DEFAULT 'personal';
+      ALTER TABLE decisions ADD COLUMN deleted_at TEXT;
+      ALTER TABLE decisions ADD COLUMN version INTEGER NOT NULL DEFAULT 1;
+      ALTER TABLE decisions ADD COLUMN sensitivity TEXT NOT NULL DEFAULT 'personal';
+      ALTER TABLE reference_items ADD COLUMN deleted_at TEXT;
+      ALTER TABLE reference_items ADD COLUMN version INTEGER NOT NULL DEFAULT 1;
+      ALTER TABLE reference_items ADD COLUMN sensitivity TEXT NOT NULL DEFAULT 'personal';
+
+      UPDATE open_loops
+        SET sensitivity = COALESCE((SELECT sensitivity FROM sources WHERE sources.id = open_loops.source_id), 'personal');
+      UPDATE decisions
+        SET sensitivity = COALESCE((SELECT sensitivity FROM sources WHERE sources.id = decisions.source_id), 'personal');
+      UPDATE reference_items
+        SET sensitivity = COALESCE((SELECT sensitivity FROM sources WHERE sources.id = reference_items.source_id), 'personal');
+
+      CREATE TABLE open_loop_evidence (
+        open_loop_id TEXT NOT NULL REFERENCES open_loops(id),
+        evidence_id TEXT NOT NULL REFERENCES evidence(id),
+        created_at TEXT NOT NULL,
+        deleted_at TEXT,
+        PRIMARY KEY(open_loop_id, evidence_id)
+      );
+
+      CREATE INDEX idx_open_loop_evidence_active ON open_loop_evidence(open_loop_id, deleted_at);
+      CREATE INDEX idx_open_loops_active_status ON open_loops(deleted_at, status, due_at, priority);
+    `,
+  },
 ] as const;

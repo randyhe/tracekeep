@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { FastifyInstance } from "fastify";
 import { AtlasStorage } from "@atlas/storage";
@@ -18,6 +19,11 @@ afterEach(async () => {
 });
 
 describe("atlasd", () => {
+  it("reports the applied schema version", async () => {
+    const ready = await app.inject({ method: "GET", url: "/api/v1/health/ready" });
+    expect(ready.json()).toMatchObject({ status: "ready", integrity: "ok", schemaVersion: 2 });
+  });
+
   it("runs the capture-review-today-search lifecycle", async () => {
     const capture = await app.inject({
       method: "POST",
@@ -41,6 +47,32 @@ describe("atlasd", () => {
 
     const search = await app.inject({ method: "GET", url: "/api/v1/search?q=Atlas" });
     expect(search.json().results.length).toBeGreaterThan(0);
+    expect(search.json().results[0]).toMatchObject({
+      sourceTitle: "Finish Atlas integration",
+      sourceType: "manual",
+    });
+  });
+
+  it("returns human-readable imported source metadata in search", async () => {
+    const imported = await app.inject({
+      method: "POST",
+      url: "/api/v1/imports/daily-log",
+      headers: { "idempotency-key": "search-source-metadata-0001" },
+      payload: {
+        date: "2026-07-16",
+        path: "C:\\synthetic\\daily-log.md",
+        content: "Decision: use English captions for the demo.",
+        sensitivity: "personal",
+      },
+    });
+    expect(imported.statusCode).toBe(200);
+
+    const search = await app.inject({ method: "GET", url: "/api/v1/search?q=captions" });
+    expect(search.json().results).toEqual([expect.objectContaining({
+      sourceTitle: "Daily log 2026-07-16",
+      sourceType: "daily_log",
+      sourceLocator: "C:\\synthetic\\daily-log.md",
+    })]);
   });
 
   it("replays a capture without duplicating it", async () => {
@@ -80,6 +112,46 @@ describe("atlasd", () => {
     expect(stale.json().error.code).toBe("VERSION_CONFLICT");
   });
 
+  it("merges a review into a target and exposes active evidence metadata", async () => {
+    const create = async (key: string, text: string) => {
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/v1/captures",
+        headers: { "idempotency-key": key },
+        payload: { text },
+      });
+      return response.json().candidate as { id: string; version: number };
+    };
+    const targetCandidate = await create("merge-target-capture", "Target item");
+    const accepted = await app.inject({
+      method: "POST",
+      url: `/api/v1/reviews/${targetCandidate.id}/actions`,
+      headers: { "idempotency-key": "merge-target-accept" },
+      payload: { action: "accept", expectedVersion: targetCandidate.version },
+    });
+    const target = accepted.json().outcome as { id: string; version: number };
+    const incoming = await create("merge-incoming-capture", "Supporting evidence");
+    const merged = await app.inject({
+      method: "POST",
+      url: `/api/v1/reviews/${incoming.id}/actions`,
+      headers: { "idempotency-key": "merge-action-0001" },
+      payload: {
+        action: "merge",
+        expectedVersion: incoming.version,
+        targetOpenLoopId: target.id,
+        targetExpectedVersion: target.version,
+      },
+    });
+    expect(merged.json().candidate).toMatchObject({
+      status: "accepted",
+      outcomeId: target.id,
+      outcomeAction: "merged",
+    });
+    const evidence = await app.inject({ method: "GET", url: `/api/v1/open-loops/${target.id}/evidence` });
+    expect(evidence.json().items).toHaveLength(2);
+    expect(evidence.json().items[1]).toHaveProperty("source.title");
+  });
+
   it("accepts the native ChatGPT export mapping shape as untrusted data", async () => {
     const response = await app.inject({
       method: "POST",
@@ -97,6 +169,57 @@ describe("atlasd", () => {
     });
     expect(response.statusCode).toBe(200);
     expect(response.json().items[0].candidate).toMatchObject({ title: "Imported chat", status: "pending" });
+    expect(response.json()).toMatchObject({ sourceCount: 1, candidateCount: 1 });
+    expect(response.json().items[0].candidates).toHaveLength(1);
+  });
+
+  it("extracts multiple user candidates but never assistant suggestions from imports", async () => {
+    const response = await app.inject({
+      method: "POST",
+      url: "/api/v1/imports/chatgpt-export",
+      headers: { "idempotency-key": "chatgpt-export-multi-0001" },
+      payload: [{
+        id: "conversation-multi",
+        title: "Planning conversation",
+        messages: [
+          { role: "assistant", content: "Need to send an unrequested email." },
+          { role: "user", content: "决定采用本地SQLite。\n下一步：验证备份。\n等 Mark 回复确认。" },
+        ],
+      }],
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toMatchObject({ sourceCount: 1, candidateCount: 3 });
+    expect(response.json().items[0].candidate).toEqual(response.json().items[0].candidates[0]);
+    expect(response.json().items[0].candidates.map((candidate: { title: string }) => candidate.title).join(" ")).not.toContain("email");
+  });
+
+  it("redacts every restricted candidate in plural import responses", async () => {
+    const canary = "ATLAS_IMPORT_CANARY_4AC82";
+    const response = await app.inject({
+      method: "POST",
+      url: "/api/v1/imports/daily-log",
+      headers: { "idempotency-key": "restricted-import-0001" },
+      payload: { date: "2026-07-15", content: `TODO: ${canary}`, sensitivity: "restricted" },
+    });
+    expect(response.statusCode).toBe(200);
+    expect(JSON.stringify(response.json())).not.toContain(canary);
+    expect(response.json().items[0].candidates).toHaveLength(1);
+  });
+
+  it("redacts restricted source titles in singular and plural bundle fields", async () => {
+    const canary = `restricted-title-${randomUUID()}`;
+    const response = await app.inject({
+      method: "POST",
+      url: "/api/v1/imports/chatgpt-export",
+      headers: { "idempotency-key": "restricted-title-0001" },
+      payload: {
+        sensitivity: "restricted",
+        conversations: [{ id: "restricted-title", title: canary, messages: [{ role: "user", content: "TODO: local private action" }] }],
+      },
+    });
+    expect(response.statusCode).toBe(200);
+    expect(JSON.stringify(response.json())).not.toContain(canary);
+    expect(response.json().items[0].source.title).toBe("[restricted source]");
   });
 
   it("reports a zero-incremental-cost configuration", async () => {
@@ -105,7 +228,7 @@ describe("atlasd", () => {
   });
 
   it("keeps restricted text out of ordinary review, source, and search responses", async () => {
-    const canary = "ATLAS_RESTRICTED_CANARY_7F6C91";
+    const canary = `restricted-body-${randomUUID()}`;
     const capture = await app.inject({
       method: "POST",
       url: "/api/v1/captures",
@@ -120,5 +243,36 @@ describe("atlasd", () => {
     expect(JSON.stringify(sources.json())).not.toContain(canary);
     expect(JSON.stringify(search.json())).not.toContain(canary);
     expect(search.json().results).toHaveLength(0);
+
+    const candidate = capture.json().candidate as { id: string; version: number };
+    const accepted = await app.inject({
+      method: "POST",
+      url: `/api/v1/reviews/${candidate.id}/actions`,
+      headers: { "idempotency-key": "restricted-accept-0001" },
+      payload: { action: "accept", expectedVersion: candidate.version },
+    });
+    expect(JSON.stringify(accepted.json())).not.toContain(canary);
+    const outcome = accepted.json().outcome as { id: string; version: number };
+    const today = await app.inject({ method: "GET", url: "/api/v1/today" });
+    const openLoops = await app.inject({ method: "GET", url: "/api/v1/open-loops" });
+    expect(JSON.stringify(today.json())).not.toContain(canary);
+    expect(JSON.stringify(openLoops.json())).not.toContain(canary);
+
+    const patchedCanary = `restricted-patch-${randomUUID()}`;
+    const patched = await app.inject({
+      method: "PATCH",
+      url: `/api/v1/open-loops/${outcome.id}`,
+      headers: { "idempotency-key": "restricted-patch-0001" },
+      payload: { expectedVersion: outcome.version, title: patchedCanary, status: "waiting" },
+    });
+    expect(JSON.stringify(patched.json())).not.toContain(patchedCanary);
+    for (const query of [canary, patchedCanary]) {
+      const result = await app.inject({ method: "GET", url: `/api/v1/search?q=${query}` });
+      expect(result.json().results).toHaveLength(0);
+      expect(JSON.stringify(result.json())).not.toContain(query);
+    }
+    const exported = await app.inject({ method: "GET", url: "/api/v1/exports/sanitized" });
+    expect(JSON.stringify(exported.json())).not.toContain(canary);
+    expect(JSON.stringify(exported.json())).not.toContain(patchedCanary);
   });
 });

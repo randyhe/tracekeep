@@ -54,6 +54,11 @@ export interface Evidence {
   createdAt: string;
 }
 
+export interface OpenLoopEvidence {
+  evidence: Evidence;
+  source: Source;
+}
+
 export interface OpenLoop {
   id: string;
   title: string;
@@ -63,6 +68,7 @@ export interface OpenLoop {
   dueAt?: string;
   scheduledFor?: string;
   sourceId?: string;
+  sensitivity: Sensitivity;
   createdAt: string;
   updatedAt: string;
   version: number;
@@ -77,6 +83,9 @@ export interface ReviewCandidate {
   status: ReviewStatus;
   sensitivity: Sensitivity;
   outcomeId?: string;
+  outcomeAction?: "created" | "merged";
+  outcomeVersion?: number;
+  duplicateOf?: string;
   createdAt: string;
   updatedAt: string;
   version: number;
@@ -103,18 +112,53 @@ export const openLoopPatchSchema = z
   .refine((value) => Object.keys(value).some((key) => key !== "expectedVersion"), "At least one field is required");
 export type OpenLoopPatch = z.infer<typeof openLoopPatchSchema>;
 
-export const reviewActionSchema = z.object({
-  action: z.enum(["accept", "edit", "reject", "undo"]),
-  expectedVersion: z.number().int().positive(),
-  candidateType: candidateTypeSchema.optional(),
-  title: z.string().trim().min(1).max(500).optional(),
-  summary: z.string().max(20_000).nullable().optional(),
-  status: openLoopStatusSchema.optional(),
-  priority: z.number().int().min(0).max(3).optional(),
-  dueAt: z.iso.datetime().nullable().optional(),
-  scheduledFor: z.iso.datetime().nullable().optional(),
-});
+export const reviewActionSchema = z
+  .object({
+    action: z.enum(["accept", "edit", "reject", "undo", "merge"]),
+    expectedVersion: z.number().int().positive(),
+    candidateType: candidateTypeSchema.optional(),
+    title: z.string().trim().min(1).max(500).optional(),
+    summary: z.string().max(20_000).nullable().optional(),
+    status: openLoopStatusSchema.optional(),
+    priority: z.number().int().min(0).max(3).optional(),
+    dueAt: z.iso.datetime().nullable().optional(),
+    scheduledFor: z.iso.datetime().nullable().optional(),
+    targetOpenLoopId: z.string().uuid().optional(),
+    targetExpectedVersion: z.number().int().positive().optional(),
+  })
+  .superRefine((value, context) => {
+    if (value.action === "merge" && (!value.targetOpenLoopId || !value.targetExpectedVersion)) {
+      context.addIssue({
+        code: "custom",
+        path: ["targetOpenLoopId"],
+        message: "Merge requires targetOpenLoopId and targetExpectedVersion",
+      });
+    }
+  });
 export type ReviewAction = z.infer<typeof reviewActionSchema>;
+
+export const restoreInputSchema = z.object({
+  backupFileName: z
+    .string()
+    .min(1)
+    .max(255)
+    .regex(/^[A-Za-z0-9][A-Za-z0-9._-]*\.sqlite$/, "Backup file name must be a local SQLite file name"),
+  confirmation: z.string().min(1).max(300),
+});
+export type RestoreInput = z.infer<typeof restoreInputSchema>;
+
+export interface RestoreResult {
+  restoredFrom: string;
+  preRestoreBackup: string;
+  restoredAt: string;
+  integrity: "ok";
+}
+
+export interface BackupInfo {
+  fileName: string;
+  createdAt: string;
+  sizeBytes: number;
+}
 
 export const chatGptExportInputSchema = z.object({
   conversations: z
@@ -154,6 +198,9 @@ export interface SearchResult {
   title: string;
   snippet: string;
   sourceId?: string;
+  sourceTitle?: string;
+  sourceType?: SourceType;
+  sourceLocator?: string;
 }
 
 export interface SanitizedExport {
