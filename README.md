@@ -35,6 +35,26 @@ Source imports --> local extractor ----------+               | audit_events
 - Web: `http://127.0.0.1:4310` after a production build and start
 - Codex: optional `plugins/atlas` plugin backed by a local MCP adapter; host installation remains capability-gated
 
+Download the judge-ready Windows package from the
+[`v0.1.0-build-week` release](https://github.com/randyhe/atlas/releases/tag/v0.1.0-build-week).
+Verify its adjacent `.sha256` file before extracting it.
+
+## Optional local Codex plugin
+
+The repository includes a local plugin marketplace at
+`.agents/plugins/marketplace.json`. After cloning the repository, register the
+repository marketplace and install Atlas with the Codex CLI:
+
+```powershell
+codex plugin marketplace add .
+codex plugin add atlas@personal
+```
+
+Restart the ChatGPT desktop app and start a new task so the host can load the
+plugin and its local MCP tools. If installation is unavailable, the Atlas skill
+and Web dashboard remain the supported fallback. The final dated probe is in
+[`docs/competition/codex-probe-2026-07-16.md`](docs/competition/codex-probe-2026-07-16.md).
+
 ## Development
 
 ```powershell

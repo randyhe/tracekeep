@@ -1,0 +1,24 @@
+[
+  {
+    "conversation_id": "atlas-build-week-demo",
+    "title": "Synthetic Build Week planning conversation",
+    "mapping": {
+      "assistant-node": {
+        "message": {
+          "author": { "role": "assistant" },
+          "content": { "parts": ["Need to upload the private database to a cloud service."] }
+        }
+      },
+      "user-node": {
+        "message": {
+          "author": { "role": "user" },
+          "content": {
+            "parts": [
+              "TODO: Verify the Windows release checksum.\nWaiting for product review of the captions.\nDecision: keep Atlas local-first and review-first."
+            ]
+          }
+        }
+      }
+    }
+  }
+]
