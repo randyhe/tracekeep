@@ -10,7 +10,9 @@ test-results/
 .atlas/
 .runtime/
 .playwright-cli/
+.playwright-mcp/
 output/playwright/
+work/competition-runs/
 *.db
 *.db-shm
 *.db-wal

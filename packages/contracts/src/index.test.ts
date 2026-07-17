@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { captureInputSchema, openLoopPatchSchema } from "./index.js";
+import { captureInputSchema, openLoopPatchSchema, restoreInputSchema, reviewActionSchema } from "./index.js";
 
 describe("contracts", () => {
   it("defaults a manual personal capture", () => {
@@ -11,5 +11,21 @@ describe("contracts", () => {
 
   it("requires an actual open-loop update", () => {
     expect(() => openLoopPatchSchema.parse({ expectedVersion: 1 })).toThrow();
+  });
+
+  it("requires a versioned target for merge", () => {
+    expect(() => reviewActionSchema.parse({ action: "merge", expectedVersion: 1 })).toThrow();
+    expect(
+      reviewActionSchema.parse({
+        action: "merge",
+        expectedVersion: 1,
+        targetOpenLoopId: "00000000-0000-4000-8000-000000000001",
+        targetExpectedVersion: 2,
+      }),
+    ).toMatchObject({ action: "merge", targetExpectedVersion: 2 });
+  });
+
+  it("rejects restore paths", () => {
+    expect(() => restoreInputSchema.parse({ backupFileName: "../atlas.sqlite", confirmation: "x" })).toThrow();
   });
 });

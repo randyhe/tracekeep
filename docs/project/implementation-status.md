@@ -1,0 +1,55 @@
+# Atlas V1 Implementation Status
+
+Date: 2026-07-15
+
+## Production-local activation
+
+- The temporary `.runtime` browser-test instance was stopped on 2026-07-15.
+- On Windows, the active service uses `%LOCALAPPDATA%\Atlas\atlas.sqlite` by default.
+- Loopback Web returned HTTP 200, SQLite integrity returned `ok`, and the user-level Atlas Skill health check returned `ready`.
+- The production-local database started empty: zero Today items, pending reviews, and sources.
+- Before the schema 2 activation, an online SQLite backup was created and passed `quick_check=ok`.
+- The production-local service was restarted on the frozen build and now reports `schemaVersion: 2` and `integrity: ok`.
+
+## Delivered local Alpha core
+
+- Local Web with Today, Capture, Search, Review, Sources, and Settings.
+- Fastify `atlasd` bound to loopback and serving the production Web build.
+- SQLite business tables, FTS5, forward migration, audit/outbox records, idempotency, optimistic concurrency, online backup, and sanitized export.
+- Manual, Daily Log, and native ChatGPT Export import endpoints.
+- Review-first Capture lifecycle and five fixed Open Loop states.
+- Restricted-content redaction and exclusion from ordinary FTS/search responses.
+- Zero-external-budget status and no configured paid or cloud provider.
+- Codex plugin scaffold with 11 local MCP tools and a validated Atlas skill.
+
+## Gate disposition
+
+| Gate | Decision | Evidence or condition |
+|---|---|---|
+| Gate 0 Capability | Conditional Go | Local core and MCP protocol smoke passed; Codex packaged CLI could not be executed from the shell, Apps UI/history remain unavailable |
+| Gate 1 Baseline | Go | Requirements, architecture constraints, UX implementation, and RTM are present |
+| Gate 2 Local core | Go for personal Alpha | Full Review lifecycle, schema 2 migration, privacy canary, stopped-service restore, production restart, build, and real browser flow pass |
+| Gate 3 Sources | Conditional Go for personal Alpha | Manual, ChatGPT JSON, and Daily Log imports plus dedupe and injection defenses pass; streaming ZIP, checkpoints, and queued resume remain |
+| Gate 4 Codex | Conditional | MCP server protocol smoke passed; host installation/current-session invocation is not yet verified |
+| Gate 5 Mobile | Not started | Tailscale Serve must not be enabled without a separate secure deployment check |
+| Gate 6 Alpha | Not started | Requires 14 days of real use and UAT metrics |
+
+## P0 closure delivered
+
+- Web Review supports pending edits, accept, reject, merge into an active Open Loop, visible outcome history, and conflict-safe undo.
+- Review merge preserves the target Open Loop and maintains separately inspectable evidence links.
+- Restore is a stopped-service CLI guarded by explicit confirmation, idempotency, a lifetime lock, integrity checks, a pre-restore backup, and failed-swap rollback.
+- ChatGPT JSON and Daily Log imports are available in Sources, are treated as untrusted input, and always enter Review.
+- The final workspace check passed 34 tests, all TypeScript checks, and all production builds.
+- A real isolated-browser flow verified Capture, edit, accept, merge, target display, undo, ChatGPT JSON import, and Daily Log import.
+
+## Honest remaining V1 gaps
+
+- ChatGPT Export import is bounded to 12 MB and parsed in memory; streaming ZIP ingestion and checkpoint/resume remain.
+- Source adapters do not yet implement incremental `discover/fetch_page/checkpoint`; MCP `sync_sources` returns an explicit unavailable fallback.
+- Codex plugin files validate and the MCP server works over stdio, but installation inside this packaged Codex build is not verified because the shell receives Access Denied for `codex.exe`.
+- No stable public contract was found for reading all ChatGPT/Codex history; this is not a product claim.
+- Apps SDK cards, Tailscale mobile access, AI synthesis, Weekly Review, and all P1/deferred items remain outside this Alpha core.
+- Restore has clean-room evidence but no process-level CLI regression test in the repository.
+- The MCP package has a protocol smoke result but no automated test cases.
+- Full WCAG audit, 10,000-record performance run, external process network audit, and 14-day Alpha UAT remain release gates.

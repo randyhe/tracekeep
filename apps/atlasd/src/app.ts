@@ -7,6 +7,7 @@ import {
   openLoopPatchSchema,
   reviewActionSchema,
   sensitivitySchema,
+  type OpenLoop,
 } from "@atlas/contracts";
 import {
   AtlasStorage,
@@ -15,8 +16,8 @@ import {
   StorageNotFoundError,
   fingerprint,
   type CaptureBundle,
-  type CaptureRecordInput,
 } from "@atlas/storage";
+import { COMPETITION_EXTRACTOR_VERSION, extractCandidates } from "./extractor.js";
 
 const idParamsSchema = z.object({ id: z.string().uuid() });
 const reviewQuerySchema = z.object({ status: z.enum(["pending", "accepted", "rejected"]).default("pending") });
@@ -63,7 +64,7 @@ export function buildApp(options: BuildAppOptions): FastifyInstance {
   app.get("/api/v1/health/ready", async (_request, reply) => {
     const integrity = storage.integrityCheck();
     if (integrity !== "ok") return reply.status(503).send({ status: "not_ready", integrity });
-    return { status: "ready", integrity, schemaVersion: 1 };
+    return { status: "ready", integrity, schemaVersion: storage.schemaVersion() };
   });
   app.get("/api/v1/cost-status", async () => ({
     mode: "subscription_only",
@@ -74,15 +75,19 @@ export function buildApp(options: BuildAppOptions): FastifyInstance {
   }));
   app.get("/api/v1/jobs", async () => ({ jobs: storage.listJobs() }));
 
-  app.get("/api/v1/today", async () => ({ items: storage.getToday(3), generatedAt: new Date().toISOString() }));
+  app.get("/api/v1/today", async () => ({ items: storage.getToday(3).map(publicOpenLoop), generatedAt: new Date().toISOString() }));
   app.get("/api/v1/open-loops", async (request) => {
     const query = openLoopQuerySchema.parse(request.query);
-    return { items: storage.listOpenLoops(query.status) };
+    return { items: storage.listOpenLoops(query.status).map(publicOpenLoop) };
   });
   app.patch("/api/v1/open-loops/:id", async (request) => {
     const { id } = idParamsSchema.parse(request.params);
     const body = openLoopPatchSchema.parse(request.body);
-    return idempotent(request, storage, "open-loop.patch", { id, body }, () => ({ item: storage.updateOpenLoop(id, body) }));
+    return idempotent(request, storage, "open-loop.patch", { id, body }, () => ({ item: publicOpenLoop(storage.updateOpenLoop(id, body)) }));
+  });
+  app.get("/api/v1/open-loops/:id/evidence", async (request) => {
+    const { id } = idParamsSchema.parse(request.params);
+    return { items: storage.getOpenLoopEvidence(id).map(publicOpenLoopEvidence) };
   });
 
   app.post("/api/v1/captures", async (request) => {
@@ -104,7 +109,7 @@ export function buildApp(options: BuildAppOptions): FastifyInstance {
   app.post("/api/v1/reviews/:id/actions", async (request) => {
     const { id } = idParamsSchema.parse(request.params);
     const body = reviewActionSchema.parse(request.body);
-    return idempotent(request, storage, "review.action", { id, body }, () => storage.actOnReview(id, body));
+    return idempotent(request, storage, "review.action", { id, body }, () => publicReviewResult(storage.actOnReview(id, body)));
   });
 
   app.get("/api/v1/search", async (request) => {
@@ -119,28 +124,28 @@ export function buildApp(options: BuildAppOptions): FastifyInstance {
 
   app.post("/api/v1/imports/manual", async (request) => {
     const body = captureInputSchema.parse({ ...(request.body as object), sourceType: "manual" });
-    return idempotent(request, storage, "import.manual", body, () => ({
-      items: [
-        publicBundle(
-          storage.createCaptureBundle({
-            source: {
-              type: "manual",
-              title: body.title ?? "Manual import",
-              externalId: `manual:${fingerprint(body.text)}`,
-              sensitivity: body.sensitivity,
-            },
-            text: body.text,
-            candidateTitle: body.title ?? deriveTitle(body.text),
-          }),
-        ),
-      ],
-    }));
+    return idempotent(request, storage, "import.manual", body, () => {
+      const bundle = publicBundle(
+        storage.createCaptureWithCandidates({
+          source: {
+            type: "manual",
+            title: body.title ?? "Manual import",
+            externalId: `manual:${fingerprint(body.text)}`,
+            sensitivity: body.sensitivity,
+          },
+          text: body.text,
+          candidates: extractCandidates([{ role: "manual", content: body.text }], body.title ?? deriveTitle(body.text)),
+          extractorVersion: COMPETITION_EXTRACTOR_VERSION,
+        }),
+      );
+      return importResponse([bundle]);
+    });
   });
 
   app.post("/api/v1/imports/daily-log", async (request) => {
     const body = dailyLogInputSchema.parse(request.body);
     return idempotent(request, storage, "import.daily-log", body, () => {
-      const input: CaptureRecordInput = {
+      const bundle = publicBundle(storage.createCaptureWithCandidates({
         source: {
           type: "daily_log",
           title: `Daily log ${body.date}`,
@@ -149,21 +154,21 @@ export function buildApp(options: BuildAppOptions): FastifyInstance {
           sensitivity: body.sensitivity,
         },
         text: body.content,
-        candidateTitle: `Review daily log ${body.date}`,
-        candidateType: "reference",
+        candidates: extractCandidates([{ role: "manual", content: body.content }], `Review daily log ${body.date}`),
+        extractorVersion: COMPETITION_EXTRACTOR_VERSION,
         ...(body.path ? { locator: body.path } : {}),
-      };
-      return { items: [publicBundle(storage.createCaptureBundle(input))] };
+      }));
+      return importResponse([bundle]);
     });
   });
 
   app.post("/api/v1/imports/chatgpt-export", async (request) => {
     const normalized = normalizeChatGptExport(request.body);
-    return idempotent(request, storage, "import.chatgpt-export", normalized, () => ({
-      items: normalized.conversations.map((conversation) => {
+    return idempotent(request, storage, "import.chatgpt-export", normalized, () => {
+      const items = normalized.conversations.map((conversation) => {
         const text = conversation.messages.map((message) => `${message.role}: ${message.content}`).join("\n\n");
         return publicBundle(
-          storage.createCaptureBundle({
+          storage.createCaptureWithCandidates({
             source: {
               type: "chatgpt_export",
               title: conversation.title,
@@ -172,16 +177,18 @@ export function buildApp(options: BuildAppOptions): FastifyInstance {
               sensitivity: normalized.sensitivity,
             },
             text,
-            candidateTitle: conversation.title,
-            candidateType: "reference",
+            candidates: extractCandidates(conversation.messages, conversation.title),
             locator: `chatgpt-export:${conversation.id}`,
+            extractorVersion: COMPETITION_EXTRACTOR_VERSION,
           }),
         );
-      }),
-    }));
+      });
+      return importResponse(items);
+    });
   });
 
   app.get("/api/v1/exports/sanitized", async () => storage.sanitizedExport());
+  app.get("/api/v1/backups", async () => ({ items: await storage.listBackups() }));
   app.post("/api/v1/backups", async (request) => {
     const key = requireIdempotencyKey(request);
     const hash = fingerprint({ operation: "backup.create" });
@@ -221,6 +228,7 @@ function publicBundle(bundle: CaptureBundle): CaptureBundle {
   if (bundle.capture.sensitivity !== "restricted") return bundle;
   return {
     ...bundle,
+    source: { ...bundle.source, title: "[restricted source]" },
     capture: { ...bundle.capture, text: "[restricted]" },
     evidence: {
       id: bundle.evidence.id,
@@ -230,6 +238,15 @@ function publicBundle(bundle: CaptureBundle): CaptureBundle {
       createdAt: bundle.evidence.createdAt,
     },
     candidate: publicCandidate(bundle.candidate),
+    candidates: bundle.candidates.map(publicCandidate),
+  };
+}
+
+function importResponse(items: CaptureBundle[]) {
+  return {
+    items,
+    sourceCount: items.length,
+    candidateCount: items.reduce((total, item) => total + item.candidates.length, 0),
   };
 }
 
@@ -237,6 +254,32 @@ function publicCandidate<T extends { sensitivity: string; title: string; summary
   if (candidate.sensitivity !== "restricted") return candidate;
   const { summary: _summary, ...safe } = candidate;
   return { ...safe, title: "[restricted candidate]" } as T;
+}
+
+function publicOpenLoop(openLoop: OpenLoop): OpenLoop {
+  if (openLoop.sensitivity !== "restricted") return openLoop;
+  const { notes: _notes, ...safe } = openLoop;
+  return { ...safe, title: "[restricted open loop]" };
+}
+
+function publicReviewResult(result: { candidate: ReturnType<AtlasStorage["getReview"]>; outcome?: OpenLoop }) {
+  return {
+    candidate: publicCandidate(result.candidate),
+    ...(result.outcome ? { outcome: publicOpenLoop(result.outcome) } : {}),
+  };
+}
+
+function publicOpenLoopEvidence(item: ReturnType<AtlasStorage["getOpenLoopEvidence"]>[number]) {
+  if (item.source.sensitivity !== "restricted") return item;
+  return {
+    evidence: {
+      id: item.evidence.id,
+      captureId: item.evidence.captureId,
+      sourceId: item.evidence.sourceId,
+      createdAt: item.evidence.createdAt,
+    },
+    source: { ...item.source, title: "[restricted source]" },
+  };
 }
 
 function deriveTitle(text: string): string {
