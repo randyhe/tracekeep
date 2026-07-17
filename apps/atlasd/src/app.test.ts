@@ -53,6 +53,58 @@ describe("atlasd", () => {
     });
   });
 
+  it("protects private APIs with a local bearer or HttpOnly session", async () => {
+    const protectedStorage = new AtlasStorage(":memory:", ".runtime-test/auth-backups");
+    const protectedApp = buildApp({ storage: protectedStorage, authToken: "a".repeat(64) });
+    await protectedApp.ready();
+    try {
+      const ready = await protectedApp.inject({ method: "GET", url: "/api/v1/health/ready" });
+      expect(ready.statusCode).toBe(200);
+
+      const denied = await protectedApp.inject({ method: "GET", url: "/api/v1/today" });
+      expect(denied.statusCode).toBe(401);
+
+      const bearer = await protectedApp.inject({
+        method: "GET",
+        url: "/api/v1/today",
+        headers: { authorization: `Bearer ${"a".repeat(64)}` },
+      });
+      expect(bearer.statusCode).toBe(200);
+
+      const session = await protectedApp.inject({
+        method: "POST",
+        url: "/api/v1/auth/session",
+        payload: { token: "a".repeat(64) },
+      });
+      expect(session.statusCode).toBe(204);
+      expect(session.headers["set-cookie"]).toContain("HttpOnly");
+      expect(session.headers["set-cookie"]).toContain("SameSite=Strict");
+    } finally {
+      await protectedApp.close();
+      protectedStorage.close();
+    }
+  });
+
+  it("preserves Codex source and candidate type for conversation capture", async () => {
+    const capture = await app.inject({
+      method: "POST",
+      url: "/api/v1/captures",
+      headers: { "idempotency-key": "codex-decision-capture-0001" },
+      payload: {
+        text: "Decision: keep the dashboard as the review workspace.",
+        title: "Keep the dashboard as the review workspace",
+        sourceType: "codex",
+        candidateType: "decision",
+      },
+    });
+
+    expect(capture.statusCode).toBe(200);
+    expect(capture.json()).toMatchObject({
+      source: { type: "codex" },
+      candidate: { candidateType: "decision", status: "pending" },
+    });
+  });
+
   it("returns human-readable imported source metadata in search", async () => {
     const imported = await app.inject({
       method: "POST",

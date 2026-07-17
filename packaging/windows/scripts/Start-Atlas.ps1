@@ -2,10 +2,12 @@
 param(
     [Parameter(Mandatory = $true)]
     [string]$ReleaseRoot,
-    [switch]$NoBrowser
+    [switch]$NoBrowser,
+    [switch]$Demo
 )
 
 $ErrorActionPreference = "Stop"
+Add-Type -AssemblyName System.Security
 
 function Resolve-ReleasePath {
     param([string]$Path)
@@ -33,8 +35,10 @@ $mainPath = Join-Path $root "app\apps\atlasd\dist\main.js"
 $webPath = Join-Path $root "app\apps\web\dist\index.html"
 $seedPath = Join-Path $root "demo-seed"
 $workPath = Join-Path $root "work"
-$dataPath = Join-Path $workPath "demo-data"
+$dataPath = Join-Path $workPath $(if ($Demo) { "demo-data" } else { "data" })
 $pidPath = Join-Path $workPath "atlas.pid"
+$tokenPath = Join-Path $workPath "auth-token.dpapi"
+$portPath = Join-Path $workPath "atlas-port.txt"
 
 foreach ($requiredPath in @($nodePath, $mainPath, $webPath, $seedPath)) {
     if (-not (Test-Path -LiteralPath $requiredPath)) {
@@ -43,18 +47,45 @@ foreach ($requiredPath in @($nodePath, $mainPath, $webPath, $seedPath)) {
 }
 
 New-Item -ItemType Directory -Path $workPath -Force | Out-Null
+if (-not (Test-Path -LiteralPath $tokenPath)) {
+    throw "Atlas is not installed yet. Double-click Install Atlas.cmd first."
+}
+$protectedToken = [System.IO.File]::ReadAllBytes($tokenPath)
+$plainToken = [System.Security.Cryptography.ProtectedData]::Unprotect(
+    $protectedToken,
+    $null,
+    [System.Security.Cryptography.DataProtectionScope]::CurrentUser
+)
+$authToken = [System.Text.Encoding]::UTF8.GetString($plainToken)
+$authHeaders = @{ Authorization = "Bearer $authToken" }
+
+if (Test-Path -LiteralPath $pidPath) {
+    $existingProcessId = Get-Content -LiteralPath $pidPath -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($existingProcessId -and (Get-Process -Id $existingProcessId -ErrorAction SilentlyContinue)) {
+        $existingPort = if (Test-Path -LiteralPath $portPath) { [int](Get-Content -LiteralPath $portPath -Raw) } else { 4310 }
+        $existingHealth = Invoke-RestMethod -Uri "http://127.0.0.1:$existingPort/api/v1/health/ready" -TimeoutSec 2
+        if ($existingHealth.status -ne "ready") { throw "The existing Atlas process is not ready." }
+        $existingUrl = "http://127.0.0.1:$existingPort/today#token=$([uri]::EscapeDataString($authToken))"
+        if (-not $NoBrowser) { Start-Process $existingUrl }
+        Write-Host "Atlas is already running locally at http://127.0.0.1:$existingPort/today"
+        return
+    }
+}
+
 if (-not (Test-Path -LiteralPath $dataPath)) {
     New-Item -ItemType Directory -Path $dataPath -Force | Out-Null
     Get-ChildItem -LiteralPath $seedPath -Force | Copy-Item -Destination $dataPath -Recurse -Force
 }
 
-$port = 4310..4319 | Where-Object { Test-PortAvailable $_ } | Select-Object -First 1
-if ($null -eq $port) {
-    throw "No free loopback port is available in the required 4310-4319 range."
-}
+$preferredPort = if (Test-Path -LiteralPath $portPath) { [int](Get-Content -LiteralPath $portPath -Raw) } else { 4310 }
+$candidatePorts = @($preferredPort) + @(4310..4319 | Where-Object { $_ -ne $preferredPort })
+$port = $candidatePorts | Where-Object { $_ -ge 4310 -and $_ -le 4319 -and (Test-PortAvailable $_) } | Select-Object -First 1
+if ($null -eq $port) { throw "All Atlas loopback ports from 4310 through 4319 are in use." }
+Set-Content -LiteralPath $portPath -Value $port -Encoding ascii
 
 $env:ATLAS_DATA_DIR = [System.IO.Path]::GetFullPath($dataPath)
 $env:ATLAS_PORT = [string]$port
+$env:ATLAS_AUTH_TOKEN = $authToken
 $quotedMainPath = '"' + $mainPath + '"'
 $process = Start-Process -FilePath $nodePath -ArgumentList $quotedMainPath -WorkingDirectory $root -WindowStyle Hidden -PassThru
 Set-Content -LiteralPath $pidPath -Value $process.Id -Encoding ascii
@@ -84,16 +115,16 @@ if (-not $ready) {
 
 $seedFile = Join-Path $dataPath "demo-data.json"
 $seedMarker = Join-Path $dataPath ".demo-seed-v1"
-if ((Test-Path -LiteralPath $seedFile) -and -not (Test-Path -LiteralPath $seedMarker)) {
+if ($Demo -and (Test-Path -LiteralPath $seedFile) -and -not (Test-Path -LiteralPath $seedMarker)) {
     $seed = Get-Content -LiteralPath $seedFile -Raw | ConvertFrom-Json
     $index = 0
     foreach ($item in $seed.items) {
         $index++
         $capture = Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:$port/api/v1/captures" `
-            -Headers @{ "Idempotency-Key" = "demo-seed-capture-v1-$index" } -ContentType "application/json" `
+            -Headers @{ Authorization = $authHeaders.Authorization; "Idempotency-Key" = "demo-seed-capture-v1-$index" } -ContentType "application/json" `
             -Body (@{ text = [string]$item.text; title = [string]$item.title; sensitivity = "personal" } | ConvertTo-Json)
         $accepted = Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:$port/api/v1/reviews/$($capture.candidate.id)/actions" `
-            -Headers @{ "Idempotency-Key" = "demo-seed-accept-v1-$index" } -ContentType "application/json" `
+            -Headers @{ Authorization = $authHeaders.Authorization; "Idempotency-Key" = "demo-seed-accept-v1-$index" } -ContentType "application/json" `
             -Body (@{ action = "accept"; expectedVersion = $capture.candidate.version } | ConvertTo-Json)
         if ($item.status -and $item.status -ne "open") {
             $patch = @{ expectedVersion = $accepted.outcome.version; status = [string]$item.status }
@@ -103,14 +134,14 @@ if ((Test-Path -LiteralPath $seedFile) -and -not (Test-Path -LiteralPath $seedMa
                 } else { [string]$item.scheduledFor }
             }
             Invoke-RestMethod -Method Patch -Uri "http://127.0.0.1:$port/api/v1/open-loops/$($accepted.outcome.id)" `
-                -Headers @{ "Idempotency-Key" = "demo-seed-status-v1-$index" } -ContentType "application/json" `
+                -Headers @{ Authorization = $authHeaders.Authorization; "Idempotency-Key" = "demo-seed-status-v1-$index" } -ContentType "application/json" `
                 -Body ($patch | ConvertTo-Json) | Out-Null
         }
     }
     Set-Content -LiteralPath $seedMarker -Value (Get-Date).ToUniversalTime().ToString("o") -Encoding ascii
 }
 
-$url = "http://127.0.0.1:$port/today"
+$url = "http://127.0.0.1:$port/today#token=$([uri]::EscapeDataString($authToken))"
 Write-Host "Atlas is running locally at $url"
-Write-Host "Demo data: $dataPath"
+Write-Host "Atlas data: $dataPath"
 if (-not $NoBrowser) { Start-Process $url }

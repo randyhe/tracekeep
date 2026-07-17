@@ -95,6 +95,7 @@ export const captureInputSchema = z.object({
   text: z.string().trim().min(1).max(200_000),
   title: z.string().trim().min(1).max(300).optional(),
   sourceType: sourceTypeSchema.default("manual"),
+  candidateType: candidateTypeSchema.optional(),
   sensitivity: sensitivitySchema.default("personal"),
 });
 export type CaptureInput = z.input<typeof captureInputSchema>;

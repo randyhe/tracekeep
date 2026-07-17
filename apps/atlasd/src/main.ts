@@ -13,7 +13,11 @@ mkdirSync(runtimeDirectory, { recursive: true });
 const lifetimeLock = acquireLifetimeLock(runtimeDirectory, "atlasd");
 
 const storage = new AtlasStorage(resolve(runtimeDirectory, "atlas.sqlite"), resolve(runtimeDirectory, "backups"));
-const app = buildApp({ storage, logger: true });
+const app = buildApp({
+  storage,
+  logger: true,
+  ...(process.env.ATLAS_AUTH_TOKEN ? { authToken: process.env.ATLAS_AUTH_TOKEN } : {}),
+});
 const webDirectory = resolve(repositoryRoot, "apps/web/dist");
 await app.register(staticPlugin, { root: webDirectory, wildcard: false });
 app.setNotFoundHandler((request, reply) => {

@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "atlas-memory-local": {
+      "command": "powershell.exe",
+      "args": [
+        "-NoLogo",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "./scripts/Start-Mcp.ps1"
+      ]
+    }
+  }
+}
