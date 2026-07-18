@@ -15,8 +15,7 @@
 ### 30 秒理解 Atlas
 
 1. **想到时就说：** `Atlas，请记住：下次继续比较这三家夏令营，先确认接送时间。`
-2. **然后继续眼前的事：** 不需要打开另一个 App，也不需要停下来整理分类。
-3. **需要时直接问：** `Atlas，我有哪些做到一半的事情？` 或 `Atlas，今天最值得继续什么？`
+2. **需要时就问：** `Atlas，我有哪些做到一半的事情？` 或 `Atlas，今天最值得继续什么？`
 
 例如，你说“有空给爸爸预约年度体检”，Atlas 可以把它保留为一个带来源的未完成事项；你说“下次家庭旅行住在火车站附近”，Atlas 可以把它保留为一个可追溯的决定。**你不需要先整理好自己，Atlas 帮你在想法出现的那一刻抓住下一步。**
 
@@ -101,8 +100,7 @@ You do not run out of ideas. They scatter across chats, searches, and half-finis
 ### Understand Atlas in 30 seconds
 
 1. **Say it when it happens:** `Atlas, remember this: keep comparing these three summer camps and check pickup times first.`
-2. **Keep doing what you were doing:** No need to open another app or stop to organize and categorize it.
-3. **Ask when you need it:** `Atlas, what unfinished work should I resume?` or `Atlas, what is worth continuing today?`
+2. **Ask when you need it:** `Atlas, what unfinished work should I resume?` or `Atlas, what is worth continuing today?`
 
 For example, “Book Dad's annual checkup when I have time” can become a sourced unfinished action. “Stay near the train station on our next family trip” can become a traceable decision. **You do not have to organize yourself before capturing a thought; Atlas catches the next step the moment it appears.**
 
