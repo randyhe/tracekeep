@@ -165,24 +165,23 @@ Atlas is a portable release: the application, installed plugin copy, and persona
 
 ### Architecture
 
-```text
-Codex Skill / MCP --------------------\
-Local Web Dashboard -------------------+--> atlasd HTTP API (127.0.0.1 + local auth)
-Manual / Daily Log / ChatGPT Import --/                         |
-                                          +--------------------+--------------------+
-                                          |                                         |
-                         Capture / Review / Search / Backup routes              Import routes
-                                          |                                         |
-                                          |                                  local extractor
-                                          |                                         |
-                                          +--------------------+--------------------+
-                                                               |
-                                                         AtlasStorage
-                                                               |
-                                                        SQLite schema v2
-                                          +--------------------+--------------------+
-                                          |                    |                    |
-                                  business tables          FTS5 index     audit_events / outbox_events
+```mermaid
+flowchart LR
+    Codex["Codex Skill / MCP"] --> API
+    Web["Local Web Dashboard"] --> API
+    Imports["Manual / Daily Log / ChatGPT Import"] --> API
+
+    API["atlasd HTTP API<br/>127.0.0.1 + local auth"] --> Standard["Capture / Review / Search / Backup routes"]
+    API --> ImportRoutes["Import routes"]
+    ImportRoutes --> Extractor["Local rule extractor"]
+    Extractor --> Review["Review candidates"]
+
+    Standard --> Storage["AtlasStorage"]
+    Review --> Storage
+    Storage --> SQLite["SQLite schema v2"]
+    SQLite --> Business["Business tables"]
+    SQLite --> FTS["FTS5 index"]
+    SQLite --> Events["audit_events / outbox_events"]
 ```
 
 The `atlasd` package is the only component that opens SQLite for writes. Web, MCP, and import clients use the HTTP API and never open the database directly. Offline restore runs through the `atlasd` restore command and acquires the same exclusive data-directory lock.
