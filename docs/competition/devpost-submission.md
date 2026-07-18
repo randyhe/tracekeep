@@ -91,7 +91,7 @@ claims.
 ## Public links
 
 - Repository: https://github.com/randyhe/atlas
-- Windows release: https://github.com/randyhe/atlas/releases/tag/v0.1.0-build-week
+- Windows release: https://github.com/randyhe/atlas/releases/latest
 - Video: `TBD — public YouTube URL`
 - `/feedback` Session ID: `TBD — account-owned final action`
 

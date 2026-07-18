@@ -42,7 +42,7 @@ function result(value: unknown) {
   return { content: [{ type: "text" as const, text: JSON.stringify(value, null, 2) }] };
 }
 
-const server = new McpServer({ name: "atlas-memory-local", version: "0.1.0" });
+const server = new McpServer({ name: "atlas-memory-local", version: "0.2.0" });
 
 server.tool("capture", "Save user-confirmed text from the current Codex conversation as a review-first Atlas candidate.", {
   text: z.string().min(1).max(20_000),

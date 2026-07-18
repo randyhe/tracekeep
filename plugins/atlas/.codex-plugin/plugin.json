@@ -1,6 +1,6 @@
 {
   "name": "atlas",
-  "version": "0.1.0+codex.20260717171330",
+  "version": "0.2.0",
   "description": "Remember ideas, resume interrupted work, and manage local Atlas memory directly from Codex conversations.",
   "author": {
     "name": "Local developer"
