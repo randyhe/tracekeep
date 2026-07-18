@@ -150,7 +150,7 @@ Atlas is a portable release: the application, installed plugin copy, and persona
 
 - Local capture, review, open-loop tracking, and FTS search work without an AI API key.
 - SQLite is the runtime source of truth.
-- Git exports are sanitized and intentionally incomplete for restricted data.
+- Sanitized exports include only personal records and intentionally exclude restricted and work-summary-only data.
 - Conversation capture records `codex` as its source and supports Open Loop, Decision, and Reference candidates.
 - Codex integration is the preferred interaction layer, while the local API and Web dashboard preserve independent access to the data.
 - The default configuration sets the monthly external-service budget to $0 and does not enable usage-based AI APIs. Electricity, storage, connectivity, and any existing Codex subscription are outside that statement.
@@ -161,19 +161,32 @@ Atlas is a portable release: the application, installed plugin copy, and persona
 
 1. Import or capture an explicit open loop, inspect its Evidence, accept it in Review, move it through Today, then mark it done or scheduled.
 2. Capture the same intent from a second source, inspect the **Possible duplicate** hint, merge the Evidence, then undo only the added Evidence link.
-3. Import restricted or adversarial text and verify that it remains inert data, is redacted from ordinary responses, and does not enter Search or sanitized exports.
+3. Import content marked as Restricted, including adversarial strings, and verify that it remains inert data, is redacted from ordinary responses, and does not enter Search or sanitized exports.
 
 ### Architecture
 
-```text
-Codex conversation --> skill / MCP --\
-                                      +--> atlasd HTTP API --> SQLite schema v2
-Local Web review workspace ----------/          |               | business tables
-Source imports --> local extractor ----------+               | audit_events
-                                                              ` outbox_events
+```mermaid
+flowchart LR
+    Codex["Codex Skill / MCP"] --> API
+    Web["Local Web Dashboard"] --> API
+    Imports["Manual / Daily Log / ChatGPT Import"] --> API
+
+    API["atlasd HTTP API<br/>127.0.0.1 + local auth"] --> Standard["Capture / Review / Search / Backup routes"]
+    API --> ImportRoutes["Import routes"]
+    ImportRoutes --> Extractor["Local rule extractor"]
+    Extractor --> Review["Review candidates"]
+
+    Standard --> Storage["AtlasStorage"]
+    Review --> Storage
+    Storage --> SQLite["SQLite schema v2"]
+    SQLite --> Business["Business tables"]
+    SQLite --> FTS["FTS5 index"]
+    SQLite --> Events["audit_events / outbox_events"]
 ```
 
-`atlasd` is the only SQLite writer. Imports, URLs, and commands are always treated as untrusted text. The deterministic `competition-1` extractor reads user-authored ChatGPT messages only, emits at most three candidates in Decision → Waiting → Open Loop order, and sends every result to Review.
+The `atlasd` package is the only component that opens SQLite for writes. Web, MCP, and import clients use the HTTP API and never open the database directly. Offline restore runs through the `atlasd` restore command and acquires the same exclusive data-directory lock.
+
+Imports, URLs, and commands are always treated as untrusted text. For ChatGPT Export imports, the deterministic `competition-1` extractor reads only user/human messages; Manual and Daily Log imports are treated as user-confirmed input. It emits at most three candidates in Decision → Waiting → Open Loop order and sends every result to Review.
 
 ### Local entry points
 
@@ -206,9 +219,9 @@ ChatGPT Export is limited to 12 MB per HTTP request and 1,000 conversations. It 
 
 ### Competition evidence
 
-The repeatable synthetic harness is documented in [`tests/competition/README.md`](tests/competition/README.md). The visible 30-sample Development set produces Open Loop TP 18 / FP 0 / FN 0 and Decision TP 6 / FP 0 / FN 0. After rule freeze, QA generated and ran the separate 50-sample Holdout once: Open Loop TP 35 / FP 0 / FN 0 with a Wilson 95% precision/recall interval of 90.11%–100%. Ten samples remain explicitly pending BA/QA double-label and user arbitration. These results are not retention evidence or a real 14-day Alpha.
+The repeatable synthetic harness is documented in [`tests/competition/README.md`](tests/competition/README.md). The visible 30-sample Development set produces Open Loop TP 18 / FP 0 / FN 0 and Decision TP 6 / FP 0 / FN 0. After rule freeze, QA generated and ran the separate 50-sample Holdout once: Open Loop TP 35 / FP 0 / FN 0 with a Wilson 95% precision/recall interval of 90.11%–100%. These results are not retention evidence or a real 14-day Alpha.
 
-The dated Codex/MCP probe is in [`docs/competition/capability-probe-2026-07-15.md`](docs/competition/capability-probe-2026-07-15.md). A later isolated protocol probe verified all 11 MCP tools and a typed `codex` capture against a non-production database. MCP availability depends on the Codex host; when MCP is unavailable, the installed Atlas skill uses the verified loopback HTTP fallback without forcing the user into the Dashboard.
+The original capability probe is in [`docs/competition/capability-probe-2026-07-15.md`](docs/competition/capability-probe-2026-07-15.md). The later [`conversation-first probe`](docs/competition/conversation-first-probe-2026-07-17.md) verified all 11 MCP tools and a typed `codex` capture against a non-production database. MCP availability depends on the Codex host; when MCP is unavailable, the installed Atlas skill uses the verified loopback HTTP fallback without forcing the user into the Dashboard.
 
 Windows release packaging and judge instructions are in [`packaging/windows/README-TESTING.md`](packaging/windows/README-TESTING.md). The release builder bundles a matching Node runtime and a self-contained MCP server. Normal installation creates portable data under the extracted release; `--demo` uses a separate synthetic data directory. Neither mode reads the normal `%LOCALAPPDATA%\Atlas` database.
 
@@ -216,7 +229,7 @@ Windows release packaging and judge instructions are in [`packaging/windows/READ
 
 - Atlas is local-first and imported text is always inert, untrusted data.
 - The installer does not request elevation, edit the registry, or change Windows Firewall.
-- Ports are restricted to loopback `127.0.0.1:4310-4319`; if all are occupied, startup stops safely.
+- `atlasd` always binds to `127.0.0.1`. The Windows launcher selects a port from 4310 through 4319; if all ten are occupied, startup stops safely.
 - Authentication secrets are protected for the current Windows user with DPAPI and are never committed to Git or included in the ZIP.
 - Release ZIPs publish SHA-256 hashes. Authenticode status is stated explicitly and never implied.
 - Atlas source code is released under the [MIT License](LICENSE). Bundled runtime dependencies remain under their own licenses; see [Third-Party Notices](THIRD-PARTY-NOTICES.md).
