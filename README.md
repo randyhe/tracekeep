@@ -1,5 +1,7 @@
 # Atlas
 
+[中文](#中文快速开始) | [English](#english-quick-start)
+
 ## 中文快速开始
 
 **Atlas 是一个可以直接在 Codex 对话中使用的本地第二大脑。** 你可以让它记住灵感、保存待办、找回被中断的工作，并查看今天应该继续什么。数据默认保存在自己的电脑上；Web Dashboard 只是集中查看和管理记录的辅助入口。
@@ -70,45 +72,98 @@ Atlas 是绿色版本，程序、插件副本和个人数据都保存在解压�
 
 ---
 
-## English overview
+## English Quick Start
 
-**Atlas — Local-First AI Memory & Action System** helps people remember what mattered and resume what was interrupted. Its primary experience lives inside Codex conversations: users can explicitly ask Atlas to remember an idea, preserve a decision, recover unfinished work, see today's focus, or search prior evidence without switching to another app. The Web dashboard is the optional workspace for batch review, sources, backup, and settings.
+**Atlas is a local-first memory and action system that works directly inside Codex conversations.** Ask it to remember an idea, save a future action, resume interrupted work, show today's focus, or find an earlier decision with its source. The Web Dashboard is an optional workspace for reviewing and managing everything in one place.
 
 Atlas is an **Apps for Your Life** project for OpenAI Build Week. It is not a general chat archive and does not claim access to all ChatGPT or Codex history.
 
-## Install on Windows
+### The easiest way to install Atlas (Windows 10/11 x64)
 
-Atlas is distributed as a green, no-admin Windows release:
+Before you begin, make sure **Codex Desktop** is installed and opens normally. You do not need administrator rights, Node.js, pnpm, a separate database, an API key, or a hosted Atlas account.
 
-1. Download `Atlas-Windows-x64.zip` and its `.sha256` file from [GitHub Releases](https://github.com/randyhe/atlas/releases/latest).
-2. Verify the SHA-256 value, then extract the complete ZIP to a writable folder.
-3. Double-click **Install Atlas.cmd**. It installs the personal Codex plugin, creates a local encrypted authentication token, starts Atlas, and opens the dashboard.
-4. Open a new Codex task and say: **“Remember this in Atlas: finish the demo video.”**
+1. Open the [latest Atlas release](https://github.com/randyhe/atlas/releases/latest).
+2. Under **Assets**, download `Atlas-Windows-x64.zip`. We also recommend downloading `Atlas-Windows-x64.zip.sha256` so you can verify the package.
+3. Right-click the ZIP and choose **Extract All**. Do not run Atlas from inside the ZIP file.
+4. Open the extracted folder and double-click **`Install Atlas.cmd`**.
+5. Wait until the command window displays:
 
-No administrator account, Node.js installation, package manager, API key, or hosted Atlas account is required. After installation, use **Start Atlas.cmd** whenever Atlas is not already running. The Web dashboard is optional; normal capture and recall happen in Codex conversations.
+   ```text
+   Atlas is installed and running. Open a new Codex task to use it.
+   ```
 
-To remove the Codex integration, double-click **Uninstall Atlas.cmd**. It unregisters the plugin and local marketplace but preserves `work/data`. Delete the extracted Atlas folder only after you have backed up or intentionally discarded that data.
+   The installer will also open the Atlas Dashboard in your browser.
+6. Fully quit and restart Codex. Open **Plugins → Atlas**, confirm that Atlas is installed, and click **Connect**. Then start a new Codex conversation and enter:
 
-> The current release is distributed as a ZIP with a published SHA-256 checksum. Windows Authenticode signing is planned but requires a trusted code-signing certificate; the project does not claim that unsigned scripts are digitally signed.
+   > Atlas, remember this: continue the demo video tomorrow.
 
-## V1 guarantees
+### How do I know the installation succeeded?
+
+Atlas is ready when all three checks pass:
+
+- **Installer:** the command window says `Atlas is installed and running` and shows no red error.
+- **Dashboard:** your browser opens Atlas and you can access `Today`, `Capture`, `Review`, and `Search`.
+- **Codex conversation:** Codex confirms your Atlas capture, and the new item appears on the Dashboard's **Review** page.
+
+### What can I say to Atlas?
+
+```text
+Atlas, remember this idea: build a family investment dashboard.
+Atlas, save “reply to the client next week” as a task.
+Atlas, what unfinished work should I resume?
+Atlas, what should I focus on today?
+Atlas, search for my earlier testing-plan decision and show the source.
+Atlas, open the Dashboard.
+```
+
+After restarting Windows, or whenever the Dashboard is not running, double-click **`Start Atlas.cmd`**. You do not need to reinstall Atlas. It first tries `127.0.0.1:4310` and automatically falls back through ports 4311–4319 when necessary.
+
+### Troubleshooting
+
+#### Windows shows a security warning
+
+The current release includes a published SHA-256 checksum but is not yet signed with a commercial Authenticode certificate. Download Atlas only from this project's GitHub Releases page. In PowerShell, verify the ZIP with:
+
+```powershell
+Get-FileHash .\Atlas-Windows-x64.zip -Algorithm SHA256
+```
+
+Compare the result with `Atlas-Windows-x64.zip.sha256` before deciding whether to run the installer. Atlas does not request administrator rights, edit the registry, or create a Windows Firewall rule.
+
+#### Atlas does not appear in Codex after installation
+
+Fully quit and restart Codex, open **Plugins → Atlas**, and click **Connect**. Start a new conversation because one that was already open might not load the newly installed plugin immediately.
+
+#### The Dashboard does not open
+
+Double-click **`Start Atlas.cmd`** in the extracted folder. It finds an available local port from 4310 through 4319 and opens the browser automatically. If the command window says that all ports are occupied, close an older Atlas process or another local application using those ports, then try again.
+
+#### Can I move or delete the extracted folder?
+
+Atlas is a portable release: the application, installed plugin copy, and personal data remain under the extracted folder. Do not move or delete it after installation. Your data is stored in `work/data`; back up that directory before removing Atlas. Double-click **`Uninstall Atlas.cmd`** to unregister the Codex plugin while preserving the data.
+
+---
+
+## Product and technical reference
+
+### V1 guarantees
 
 - Local capture, review, open-loop tracking, and FTS search work without an AI API key.
 - SQLite is the runtime source of truth.
 - Git exports are sanitized and intentionally incomplete for restricted data.
 - Conversation capture records `codex` as its source and supports Open Loop, Decision, and Reference candidates.
 - Codex integration is the preferred interaction layer, while the local API and Web dashboard preserve independent access to the data.
-- The default competition configuration has a $0 external service budget and does not enable usage-based AI APIs. Local electricity, storage, connectivity, and an existing subscription are outside that statement.
+- The default configuration sets the monthly external-service budget to $0 and does not enable usage-based AI APIs. Electricity, storage, connectivity, and any existing Codex subscription are outside that statement.
 - The Windows release generates a 256-bit per-user token protected with Windows DPAPI. Browser access uses an HttpOnly, SameSite session cookie; Codex MCP calls use the same local token.
 - The service binds only to `127.0.0.1`. It never creates a firewall exception, listens on the LAN, or enables a public tunnel.
 
-## Golden journeys
+### Golden journeys
 
 1. Import or capture an explicit open loop, inspect its Evidence, accept it in Review, move it through Today, then mark it done or scheduled.
 2. Capture the same intent from a second source, inspect the **Possible duplicate** hint, merge the Evidence, then undo only the added Evidence link.
 3. Import restricted or adversarial text and verify that it remains inert data, is redacted from ordinary responses, and does not enter Search or sanitized exports.
 
-## Architecture
+### Architecture
 
 ```text
 Codex conversation --> skill / MCP --\
@@ -120,13 +175,13 @@ Source imports --> local extractor ----------+               | audit_events
 
 `atlasd` is the only SQLite writer. Imports, URLs, and commands are always treated as untrusted text. The deterministic `competition-1` extractor reads user-authored ChatGPT messages only, emits at most three candidates in Decision → Waiting → Open Loop order, and sends every result to Review.
 
-## Local entry points
+### Local entry points
 
 - Codex: say “Remember this in Atlas,” “What unfinished work should I resume?”, or “Search Atlas for …”. The installed skill uses the local API fallback when MCP is not exposed.
-- Plugin: the Windows installer registers the package-local `atlas-release` marketplace and installs `atlas@atlas-release`; open a new Codex task after installation.
+- Plugin: the Windows installer registers the package-local `atlas-release` marketplace and installs `atlas@atlas-release`; open a new Codex conversation after installation.
 - Web review workspace: the installer opens the selected loopback port. Atlas prefers 4310 and safely falls back through 4319.
 
-## Development
+### Development from source
 
 ```powershell
 pnpm install
@@ -135,11 +190,11 @@ pnpm build
 pnpm start
 ```
 
-Open `http://127.0.0.1:4310`. On Windows, runtime data defaults to `%LOCALAPPDATA%\Atlas` so an active SQLite database is not placed inside the OneDrive repository. Use `ATLAS_DATA_DIR` to select a different local directory.
+Open `http://127.0.0.1:4310`. When running from source on Windows, runtime data defaults to `%LOCALAPPDATA%\Atlas`; use `ATLAS_DATA_DIR` to select a different development directory. The downloadable Windows release uses its own portable `work/data` directory instead.
 
 For front-end development, run `pnpm dev` and `pnpm dev:web` in separate terminals, then open `http://127.0.0.1:4311`.
 
-## Import endpoints
+### Import endpoints
 
 - `POST /api/v1/imports/manual`
 - `POST /api/v1/imports/daily-log`
@@ -149,15 +204,15 @@ Imported text is always treated as untrusted data and every candidate enters Rev
 
 ChatGPT Export is limited to 12 MB per HTTP request and 1,000 conversations. It is a manual historical fallback, not automatic history access.
 
-## Competition testing
+### Competition evidence
 
 The repeatable synthetic harness is documented in [`tests/competition/README.md`](tests/competition/README.md). The visible 30-sample Development set produces Open Loop TP 18 / FP 0 / FN 0 and Decision TP 6 / FP 0 / FN 0. After rule freeze, QA generated and ran the separate 50-sample Holdout once: Open Loop TP 35 / FP 0 / FN 0 with a Wilson 95% precision/recall interval of 90.11%–100%. Ten samples remain explicitly pending BA/QA double-label and user arbitration. These results are not retention evidence or a real 14-day Alpha.
 
-The dated Codex/MCP probe is in [`docs/competition/capability-probe-2026-07-15.md`](docs/competition/capability-probe-2026-07-15.md). A later isolated protocol probe verified all 11 MCP tools and a typed `codex` capture against a non-production database. Atlas MCP tools are still not exposed by this current host task, so MCP remains **Experimental**; the installed Atlas skill now provides a verified loopback HTTP fallback without forcing the user into the dashboard.
+The dated Codex/MCP probe is in [`docs/competition/capability-probe-2026-07-15.md`](docs/competition/capability-probe-2026-07-15.md). A later isolated protocol probe verified all 11 MCP tools and a typed `codex` capture against a non-production database. MCP availability depends on the Codex host; when MCP is unavailable, the installed Atlas skill uses the verified loopback HTTP fallback without forcing the user into the Dashboard.
 
 Windows release packaging and judge instructions are in [`packaging/windows/README-TESTING.md`](packaging/windows/README-TESTING.md). The release builder bundles a matching Node runtime and a self-contained MCP server. Normal installation creates portable data under the extracted release; `--demo` uses a separate synthetic data directory. Neither mode reads the normal `%LOCALAPPDATA%\Atlas` database.
 
-## Security, trust, and license
+### Security, trust, and license
 
 - Atlas is local-first and imported text is always inert, untrusted data.
 - The installer does not request elevation, edit the registry, or change Windows Firewall.
@@ -166,8 +221,8 @@ Windows release packaging and judge instructions are in [`packaging/windows/READ
 - Release ZIPs publish SHA-256 hashes. Authenticode status is stated explicitly and never implied.
 - Atlas source code is released under the [MIT License](LICENSE). Bundled runtime dependencies remain under their own licenses; see [Third-Party Notices](THIRD-PARTY-NOTICES.md).
 
-## Human and Codex contribution
+### Human and Codex contribution
 
 The user chose the product promise, review-first workflow, schema v2 boundary, privacy model, zero-paid-provider configuration, competition claims, and release gates. Codex assisted with implementation, tests, architecture review, synthetic evaluation, and packaging. Exact model-version claims should be made only when the submission host exposes verifiable model metadata; this repository does not invent a minor model version.
 
-The post-2026-07-13 implementation history is preserved in Git, beginning with `a5bcf40` (local alpha baseline) and `6ab639e` (P0 review and safe restore), followed by the Build Week competition commits on this branch.
+The post-2026-07-13 implementation history is preserved in the repository, beginning with `a5bcf40` (local alpha baseline) and `6ab639e` (P0 review and safe restore), followed by the Build Week competition commits.
