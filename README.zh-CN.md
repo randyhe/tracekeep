@@ -10,9 +10,9 @@
 
 **它会替你记住：刚才做到哪里？下一步做什么？为什么值得继续？**
 
-![模拟的最新版 Codex 对话，通过 Atlas 记录和继续日常事项](docs/assets/atlas-codex-conversation.png)
+![以用户提供的 ChatGPT 界面为参考，模拟 Atlas 对话优先的使用体验](docs/assets/atlas-codex-conversation.png)
 
-*模拟的 Codex 对话，全部使用合成数据；Codex 不同版本的具体界面可能有所变化。*
+*使用合成数据的对话优先体验概念图，以用户提供的 ChatGPT 界面为视觉参考。Atlas 当前正式交付的是本地 Codex 插件；不同宿主的具体界面和可用入口可能有所变化。*
 
 ## 30 秒理解 Atlas
 
@@ -72,6 +72,8 @@ Atlas 围绕两个最常用的动作设计：
 Codex 对话中的主动记录只保存你明确交给 Atlas 的内容，不会自动保存当前整段会话。通过 ChatGPT Export 手动导入的对话则会保存在本地，用于提取候选项、搜索和来源追踪。
 
 新提取的内容会先进入 **Review**，确认后才成为正式行动或决定。Atlas 不会执行导入内容中的命令，也不会打开导入内容中的 URL。Dashboard 是一个可选的集中工作区，可以审核、搜索、合并重复项、安排、完成或主动放弃记录。
+
+在主对话正文中，Atlas 只使用普通助手文字和轻量的保存或来源状态进行回复，不会把 Dashboard 嵌入正文。支持相应能力的宿主最多可以在 side chat 中显示紧凑摘要，完整 Dashboard 始终是独立的本地管理页面。
 
 Atlas 不是完整聊天归档工具，也不宣称可以自动读取全部 ChatGPT 或 Codex 历史。ChatGPT Export 只是手动导入历史的兜底方式。
 

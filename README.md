@@ -14,9 +14,9 @@ Life rarely lets you finish one thing before the next begins. A call comes in, y
 
 **Atlas remembers: Where did you stop? What should you do next? Why is it worth continuing?**
 
-![Simulated Codex conversation using Atlas with synthetic daily-life examples](docs/assets/atlas-codex-conversation.png)
+![Simulated conversation-first Atlas experience based on the provided ChatGPT interface](docs/assets/atlas-codex-conversation.png)
 
-*Simulated Codex conversation using synthetic data. The exact host layout may change between Codex versions.*
+*Conversation-first interaction concept using synthetic data and the provided ChatGPT interface as its visual reference. Atlas currently ships as a local Codex plugin; the exact host layout and available surfaces may vary.*
 
 ## Use Atlas in 30 seconds
 
@@ -76,6 +76,8 @@ Atlas is designed around two everyday actions:
 An explicit Codex capture stores only the content you deliberately give Atlas; it does not silently archive the whole current conversation. A manually imported ChatGPT Export is different: imported conversations are stored locally so Atlas can extract candidates, search them, and preserve source traceability.
 
 Newly extracted items enter **Review** before becoming accepted actions or decisions. Atlas does not execute imported instructions or open imported URLs. The Dashboard is an optional workspace for reviewing, searching, merging duplicates, scheduling, completing, or dismissing records.
+
+In the main conversation, Atlas responds as ordinary assistant text with a lightweight save or source status. It does not embed the Dashboard in the conversation body. A supported host may show a compact Atlas summary in a side chat, while the full Dashboard remains a separate local workspace.
 
 Atlas is not a general chat archive and does not claim automatic access to all ChatGPT or Codex history. ChatGPT Export is a manual historical fallback.
 
