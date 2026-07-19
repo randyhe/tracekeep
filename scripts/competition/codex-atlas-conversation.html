@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>Atlas conversation-first demo</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #202020;
+      background: #f7f7f6;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; width: 1600px; height: 1000px; overflow: hidden; background: #f7f7f6; }
+    button { font: inherit; }
+    .app { display: grid; grid-template-columns: 72px 286px 1fr; height: 100%; }
+    .rail { border-right: 1px solid #e4e4e1; background: #f2f2f0; padding: 18px 13px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .mark { width: 42px; height: 42px; border-radius: 12px; background: #1f1f1f; color: white; display: grid; place-items: center; font-weight: 700; font-size: 18px; margin-bottom: 9px; }
+    .rail-icon { width: 42px; height: 42px; border-radius: 11px; display: grid; place-items: center; color: #656562; font-size: 21px; }
+    .rail-icon.active { background: white; color: #222; box-shadow: 0 1px 2px #00000012; }
+    .rail-spacer { flex: 1; }
+    .avatar { width: 34px; height: 34px; border-radius: 50%; background: #d9e9e2; color: #214d40; display: grid; place-items: center; font-weight: 700; }
+    .sidebar { border-right: 1px solid #e4e4e1; background: #f7f7f6; padding: 22px 18px; }
+    .sidebar h1 { margin: 2px 4px 23px; font-size: 21px; letter-spacing: -.02em; }
+    .new-task { width: 100%; border: 1px solid #d8d8d5; background: white; border-radius: 10px; padding: 10px 13px; text-align: left; color: #323231; margin-bottom: 22px; box-shadow: 0 1px 1px #00000008; }
+    .section-label { margin: 0 8px 8px; color: #8b8b87; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; }
+    .thread { border-radius: 9px; padding: 10px 12px; margin-bottom: 4px; font-size: 14px; color: #555552; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .thread.active { background: #e9e9e6; color: #1f1f1e; font-weight: 600; }
+    .main { min-width: 0; display: grid; grid-template-rows: 70px 1fr 112px; background: #fff; }
+    .topbar { border-bottom: 1px solid #ececea; padding: 0 31px; display: flex; align-items: center; justify-content: space-between; }
+    .title-wrap { display: flex; align-items: center; gap: 12px; }
+    .title-wrap strong { font-size: 15px; }
+    .workspace { color: #83837f; font-size: 13px; }
+    .demo-label { border: 1px solid #d7d7d4; background: #fafafa; color: #666662; border-radius: 999px; padding: 7px 11px; font-size: 12px; }
+    .conversation { overflow: hidden; padding: 38px 66px 24px; }
+    .conversation-inner { max-width: 880px; margin: 0 auto; }
+    .message { margin-bottom: 28px; }
+    .message-head { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; font-size: 13px; font-weight: 650; }
+    .mini-avatar { width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; font-size: 12px; }
+    .mini-avatar.user { background: #ededeb; color: #555; }
+    .mini-avatar.atlas { background: #173f35; color: #fff; font-family: Georgia, serif; font-size: 15px; }
+    .message p { margin: 0 0 10px 35px; font-size: 15px; line-height: 1.55; color: #292928; }
+    .capture-card { margin: 12px 0 0 35px; border: 1px solid #dadbd7; border-radius: 13px; background: #fbfbfa; padding: 16px 18px; box-shadow: 0 1px 2px #00000008; }
+    .card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .saved { color: #215b48; font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 7px; }
+    .saved-dot { width: 20px; height: 20px; border-radius: 50%; background: #dcefe7; display: grid; place-items: center; }
+    .pending { color: #716a44; background: #f4f0dc; border-radius: 999px; padding: 5px 9px; font-size: 11px; font-weight: 650; }
+    .capture-title { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+    .metadata { display: grid; grid-template-columns: 84px 1fr; gap: 7px 12px; color: #6b6b67; font-size: 12px; }
+    .metadata b { color: #3f3f3d; font-weight: 600; }
+    .card-actions { display: flex; gap: 8px; margin-top: 14px; }
+    .card-actions button { border: 1px solid #d5d5d1; border-radius: 8px; padding: 7px 11px; background: white; font-size: 12px; color: #333; }
+    .card-actions button.primary { background: #222; color: white; border-color: #222; }
+    .focus-card { margin: 12px 0 0 35px; border: 1px solid #dadbd7; border-radius: 13px; overflow: hidden; background: #fff; }
+    .focus-heading { padding: 12px 15px; background: #f6f7f5; border-bottom: 1px solid #e7e7e3; display: flex; justify-content: space-between; align-items: center; }
+    .focus-heading strong { font-size: 13px; }
+    .focus-heading span { color: #767672; font-size: 11px; }
+    .focus-item { padding: 10px 15px; display: grid; grid-template-columns: 24px 1fr auto; gap: 9px; align-items: center; border-bottom: 1px solid #eeeeeb; font-size: 13px; }
+    .focus-item:last-child { border-bottom: 0; }
+    .number { width: 21px; height: 21px; border-radius: 6px; background: #e3eee9; color: #225345; display: grid; place-items: center; font-size: 11px; font-weight: 700; }
+    .source { color: #8a8a86; font-size: 11px; }
+    .composer-wrap { border-top: 1px solid #ececea; padding: 16px 66px 20px; }
+    .composer { max-width: 880px; height: 74px; margin: 0 auto; border: 1px solid #d5d5d2; border-radius: 15px; background: white; box-shadow: 0 2px 8px #0000000b; padding: 12px 14px; display: flex; flex-direction: column; justify-content: space-between; }
+    .placeholder { color: #969692; font-size: 14px; }
+    .composer-bottom { display: flex; align-items: center; justify-content: space-between; color: #747470; font-size: 12px; }
+    .tools { display: flex; gap: 14px; align-items: center; }
+    .send { width: 28px; height: 28px; border-radius: 8px; background: #222; color: white; display: grid; place-items: center; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="rail" aria-label="Codex navigation">
+      <div class="mark">C</div>
+      <div class="rail-icon active">⌂</div>
+      <div class="rail-icon">＋</div>
+      <div class="rail-icon">⌕</div>
+      <div class="rail-icon">◇</div>
+      <div class="rail-spacer"></div>
+      <div class="rail-icon">⚙</div>
+      <div class="avatar">LH</div>
+    </aside>
+    <aside class="sidebar">
+      <h1>Codex</h1>
+      <button class="new-task">＋ New task</button>
+      <div class="section-label">Today</div>
+      <div class="thread active">Atlas · remember and resume</div>
+      <div class="thread">Plan the family weekend</div>
+      <div class="thread">Compare summer camps</div>
+      <div class="thread">Home repair follow-up</div>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <div class="title-wrap"><strong>Atlas · remember and resume</strong><span class="workspace">Personal workspace</span></div>
+        <div class="demo-label">Simulated Codex conversation · synthetic data</div>
+      </header>
+      <section class="conversation">
+        <div class="conversation-inner">
+          <article class="message">
+            <div class="message-head"><span class="mini-avatar user">You</span><span>You</span></div>
+            <p>Atlas, remember this: keep comparing these three summer camps and check pickup times first.</p>
+          </article>
+          <article class="message">
+            <div class="message-head"><span class="mini-avatar atlas">A</span><span>Atlas</span></div>
+            <p>Saved. I’ll keep the next step and its source so you can resume it later.</p>
+            <div class="capture-card">
+              <div class="card-top"><div class="saved"><span class="saved-dot">✓</span>Saved to Atlas</div><span class="pending">Pending review</span></div>
+              <div class="capture-title">Continue comparing the three summer camps and confirm pickup times first.</div>
+              <div class="metadata"><b>Type</b><span>Open Loop</span><b>Source</b><span>Current Codex conversation</span><b>Privacy</b><span>Stored locally</span></div>
+              <div class="card-actions"><button class="primary">Open Review</button><button>View source</button></div>
+            </div>
+          </article>
+          <article class="message">
+            <div class="message-head"><span class="mini-avatar user">You</span><span>You</span></div>
+            <p>What unfinished work should I resume today?</p>
+          </article>
+          <article class="message">
+            <div class="message-head"><span class="mini-avatar atlas">A</span><span>Atlas</span></div>
+            <p>Here are the three open loops most worth continuing.</p>
+            <div class="focus-card">
+              <div class="focus-heading"><strong>Today’s focus</strong><span>From your local Atlas</span></div>
+              <div class="focus-item"><span class="number">1</span><span>Confirm pickup times for the three summer camps.</span><span class="source">Codex</span></div>
+              <div class="focus-item"><span class="number">2</span><span>Book Dad’s annual checkup.</span><span class="source">Quick capture</span></div>
+              <div class="focus-item"><span class="number">3</span><span>Ask when the repair part will arrive.</span><span class="source">Daily log</span></div>
+            </div>
+          </article>
+        </div>
+      </section>
+      <footer class="composer-wrap">
+        <div class="composer">
+          <div class="placeholder">Ask Codex anything, or tell Atlas what to remember…</div>
+          <div class="composer-bottom"><div class="tools"><span>＋</span><span>Local</span><span>Atlas connected</span></div><span class="send">↑</span></div>
+        </div>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

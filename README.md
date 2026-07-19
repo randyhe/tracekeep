@@ -14,7 +14,9 @@ Life rarely lets you finish one thing before the next begins. A call comes in, y
 
 **Atlas remembers: Where did you stop? What should you do next? Why is it worth continuing?**
 
-![Atlas Today dashboard with synthetic daily-life examples](docs/assets/atlas-today.png)
+![Simulated Codex conversation using Atlas with synthetic daily-life examples](docs/assets/atlas-codex-conversation.png)
+
+*Simulated Codex conversation using synthetic data. The exact host layout may change between Codex versions.*
 
 ## Use Atlas in 30 seconds
 
@@ -76,6 +78,12 @@ An explicit Codex capture stores only the content you deliberately give Atlas; i
 Newly extracted items enter **Review** before becoming accepted actions or decisions. Atlas does not execute imported instructions or open imported URLs. The Dashboard is an optional workspace for reviewing, searching, merging duplicates, scheduling, completing, or dismissing records.
 
 Atlas is not a general chat archive and does not claim automatic access to all ChatGPT or Codex history. ChatGPT Export is a manual historical fallback.
+
+### Dashboard for review and control
+
+The Web Dashboard is the place to review several records together, inspect evidence, search, merge duplicates, and manage lifecycle states. It supports the conversation-first experience; it is not required before every capture or recall.
+
+![Atlas Today dashboard with synthetic daily-life examples](docs/assets/atlas-today.png)
 
 ## Privacy, security, and cost
 
