@@ -8,10 +8,12 @@ Internal target: **2026-07-20 7:00 PM CDT**.
 - [x] Category selected: Apps for Your Life.
 - [x] Public MIT-licensed repository available.
 - [x] Public repository PR merged and privacy-scanned.
-- [x] Windows x64 package built from public `main`.
+- [x] Windows x64 v0.2.1 candidate built from current public-main baseline plus
+  scoped competition changes.
 - [x] Staged and extracted package validation passed.
 - [x] Independent bundled-Node-only clean-room run passed.
-- [x] ZIP and `.sha256` published in GitHub Release.
+- [x] Existing v0.2.0 ZIP and `.sha256` published in GitHub Release.
+- [ ] Publish the validated v0.2.1 ZIP and `.sha256` in a new GitHub Release.
 - [x] Judge testing does not require a rebuild, API key, admin account, or login.
 - [x] Devpost English description drafted.
 - [x] Capability boundaries and pre-existing-project extension documented.
@@ -23,15 +25,16 @@ Internal target: **2026-07-20 7:00 PM CDT**.
 
 ## Agent-owned work
 
-- [x] Final repository and Release links returned HTTP 200.
+- [ ] Publish the v0.2.1 source changes and verify CI.
+- [ ] Verify the new v0.2.1 repository and Release links after publication.
 - [x] Plugin validation, forbidden-artifact scan, privacy scan, and
   `git diff --check` passed.
 
 ## Product-owner final review
 
-- [ ] Review the UAT playback for realistic usage behavior.
 - [ ] Complete UAT-017 blind candidate usefulness review.
-- [ ] Review the final video, captions, Devpost text, and public repository.
+- [ ] Review the new conversation-first video, captions, Devpost text, and
+  public repository. The obsolete dashboard-first video is not in scope.
 - [ ] Run `/feedback` in the core Codex project task and record the Session ID.
 - [ ] Upload the final MP4 to publicly visible YouTube.
 - [ ] Paste the YouTube URL and Session ID into Devpost.

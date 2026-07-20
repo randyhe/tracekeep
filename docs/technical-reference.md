@@ -1,6 +1,6 @@
 # Atlas technical reference
 
-This document describes the verified v0.2.0 local architecture, storage boundary, entry points, and import behavior. Product setup starts in the main [README](../README.md).
+This document describes the verified v0.2.1 local architecture, storage boundary, entry points, and import behavior. Product setup starts in the main [README](../README.md).
 
 ## Architecture
 
@@ -63,6 +63,25 @@ All writes require an idempotency key. Update operations use expected versions a
 - The HTTP service binds only to `127.0.0.1`; the release launcher tries ports 4310–4319 and stops if all are occupied.
 
 See [SECURITY.md](../SECURITY.md) for the public security boundary.
+
+## Planned mobile architecture: ChatGPT Direct
+
+Mobile ChatGPT integration is a future capability and is not part of the verified v0.2.1 architecture above. The selected product direction is a ChatGPT App backed by a remote HTTPS MCP gateway, rather than exposing the local Dashboard or `atlasd` to the internet.
+
+```mermaid
+flowchart LR
+    Mobile["ChatGPT mobile conversation"] --> App["Atlas ChatGPT App"]
+    App --> Gateway["HTTPS MCP gateway<br/>OAuth 2.1"]
+    Gateway --> Queue["Encrypted short-lived queue"]
+    Sync["PC outbound sync agent"] --> Queue
+    Sync --> Local["atlasd<br/>loopback only"]
+    Local --> DB["Local SQLite<br/>runtime authority"]
+    Web["Local Web Dashboard"] --> Local
+```
+
+The remote gateway is a transport boundary, not a second source of truth. It must not expose the local SQLite file, accept anonymous access, or retain the user's full Atlas database. The computer initiates outbound synchronization, and only structured captures, review candidates, source identifiers, hashes, and bounded evidence needed for review move through the synchronization path. Full mobile conversations are not copied by default.
+
+The detailed design, delivery gates, and official OpenAI implementation references are in the [ChatGPT Direct mobile roadmap](product/chatgpt-direct-mobile-roadmap.md).
 
 ## Source development
 

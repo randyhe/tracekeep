@@ -27,7 +27,7 @@ Allowed claims include:
 - Atlas passed dated synthetic Golden Journey replays.
 - A user can review conversation-first captures, resume open loops, and search sourced evidence.
 - Atlas processes made no non-loopback request during the documented observed test flows.
-- Codex assisted implementation, testing, review, and packaging.
+- Codex and GPT-5.6 assisted implementation, testing, review, and packaging.
 
 Do not claim:
 
@@ -36,4 +36,4 @@ Do not claim:
 - access to all ChatGPT or Codex history;
 - absolute zero cost in every environment;
 - absolute absence of all machine or browser network activity;
-- a model minor version that the host does not expose as verifiable metadata.
+- direct ChatGPT mobile capture before the planned authenticated gateway ships.

@@ -22,10 +22,11 @@ that were mentioned but never closed.
 
 ## What it does
 
-Atlas is a local-first personal memory and action system. It imports deliberate
-ChatGPT exports, daily logs, or manual captures; extracts explicit open loops and
-decisions; and sends every result to a Review queue before it can affect the
-user's action list.
+Atlas is a conversation-first, local-first personal memory and action system.
+In Codex, the user can explicitly say what should be remembered and later ask
+what unfinished work is worth resuming. Atlas can also import deliberate
+ChatGPT exports, daily logs, or manual captures. Every extracted open loop or
+decision goes to Review before it can affect the user's action list.
 
 The user can edit, accept, reject, merge, schedule, complete, dismiss, or undo.
 Every accepted item retains inspectable source evidence. Atlas can detect a
@@ -63,7 +64,7 @@ owner made the product, privacy, cost, and release decisions. The required
 
 ## Accomplishments
 
-- 71 automated TypeScript, unit, and integration checks pass.
+- 74 automated TypeScript, unit, and integration checks pass.
 - Three isolated Golden Journeys pass.
 - A frozen 50-sample Holdout passed the required extraction thresholds; the
   Holdout remains private to prevent evaluation tuning.
@@ -83,8 +84,9 @@ features that make extracted suggestions safe enough to use every day.
 
 After the competition, Atlas will complete the real 14-day Alpha, improve
 candidate usefulness from user feedback, and retest the optional Codex plugin
-after installation. Mobile tailnet access, weekly review, and sourced AI
-answers remain later capabilities. Paid providers, cloud hosting, complete
+after installation. ChatGPT Direct mobile through a secure remote MCP gateway,
+weekly review, and sourced AI answers remain later capabilities. Paid providers,
+cloud hosting, complete
 history access, email/calendar write-back, and autonomous execution are not V1
 claims.
 

@@ -1,10 +1,14 @@
 [CmdletBinding()]
 param(
-    [string]$OutputDirectory = (Join-Path $PSScriptRoot "out"),
+    [string]$OutputDirectory,
     [switch]$SkipBuild
 )
 
 $ErrorActionPreference = "Stop"
+$env:CI = "true"
+if ([string]::IsNullOrWhiteSpace($OutputDirectory)) {
+    $OutputDirectory = Join-Path $PSScriptRoot "out"
+}
 $repositoryRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\.."))
 $outputRoot = [System.IO.Path]::GetFullPath($OutputDirectory)
 $stage = Join-Path $outputRoot "Atlas-Windows-x64"
@@ -17,6 +21,8 @@ if (-not $outputRoot.StartsWith([System.IO.Path]::GetFullPath($PSScriptRoot), [S
 }
 
 if (-not $SkipBuild) {
+    & $corepackPath pnpm --dir $repositoryRoot install --frozen-lockfile --prod=false
+    if ($LASTEXITCODE -ne 0) { throw "pnpm install failed." }
     & $corepackPath pnpm --dir $repositoryRoot build
     if ($LASTEXITCODE -ne 0) { throw "pnpm build failed." }
 }
@@ -52,7 +58,10 @@ Copy-Item -LiteralPath (Join-Path $repositoryRoot "THIRD-PARTY-NOTICES.md") -Des
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot "demo-seed\README.txt") -Destination (Join-Path $stage "demo-seed")
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot "demo-seed\demo-data.json") -Destination (Join-Path $stage "demo-seed")
 Copy-Item -LiteralPath (Join-Path $repositoryRoot "plugins\atlas\.codex-plugin") -Destination (Join-Path $stage "plugin\atlas") -Recurse -Force
-Copy-Item -LiteralPath (Join-Path $repositoryRoot "plugins\atlas\assets") -Destination (Join-Path $stage "plugin\atlas") -Recurse -Force
+$pluginAssets = Join-Path $repositoryRoot "plugins\atlas\assets"
+if (Test-Path -LiteralPath $pluginAssets -PathType Container) {
+    Copy-Item -LiteralPath $pluginAssets -Destination (Join-Path $stage "plugin\atlas") -Recurse -Force
+}
 Copy-Item -LiteralPath (Join-Path $repositoryRoot "plugins\atlas\skills") -Destination (Join-Path $stage "plugin\atlas") -Recurse -Force
 Copy-Item -LiteralPath (Join-Path $repositoryRoot "plugins\atlas\mcp-server\dist\index.js") -Destination (Join-Path $stage "plugin\atlas\mcp-server\dist\index.js") -Force
 Copy-Item -LiteralPath (Join-Path $repositoryRoot "plugins\atlas\mcp-server\package.json") -Destination (Join-Path $stage "plugin\atlas\mcp-server\package.json") -Force
