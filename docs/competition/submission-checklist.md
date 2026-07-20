@@ -25,8 +25,9 @@ Internal target: **2026-07-20 7:00 PM CDT**.
 
 - [x] v0.2.1 source changes published through PR #15; both GitHub Actions checks
   passed before squash merge.
-- [x] Public `main` and `v0.2.1` tag resolve to merge commit
-  `aac51d1a443b8ac0153088b343bb6b930daea9ca`.
+- [x] The `v0.2.1` tag fixes the validated release source at merge commit
+  `aac51d1a443b8ac0153088b343bb6b930daea9ca`; public `main` contains that
+  release source plus documentation-only publication-status updates.
 - [x] Release ZIP uploaded successfully; GitHub's SHA-256 digest matches the
   validated local checksum.
 - [x] Plugin validation, forbidden-artifact scan, privacy scan, and
