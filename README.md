@@ -81,6 +81,14 @@ In the main conversation, Atlas responds as ordinary assistant text with a light
 
 Atlas is not a general chat archive and does not claim automatic access to all ChatGPT or Codex history. ChatGPT Export is a manual historical fallback.
 
+### Roadmap: ChatGPT Direct on mobile
+
+The planned mobile experience is **ChatGPT Direct**, not a phone browser remotely controlling the desktop Dashboard. A user should be able to tell Atlas to remember something, or ask what to resume, directly in the ChatGPT mobile conversation.
+
+This capability is not shipped in v0.2.1. The planned design uses a ChatGPT App with a remote HTTPS MCP gateway and OAuth 2.1. A small outbound sync agent on the user's computer transfers reviewable records to the local `atlasd`; SQLite remains the authoritative store. The gateway is a short-lived transport queue, not a cloud copy of the Atlas database, and full conversations are not copied by default.
+
+See the [ChatGPT Direct mobile roadmap](docs/product/chatgpt-direct-mobile-roadmap.md) for the target user flow, architecture, privacy boundary, delivery phases, and release gates.
+
 ### Dashboard for review and control
 
 The Web Dashboard is the place to review several records together, inspect evidence, search, merge duplicates, and manage lifecycle states. It supports the conversation-first experience; it is not required before every capture or recall.
@@ -98,7 +106,7 @@ The Web Dashboard is the place to review several records together, inspect evide
 
 See [SECURITY.md](SECURITY.md) for the threat boundary, reporting process, and current limitations.
 
-## Verified behavior in v0.2.0
+## Verified behavior in v0.2.1
 
 - Conversation-first capture for Open Loop, Decision, and Reference candidates.
 - Review-first acceptance, editing, rejection, duplicate merge, and undo.
@@ -120,6 +128,7 @@ pnpm start
 Open `http://127.0.0.1:4310`. Development data defaults to `%LOCALAPPDATA%\Atlas`; set `ATLAS_DATA_DIR` to isolate it. The downloadable release instead uses its portable `work/data` directory.
 
 - [Technical reference and architecture](docs/technical-reference.md)
+- [ChatGPT Direct mobile roadmap](docs/product/chatgpt-direct-mobile-roadmap.md)
 - [Competition evidence and claim boundaries](docs/competition/README.md)
 - [Requirements traceability](docs/quality/requirements-traceability.md)
 - [Contributing](CONTRIBUTING.md)
@@ -128,4 +137,8 @@ Open `http://127.0.0.1:4310`. Development data defaults to `%LOCALAPPDATA%\Atlas
 
 Atlas is available under the [MIT License](LICENSE). Bundled dependencies remain under their own licenses; see [Third-Party Notices](THIRD-PARTY-NOTICES.md).
 
-The product owner defined the problem, interaction model, review-first workflow, privacy boundary, schema v2 constraint, cost boundary, and release gates. Codex assisted with implementation, tests, architecture review, synthetic evaluation, and packaging. The repository does not claim a model minor version that cannot be verified from host metadata.
+## Built with Codex and GPT-5.6
+
+The product owner defined the user problem, conversation-first interaction, review workflow, privacy and cost boundaries, schema v2 constraint, and release gates. Codex and GPT-5.6 were then used as the collaborative engineering environment to inspect the live repository, challenge product and architecture assumptions, implement scoped changes, generate and run regression tests, diagnose failures, exercise synthetic UAT journeys, scan privacy boundaries, and build the portable Windows release.
+
+The human owner remained responsible for product, privacy, cost, and release decisions. Atlas keeps this collaboration auditable through public commits, test evidence, capability probes, and explicit claim boundaries instead of presenting generated output as autonomous product ownership.

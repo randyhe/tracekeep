@@ -12,6 +12,7 @@ test-results/
 .playwright-cli/
 .playwright-mcp/
 output/playwright/
+output/review/
 work/competition-runs/
 work/
 packaging/windows/out-*/

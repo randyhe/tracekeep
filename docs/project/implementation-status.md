@@ -31,7 +31,7 @@ Date: 2026-07-15
 | Gate 2 Local core | Go for personal Alpha | Full Review lifecycle, schema 2 migration, privacy canary, stopped-service restore, production restart, build, and real browser flow pass |
 | Gate 3 Sources | Conditional Go for personal Alpha | Manual, ChatGPT JSON, and Daily Log imports plus dedupe and injection defenses pass; streaming ZIP, checkpoints, and queued resume remain |
 | Gate 4 Codex | Conditional | MCP server protocol smoke passed; host installation/current-session invocation is not yet verified |
-| Gate 5 Mobile | Not started | Tailscale Serve must not be enabled without a separate secure deployment check |
+| Gate 5 Mobile | Not started | Product direction is ChatGPT Direct through a remote HTTPS MCP gateway, OAuth 2.1, and outbound PC sync; the local Dashboard remains the current fallback |
 | Gate 6 Alpha | Not started | Requires 14 days of real use and UAT metrics |
 
 ## P0 closure delivered
@@ -49,7 +49,8 @@ Date: 2026-07-15
 - Source adapters do not yet implement incremental `discover/fetch_page/checkpoint`; MCP `sync_sources` returns an explicit unavailable fallback.
 - Codex plugin files validate and the MCP server works over stdio, but installation inside this packaged Codex build is not verified because the shell receives Access Denied for `codex.exe`.
 - No stable public contract was found for reading all ChatGPT/Codex history; this is not a product claim.
-- Apps SDK cards, Tailscale mobile access, AI synthesis, Weekly Review, and all P1/deferred items remain outside this Alpha core.
+- ChatGPT Direct mobile, its remote MCP gateway, OAuth flow, outbound PC sync, AI synthesis, Weekly Review, and all other P1/deferred items remain outside this Alpha core.
+- The future remote gateway is transport only. SQLite remains the runtime authority, and full mobile conversations must not be copied by default.
 - Restore has clean-room evidence but no process-level CLI regression test in the repository.
 - The MCP package has a protocol smoke result but no automated test cases.
 - Full WCAG audit, 10,000-record performance run, external process network audit, and 14-day Alpha UAT remain release gates.

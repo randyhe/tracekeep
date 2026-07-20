@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, rename } from "node:fs/promises";
+import { mkdir, readFile, rename } from "node:fs/promises";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { spawn } from "node:child_process";
@@ -10,7 +10,9 @@ const outputDirectory = resolve(repositoryRoot, "output/playwright/final-video")
 const runDirectory = resolve(repositoryRoot, `work/competition-runs/final-video-${Date.now()}`);
 const dataDirectory = resolve(runDirectory, "data");
 const fixturePath = resolve(repositoryRoot, "docs/competition/synthetic-conversations.json");
+const conversationPath = resolve(repositoryRoot, "scripts/competition/codex-atlas-conversation.html");
 const playwrightPath = process.env.ATLAS_PLAYWRIGHT_PATH;
+const browserExecutable = process.env.ATLAS_BROWSER_EXECUTABLE;
 if (!playwrightPath) throw new Error("ATLAS_PLAYWRIGHT_PATH is required.");
 
 await mkdir(outputDirectory, { recursive: true });
@@ -32,8 +34,10 @@ let context;
 try {
   await waitForAtlas();
   await seedExistingOpenLoop();
+  const codexCapture = await seedCodexConversationCapture();
+  await seedSyntheticConversationImport();
 
-  browser = await chromium.launch({ headless: true });
+  browser = await chromium.launch({ headless: true, ...(browserExecutable ? { executablePath: browserExecutable } : {}) });
   context = await browser.newContext({
     viewport: { width: 1920, height: 1080 },
     colorScheme: "light",
@@ -45,31 +49,34 @@ try {
 
   await showTitle(page);
   await page.screenshot({ path: resolve(outputDirectory, "01-title.png") });
-  await pause(14_000);
+  await pause(12_000);
 
-  await page.goto(`${baseUrl}/today`);
+  await page.goto(pathToFileURL(conversationPath).href);
+  await page.getByText("Simulated conversation · synthetic data").waitFor();
+  await page.screenshot({ path: resolve(outputDirectory, "02-conversation-first.png") });
+  await pause(24_000);
+
+  await page.goto(`${baseUrl}/review`);
   await page.evaluate(() => localStorage.setItem("atlas.theme", "light"));
   await page.reload();
-  await page.getByRole("heading", { name: "Continue what matters." }).waitFor();
-  await page.screenshot({ path: resolve(outputDirectory, "02-today.png") });
-  await pause(16_000);
-
-  await page.getByRole("link", { name: "Sources" }).click();
-  await page.getByRole("heading", { name: "Know what Atlas knows." }).waitFor();
-  await pause(3_000);
-  await page.getByTestId("chatgpt-import-file").setInputFiles(fixturePath);
-  await pause(3_000);
-  await page.getByTestId("chatgpt-import-submit").click();
-  await page.getByRole("status").filter({ hasText: "Imported 1 conversation and 3 candidates" }).waitFor();
-  await page.screenshot({ path: resolve(outputDirectory, "03-import.png") });
-  await pause(16_000);
-
-  await page.getByRole("link", { name: "Review" }).click();
   await page.getByRole("heading", { name: "A few things need your judgement." }).waitFor();
+  const codexCard = page.locator("article.review-card").filter({ hasText: "Confirm pickup times for the three summer camps." });
+  await codexCard.waitFor();
+  await pause(7_000);
+  await codexCard.getByTestId(`accept-${codexCapture.candidate.id}`).click();
+  await page.getByTestId("review-tab-accepted").click();
+  const acceptedCodexCard = page.locator("article.review-card").filter({ hasText: "Confirm pickup times for the three summer camps." });
+  await acceptedCodexCard.waitFor();
+  await acceptedCodexCard.getByRole("button", { name: /View evidence/u }).click();
+  await acceptedCodexCard.getByText("Codex conversation capture").waitFor();
+  await page.screenshot({ path: resolve(outputDirectory, "03-codex-review.png") });
+  await pause(13_000);
+  await page.getByTestId("review-tab-pending").click();
+
   const duplicateCard = page.locator("article.review-card").filter({ hasText: "Verify the Windows release checksum." });
   await duplicateCard.getByText("Possible duplicate").waitFor();
   await page.screenshot({ path: resolve(outputDirectory, "04-review-duplicate.png") });
-  await pause(13_000);
+  await pause(10_000);
   await duplicateCard.getByRole("button", { name: "Merge" }).click();
   await pause(4_000);
   await duplicateCard.getByRole("button", { name: "Merge evidence" }).click();
@@ -87,40 +94,40 @@ try {
   await page.getByTestId("review-tab-pending").click();
   const decisionCard = page.locator("article.review-card").filter({ hasText: "keep Atlas local-first and review-first" });
   await decisionCard.waitFor();
-  await pause(4_000);
+  await pause(3_000);
   await decisionCard.getByRole("button", { name: "Accept" }).click();
-  await pause(6_000);
+  await pause(4_000);
 
   await page.getByRole("link", { name: "Today" }).click();
   const targetLoop = page.locator("article.loop-card").filter({ hasText: "Verify the Windows release checksum." });
   await targetLoop.waitFor();
-  await pause(5_000);
+  await pause(4_000);
   await targetLoop.getByRole("button", { name: /View evidence/u }).click();
   await targetLoop.getByText("Synthetic Build Week planning conversation").waitFor();
   await page.screenshot({ path: resolve(outputDirectory, "06-today-evidence.png") });
-  await pause(6_000);
+  await pause(5_000);
   await targetLoop.getByRole("button", { name: "Next week" }).click();
   await page.getByText("Scheduled for next week.").waitFor();
-  await pause(5_000);
+  await pause(4_000);
   await page.getByRole("button", { name: "Undo" }).click();
   await targetLoop.waitFor();
   await page.getByText("Scheduled for next week.").waitFor({ state: "detached" });
-  await pause(5_000);
+  await pause(4_000);
 
   await page.getByRole("link", { name: "Search" }).click();
   await page.getByTestId("search-input").fill("local-first");
   await page.getByRole("button", { name: "Search" }).click();
   await page.getByTestId("search-results").waitFor();
-  await pause(5_000);
+  await pause(4_000);
   const searchResult = page.getByTestId("search-results").locator("article").first();
   await searchResult.locator("summary").click();
   await page.screenshot({ path: resolve(outputDirectory, "07-sourced-search.png") });
-  await pause(15_000);
+  await pause(14_000);
 
   await page.getByRole("link", { name: "Settings" }).click();
   await page.getByText("$0 external budget").waitFor();
   await page.screenshot({ path: resolve(outputDirectory, "08-cost-protection.png") });
-  await pause(14_000);
+  await pause(13_000);
 
   await showArchitecture(page);
   await page.screenshot({ path: resolve(outputDirectory, "09-architecture.png") });
@@ -183,6 +190,23 @@ async function seedExistingOpenLoop() {
   });
 }
 
+async function seedCodexConversationCapture() {
+  return request("/api/v1/captures", "POST", {
+    text: "Confirm pickup times for the three summer camps.",
+    sourceType: "codex",
+    candidateType: "open_loop",
+    sensitivity: "personal",
+  });
+}
+
+async function seedSyntheticConversationImport() {
+  const fixture = JSON.parse(await readFile(fixturePath, "utf8"));
+  await request("/api/v1/imports/chatgpt-export", "POST", {
+    conversations: fixture,
+    sensitivity: "personal",
+  });
+}
+
 async function request(path, method, body) {
   const response = await fetch(`${baseUrl}${path}`, {
     method,
@@ -208,12 +232,12 @@ async function showArchitecture(page) {
     <div class="kicker">LOCAL-FIRST ARCHITECTURE</div>
     <h1 class="small">Chat → Review → Action</h1>
     <div class="flow">
-      <div><b>Capture</b><small>Manual · Export · Daily Log</small></div><i>→</i>
+      <div><b>Conversation</b><small>Codex skill · Local MCP</small></div><i>→</i>
       <div><b>Review</b><small>Edit · Merge · Reject · Undo</small></div><i>→</i>
       <div><b>Atlas API</b><small>Fastify · Idempotent writes</small></div><i>→</i>
       <div><b>SQLite</b><small>Evidence · FTS5 · Backup</small></div>
     </div>
-    <p class="closing">Codex + GPT-5.6 helped build, test, harden, and package Atlas.</p>
+    <p class="closing">Codex and GPT-5.6 turned product decisions into implementation, tests, privacy checks, and a judge-ready Windows release.</p>
     <div class="footer"><span>github.com/randyhe/atlas</span><span>Windows x64 · $0 external budget</span></div>
   `));
 }

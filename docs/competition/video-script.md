@@ -1,19 +1,18 @@
 # Atlas Build Week Video Script
 
-Target duration: **2:48**. All visuals use synthetic data. No music is used.
+Target duration: **2:36**. All visuals use synthetic data. No music is used.
 Voice: **Microsoft Zira Desktop**, English (United States), local Windows TTS.
 
 | Time | Visual | Narration / caption |
 |---|---|---|
-| 0:00–0:14 | Atlas title card | Important work often disappears inside chats. A task is mentioned, a decision is made, or someone promises to follow up — then the conversation moves on. Atlas is built to recover those unfinished loops. |
-| 0:14–0:30 | Today page | Atlas is a local-first memory and action system. The complete product runs as a Windows Web app on loopback, with SQLite as the source of truth and no paid API, cloud host, or external service budget. |
-| 0:30–0:52 | Sources → import synthetic ChatGPT JSON | Here I deliberately import one synthetic ChatGPT conversation. Atlas reads only the user-authored message, ignores the assistant suggestion, and extracts an action, a waiting item, and a decision. It never claims automatic access to all chat history. |
-| 0:52–1:14 | Review queue | Nothing silently becomes a task. Every candidate stops in Review, where I can inspect its source, edit it, accept it, reject it, or undo the decision. This review-first boundary keeps the user — not the extractor — in control. |
-| 1:14–1:36 | Possible duplicate → Merge → evidence | The checksum task already exists from another source, so Atlas marks a possible duplicate. I merge the new evidence into the existing open loop. Both sources remain inspectable, and undo removes only the new evidence link instead of deleting information. |
-| 1:36–1:58 | Today → evidence → Next week → Undo | Today highlights at most three priorities. I can open the evidence, move an item to Waiting or Next week, mark it done, and immediately undo a change. These are reversible state transitions, not hidden automation. |
-| 1:58–2:18 | Search `local-first` → source detail | Search stays local with SQLite FTS5. A result shows the human-readable conversation title and source type, so the user can return to the evidence instead of trusting an unsupported summary. |
-| 2:18–2:34 | Settings → cost protection | Privacy is product behavior, not a slogan. Restricted imports stay out of ordinary search and sanitized export. The competition configuration shows a zero-dollar external budget, with platform APIs and paid providers disabled. |
-| 2:34–2:48 | Architecture and release card | Codex and GPT-5.6 helped turn the product decisions into implementation, testing, privacy checks, and a judge-ready Windows release. Atlas does not try to remember everything. It makes sure the important things you already said can still become action. |
+| 0:00–0:12 | Atlas title card | Important work often disappears inside chats. Atlas recovers the unfinished loops behind everyday ideas, decisions, and follow-ups. |
+| 0:12–0:36 | Clearly labeled simulated Codex conversation | Atlas starts where the thought happens: in the conversation. Say what to remember, then ask what unfinished work is worth resuming. This screen uses synthetic data and does not claim automatic access to every chat. |
+| 0:36–0:56 | Actual Review candidate with Codex source → Accept | The capture is now a real local Atlas record with its Codex source attached. It waits in Review, where the user can inspect it before accepting it. The Dashboard is the control room, not the required daily entry point. |
+| 0:56–1:18 | Possible duplicate → Merge → evidence | The same follow-up can appear in more than one place. Atlas marks a possible duplicate, merges only when asked, and keeps both pieces of evidence inspectable. Undo removes the added evidence link without deleting the original work. |
+| 1:18–1:40 | Today → evidence → Next week → Undo | Today highlights at most three priorities. An item can move to Waiting, Next week, Done, or back to Today, and the latest change can be undone immediately. |
+| 1:40–2:00 | Search `local-first` → source detail | Local SQLite FTS5 search returns the record together with its human-readable source. Atlas helps the user return to evidence instead of trusting an unsupported memory. |
+| 2:00–2:18 | Settings → cost protection | Restricted content stays out of ordinary search and sanitized export. The competition build keeps a zero-dollar external budget, with paid providers and platform APIs disabled. |
+| 2:18–2:36 | Architecture and release card | Codex and GPT-5.6 turned product decisions into implementation, tests, privacy checks, and a judge-ready Windows release. Atlas remembers where you stopped, what comes next, and why it was worth continuing. |
 
 ## Recording constraints
 
@@ -22,5 +21,6 @@ Voice: **Microsoft Zira Desktop**, English (United States), local Windows TTS.
 - Use the final public build and an isolated data directory.
 - Do not record Restricted test content, real chats, local paths, tokens, or
   private repositories.
-- Do not show Codex MCP as installed. Label it Experimental because the protocol
-  passed but the current host did not expose Atlas tools.
+- Label the opening conversation as a simulated host view using synthetic data.
+- Show only verified local capture, Review, lifecycle, search, privacy, and packaging behavior.
+- Do not claim automatic access to the full current conversation or complete history.

@@ -1,0 +1,63 @@
+1
+00:00:00,000 --> 00:00:06,000
+Important work often disappears inside chats.
+
+2
+00:00:06,000 --> 00:00:12,000
+Atlas recovers the unfinished loops behind everyday ideas, decisions, and follow-ups.
+
+3
+00:00:12,000 --> 00:00:24,000
+Atlas starts where the thought happens: in the conversation. Say what to remember, then ask what unfinished work is worth resuming.
+
+4
+00:00:24,000 --> 00:00:36,000
+This screen uses synthetic data and does not claim automatic access to every chat.
+
+5
+00:00:36,000 --> 00:00:46,000
+The capture is now a real local Atlas record with its Codex source attached.
+
+6
+00:00:46,000 --> 00:00:56,000
+It waits in Review before acceptance. The Dashboard is the control room, not the required daily entry point.
+
+7
+00:00:56,000 --> 00:01:07,000
+The same follow-up can appear in more than one place. Atlas marks a possible duplicate and merges only when asked.
+
+8
+00:01:07,000 --> 00:01:18,000
+Both pieces of evidence remain inspectable. Undo removes the added link without deleting the original work.
+
+9
+00:01:18,000 --> 00:01:29,000
+Today highlights at most three priorities. An item can move to Waiting, Next week, Done, or back to Today.
+
+10
+00:01:29,000 --> 00:01:40,000
+The latest change can be undone immediately.
+
+11
+00:01:40,000 --> 00:01:50,000
+Local SQLite FTS5 search returns the record together with its human-readable source.
+
+12
+00:01:50,000 --> 00:02:00,000
+Atlas helps the user return to evidence instead of trusting an unsupported memory.
+
+13
+00:02:00,000 --> 00:02:09,000
+Restricted content stays out of ordinary search and sanitized export.
+
+14
+00:02:09,000 --> 00:02:18,000
+The competition build keeps a zero-dollar external budget, with paid providers and platform APIs disabled.
+
+15
+00:02:18,000 --> 00:02:28,000
+Codex and GPT-5.6 turned product decisions into implementation, tests, privacy checks, and a judge-ready Windows release.
+
+16
+00:02:28,000 --> 00:02:36,300
+Atlas remembers where you stopped, what comes next, and why it was worth continuing.
