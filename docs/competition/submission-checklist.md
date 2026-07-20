@@ -8,12 +8,10 @@ Internal target: **2026-07-20 7:00 PM CDT**.
 - [x] Category selected: Apps for Your Life.
 - [x] Public MIT-licensed repository available.
 - [x] Public repository PR merged and privacy-scanned.
-- [x] Windows x64 v0.2.1 candidate built from current public-main baseline plus
-  scoped competition changes.
+- [x] Windows x64 v0.2.1 package built from the validated competition source.
 - [x] Staged and extracted package validation passed.
 - [x] Independent bundled-Node-only clean-room run passed.
-- [x] Existing v0.2.0 ZIP and `.sha256` published in GitHub Release.
-- [ ] Publish the validated v0.2.1 ZIP and `.sha256` in a new GitHub Release.
+- [x] Validated v0.2.1 ZIP and `.sha256` published in GitHub Release.
 - [x] Judge testing does not require a rebuild, API key, admin account, or login.
 - [x] Devpost English description drafted.
 - [x] Capability boundaries and pre-existing-project extension documented.
@@ -25,8 +23,12 @@ Internal target: **2026-07-20 7:00 PM CDT**.
 
 ## Agent-owned work
 
-- [ ] Publish the v0.2.1 source changes and verify CI.
-- [ ] Verify the new v0.2.1 repository and Release links after publication.
+- [x] v0.2.1 source changes published through PR #15; both GitHub Actions checks
+  passed before squash merge.
+- [x] Public `main` and `v0.2.1` tag resolve to merge commit
+  `aac51d1a443b8ac0153088b343bb6b930daea9ca`.
+- [x] Release ZIP uploaded successfully; GitHub's SHA-256 digest matches the
+  validated local checksum.
 - [x] Plugin validation, forbidden-artifact scan, privacy scan, and
   `git diff --check` passed.
 
