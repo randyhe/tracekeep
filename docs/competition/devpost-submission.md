@@ -67,7 +67,7 @@ owner made the product, privacy, cost, and release decisions. The required
 ## Accomplishments
 
 - All repository typechecks, automated tests, and production builds pass; the
-  v0.4.0 release validation records 96 automated tests.
+  v0.4.1 release validation records 96 automated tests.
 - An authenticated Windows Stop-hook probe produced sourced paper and
   conversation notes plus a reviewable next action, and idempotent replay
   produced no duplicates.
@@ -105,7 +105,7 @@ claims.
 ## Judge testing instructions
 
 1. Download the ZIP and `.sha256` file from the public release.
-2. Verify the checksum, extract the ZIP, and double-click `Start Tracekeep.cmd`.
+2. Verify the checksum, extract the ZIP, and double-click `Install Tracekeep.cmd`.
 3. No administrator account, Node.js, pnpm, rebuild, API key, or hosted account is
    required.
 4. Follow the three suggested journeys in `README-TESTING.md`.
