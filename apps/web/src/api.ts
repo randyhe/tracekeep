@@ -1,4 +1,4 @@
-import type { CostStatus, Evidence, OpenLoop, ReviewCandidate, SearchResult, SourceRecord, TodayData } from "./types";
+import type { CostStatus, Evidence, LearningNote, OpenLoop, ReviewCandidate, SearchResult, SourceRecord, TodayData } from "./types";
 
 export interface ImportResult {
   items: Array<{ candidate?: unknown; candidates?: unknown[] }>;
@@ -155,6 +155,16 @@ export const api = {
       externalBudgetUsd: result.monthlyExternalBudgetUsd,
     };
   },
+  learningNotes: async (): Promise<LearningNote[]> => {
+    const result = await request<{ items: LearningNote[] }>("/learning-notes?limit=100");
+    return result.items;
+  },
+  autoCaptureSetting: () => request<{ enabled: boolean }>("/settings/auto-capture"),
+  updateAutoCaptureSetting: (enabled: boolean) => request<{ enabled: boolean }>("/settings/auto-capture", {
+    method: "PATCH",
+    headers: { "Idempotency-Key": idempotencyKey() },
+    body: JSON.stringify({ enabled }),
+  }),
   createBackup: async () => {
     const result = await request<{ backup: { fileName: string; createdAt: string } }>("/backups", {
       method: "POST",

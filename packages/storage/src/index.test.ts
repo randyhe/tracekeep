@@ -73,6 +73,71 @@ describe("AtlasStorage", () => {
     storage.close();
   });
 
+  it("persists learning-note metadata through review acceptance and export", () => {
+    const storage = createStorage();
+    const bundle = storage.createCaptureWithCandidates({
+      source: {
+        type: "codex",
+        title: "Codex paper discussion",
+        externalId: "codex:session:turn",
+        sensitivity: "personal",
+      },
+      text: "Discussed a retrieval paper.",
+      candidates: [{
+        candidateType: "reference",
+        title: "Retrieval paper",
+        summary: "Compared sparse, dense, and hybrid retrieval.",
+        knowledgeKind: "paper",
+        canonicalUri: "C:\\learning\\retrieval.pdf",
+      }],
+    });
+    expect(bundle.candidate).toMatchObject({
+      knowledgeKind: "paper",
+      canonicalUri: "C:\\learning\\retrieval.pdf",
+    });
+
+    storage.actOnReview(bundle.candidate.id, { action: "accept", expectedVersion: 1 });
+    expect(storage.sanitizedExport().references).toEqual([
+      expect.objectContaining({
+        title: "Retrieval paper",
+        knowledgeKind: "paper",
+        canonicalUri: "C:\\learning\\retrieval.pdf",
+      }),
+    ]);
+    storage.close();
+  });
+
+  it("lists accepted learning notes with source metadata and controls automatic capture", () => {
+    const storage = createStorage();
+    expect(storage.isAutoCaptureEnabled()).toBe(true);
+    expect(storage.setAutoCaptureEnabled(false)).toBe(false);
+    expect(storage.isAutoCaptureEnabled()).toBe(false);
+    expect(storage.setAutoCaptureEnabled(true)).toBe(true);
+
+    const bundle = storage.createCaptureWithCandidates({
+      source: { type: "codex", title: "Paper discussion", sensitivity: "personal" },
+      text: "A sourced paper discussion",
+      locator: "codex-session:test#turn",
+      candidates: [{
+        candidateType: "reference",
+        title: "Spaced repetition paper",
+        summary: "Retrieval practice improves long-term retention.",
+        knowledgeKind: "paper",
+        canonicalUri: "https://example.test/paper.pdf",
+      }],
+    });
+    storage.actOnReview(bundle.candidate.id, { action: "accept", expectedVersion: 1 });
+    expect(storage.listLearningNotes()).toEqual([expect.objectContaining({
+      title: "Spaced repetition paper",
+      knowledgeKind: "paper",
+      canonicalUri: "https://example.test/paper.pdf",
+      sourceTitle: "Paper discussion",
+      sourceType: "codex",
+      sourceLocator: "codex-session:test#turn",
+    })]);
+    storage.close();
+  });
+
   it("returns safe source metadata with search results", () => {
     const storage = createStorage();
     storage.createCaptureWithCandidates({

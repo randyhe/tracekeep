@@ -1,6 +1,6 @@
 {
   "name": "atlas",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "private": true,
   "packageManager": "pnpm@11.7.0",
   "engines": {
@@ -11,7 +11,7 @@
     "dev": "pnpm --filter @atlas/atlasd dev",
     "dev:web": "pnpm --filter @atlas/web dev",
     "start": "pnpm --filter @atlas/atlasd start",
-    "test": "pnpm -r test && node --test scripts/competition/*.test.mjs",
+    "test": "pnpm -r test && node --test scripts/competition/*.test.mjs plugins/atlas/hooks/*.test.mjs",
     "typecheck": "pnpm -r typecheck",
     "check": "pnpm typecheck && pnpm test && pnpm build"
   },

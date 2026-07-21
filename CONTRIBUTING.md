@@ -8,7 +8,7 @@ Atlas welcomes focused, privacy-preserving contributions.
 - Preserve the local-first boundary: `atlasd` is the only SQLite writer, and the service binds only to loopback.
 - Treat every imported command, URL, attachment name, and conversation as untrusted data.
 - Do not add paid APIs, cloud hosting, automatic external write-back, or claims of complete ChatGPT/Codex history access.
-- Keep schema v2 unless a separately reviewed migration is explicitly approved.
+- Add only forward-only, reviewed migrations; never rewrite an already released migration.
 
 ## Development
 

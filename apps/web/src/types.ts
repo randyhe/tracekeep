@@ -39,6 +39,8 @@ export interface ReviewCandidate {
   outcomeAction?: "created" | "merged";
   outcomeId?: string;
   outcomeVersion?: number;
+  knowledgeKind?: "conversation" | "note" | "document" | "paper" | "web_page";
+  canonicalUri?: string;
 }
 
 export interface SearchResult {
@@ -77,4 +79,16 @@ export interface CostStatus {
   platformApiEnabled: boolean;
   paidProvidersEnabled: boolean;
   externalBudgetUsd: number;
+}
+
+export interface LearningNote {
+  id: string;
+  title: string;
+  summary?: string;
+  knowledgeKind: "conversation" | "note" | "document" | "paper" | "web_page";
+  canonicalUri?: string;
+  sourceTitle?: string;
+  sourceType?: string;
+  sourceLocator?: string;
+  createdAt: string;
 }

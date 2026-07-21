@@ -21,7 +21,7 @@ afterEach(async () => {
 describe("atlasd", () => {
   it("reports the applied schema version", async () => {
     const ready = await app.inject({ method: "GET", url: "/api/v1/health/ready" });
-    expect(ready.json()).toMatchObject({ status: "ready", integrity: "ok", schemaVersion: 2 });
+    expect(ready.json()).toMatchObject({ status: "ready", integrity: "ok", schemaVersion: 4 });
   });
 
   it("runs the capture-review-today-search lifecycle", async () => {
@@ -51,6 +51,115 @@ describe("atlasd", () => {
       sourceTitle: "Finish Atlas integration",
       sourceType: "manual",
     });
+  });
+
+  it("automatically persists a Codex learning turn and accepts personal references", async () => {
+    const response = await app.inject({
+      method: "POST",
+      url: "/api/v1/imports/codex-turn",
+      headers: { "idempotency-key": "codex-turn-automatic-0001" },
+      payload: {
+        sessionId: "session-automatic",
+        turnId: "turn-automatic",
+        userText: "下一步：阅读 https://example.com/research-paper 并整理学习笔记。",
+        assistantText: "The article compares retrieval methods and recommends testing hybrid search.",
+        attachments: [],
+        sensitivity: "personal",
+      },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toMatchObject({ autoAcceptedCount: 2, pendingCount: 1 });
+    expect(response.json().candidates).toEqual(expect.arrayContaining([
+      expect.objectContaining({ candidateType: "reference", knowledgeKind: "conversation", status: "accepted" }),
+      expect.objectContaining({
+        candidateType: "reference",
+        knowledgeKind: "web_page",
+        canonicalUri: "https://example.com/research-paper",
+        status: "accepted",
+      }),
+      expect.objectContaining({ candidateType: "open_loop", status: "pending" }),
+    ]));
+    const search = await app.inject({ method: "GET", url: "/api/v1/search?q=hybrid" });
+    expect(search.json().results).toEqual(expect.arrayContaining([
+      expect.objectContaining({ entityType: "reference" }),
+    ]));
+  });
+
+  it("can pause automatic turn capture without disabling manual Atlas workflows", async () => {
+    const disabled = await app.inject({
+      method: "PATCH",
+      url: "/api/v1/settings/auto-capture",
+      headers: { "idempotency-key": "auto-capture-off-0001" },
+      payload: { enabled: false },
+    });
+    expect(disabled.json()).toEqual({ enabled: false });
+    const turn = await app.inject({
+      method: "POST",
+      url: "/api/v1/imports/codex-turn",
+      headers: { "idempotency-key": "codex-turn-paused-0001" },
+      payload: {
+        sessionId: "session-paused",
+        turnId: "turn-paused",
+        userText: "Please research this paper https://example.test/paper.pdf and summarize it for later.",
+        assistantText: "The paper argues that retrieval practice improves long-term recall.",
+      },
+    });
+    expect(turn.json()).toMatchObject({ skipped: true, reason: "auto_capture_disabled" });
+    expect(storage.listReviews()).toHaveLength(0);
+
+    const manual = await app.inject({
+      method: "POST",
+      url: "/api/v1/captures",
+      headers: { "idempotency-key": "manual-while-paused-0001" },
+      payload: { text: "Remember to call the dentist" },
+    });
+    expect(manual.statusCode).toBe(200);
+    expect(storage.listReviews()).toHaveLength(1);
+  });
+
+  it("lists automatically accepted learning notes and their source", async () => {
+    await app.inject({
+      method: "POST",
+      url: "/api/v1/imports/codex-turn",
+      headers: { "idempotency-key": "codex-turn-learning-list-0001" },
+      payload: {
+        sessionId: "session-list",
+        turnId: "turn-list",
+        userText: "Please study this paper for me: https://example.test/learning.pdf",
+        assistantText: "The paper explains why spaced repetition strengthens durable memory over time.",
+      },
+    });
+    const response = await app.inject({ method: "GET", url: "/api/v1/learning-notes" });
+    expect(response.statusCode).toBe(200);
+    expect(response.json().items).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        knowledgeKind: "paper",
+        canonicalUri: "https://example.test/learning.pdf",
+        sourceType: "codex",
+      }),
+    ]));
+  });
+
+  it("keeps work-summary-only automatic captures pending and stores no raw turn", async () => {
+    const secretDetail = `internal-detail-${randomUUID()}`;
+    const response = await app.inject({
+      method: "POST",
+      url: "/api/v1/imports/codex-turn",
+      headers: { "idempotency-key": "codex-turn-work-summary-0001" },
+      payload: {
+        sessionId: "session-work",
+        turnId: "turn-work",
+        userText: `Review the WCT plan containing ${secretDetail}.`,
+        assistantText: `A work summary containing ${secretDetail}.`,
+        attachments: [],
+        sensitivity: "work_summary_only",
+      },
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toMatchObject({ autoAcceptedCount: 0 });
+    const raw = storage.db.prepare("SELECT text FROM captures").get() as { text: string };
+    expect(raw.text).not.toContain(secretDetail);
   });
 
   it("protects private APIs with a local bearer or HttpOnly session", async () => {

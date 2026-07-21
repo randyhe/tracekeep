@@ -7,6 +7,7 @@ import type {
   BackupInfo,
   Capture,
   Evidence,
+  KnowledgeKind,
   OpenLoop,
   OpenLoopEvidence,
   OpenLoopPatch,
@@ -51,6 +52,8 @@ export interface CandidateRecordInput {
   candidateType: CandidateType;
   title: string;
   summary?: string;
+  knowledgeKind?: KnowledgeKind;
+  canonicalUri?: string;
 }
 
 export interface MultiCaptureRecordInput {
@@ -67,6 +70,19 @@ export interface CaptureBundle {
   evidence: Evidence;
   candidate: ReviewCandidate;
   candidates: ReviewCandidate[];
+}
+
+export interface LearningNote {
+  id: string;
+  title: string;
+  summary?: string;
+  knowledgeKind: KnowledgeKind;
+  canonicalUri?: string;
+  sourceId?: string;
+  sourceTitle?: string;
+  sourceType?: SourceType;
+  sourceLocator?: string;
+  createdAt: string;
 }
 
 export function fingerprint(value: unknown): string {
@@ -257,8 +273,11 @@ export class AtlasStorage {
       const candidateId = randomUUID();
       this.db
         .prepare(
-          `INSERT INTO review_candidates(id, capture_id, candidate_type, title, summary, status, sensitivity, created_at, updated_at, version)
-           VALUES (?, ?, ?, ?, ?, 'pending', ?, ?, ?, 1)`,
+          `INSERT INTO review_candidates(
+             id, capture_id, candidate_type, title, summary, status, sensitivity,
+             knowledge_kind, canonical_uri, created_at, updated_at, version
+           )
+           VALUES (?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, 1)`,
         )
         .run(
           candidateId,
@@ -267,6 +286,8 @@ export class AtlasStorage {
           candidateInput.title,
           input.source.sensitivity === "work_summary_only" ? null : (candidateInput.summary ?? null),
           input.source.sensitivity,
+          candidateInput.knowledgeKind ?? null,
+          candidateInput.canonicalUri ?? null,
           timestamp,
           timestamp,
         );
@@ -465,10 +486,28 @@ export class AtlasStorage {
         this.indexDocument("open_loop", outcomeId, sourceId, title, searchableBody);
       }
     } else {
-      const table = candidateType === "decision" ? "decisions" : "reference_items";
-      this.db
-        .prepare(`INSERT INTO ${table}(id, title, summary, source_id, sensitivity, created_at) VALUES (?, ?, ?, ?, ?, ?)`)
-        .run(outcomeId, title, summary ?? null, sourceId, current.sensitivity, timestamp);
+      if (candidateType === "decision") {
+        this.db
+          .prepare("INSERT INTO decisions(id, title, summary, source_id, sensitivity, created_at) VALUES (?, ?, ?, ?, ?, ?)")
+          .run(outcomeId, title, summary ?? null, sourceId, current.sensitivity, timestamp);
+      } else {
+        this.db
+          .prepare(
+            `INSERT INTO reference_items(
+               id, title, summary, source_id, sensitivity, knowledge_kind, canonical_uri, created_at
+             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          )
+          .run(
+            outcomeId,
+            title,
+            summary ?? null,
+            sourceId,
+            current.sensitivity,
+            current.knowledgeKind ?? "note",
+            current.canonicalUri ?? null,
+            timestamp,
+          );
+      }
       if (current.sensitivity !== "restricted") {
         const searchableBody = current.sensitivity === "work_summary_only" ? (summary ?? title) : (summary ?? "");
         this.indexDocument(candidateType, outcomeId, sourceId, title, searchableBody);
@@ -630,11 +669,65 @@ export class AtlasStorage {
     return this.db.prepare("SELECT id, type, status, progress, error_code AS errorCode, created_at AS createdAt, updated_at AS updatedAt FROM jobs ORDER BY created_at DESC").all() as Array<Record<string, unknown>>;
   }
 
+  listLearningNotes(limit = 100): LearningNote[] {
+    const rows = this.db.prepare(
+      `SELECT
+         reference_items.id, reference_items.title, reference_items.summary,
+         reference_items.knowledge_kind, reference_items.canonical_uri,
+         reference_items.source_id, reference_items.created_at,
+         sources.title AS source_title, sources.type AS source_type,
+         (SELECT evidence.locator
+            FROM evidence
+           WHERE evidence.source_id = reference_items.source_id
+             AND evidence.locator IS NOT NULL
+           ORDER BY evidence.created_at DESC
+           LIMIT 1) AS source_locator
+       FROM reference_items
+       LEFT JOIN sources ON sources.id = reference_items.source_id
+       WHERE reference_items.deleted_at IS NULL
+         AND reference_items.sensitivity <> 'restricted'
+       ORDER BY reference_items.created_at DESC
+       LIMIT ?`,
+    ).all(Math.min(Math.max(limit, 1), 500)) as Row[];
+    return rows.map((row) => ({
+      id: String(row.id),
+      title: String(row.title),
+      ...(optionalString(row.summary) ? { summary: String(row.summary) } : {}),
+      knowledgeKind: (optionalString(row.knowledge_kind) ?? "note") as KnowledgeKind,
+      ...(optionalString(row.canonical_uri) ? { canonicalUri: String(row.canonical_uri) } : {}),
+      ...(optionalString(row.source_id) ? { sourceId: String(row.source_id) } : {}),
+      ...(optionalString(row.source_title) ? { sourceTitle: String(row.source_title) } : {}),
+      ...(optionalString(row.source_type) ? { sourceType: String(row.source_type) as SourceType } : {}),
+      ...(optionalString(row.source_locator) ? { sourceLocator: String(row.source_locator) } : {}),
+      createdAt: String(row.created_at),
+    }));
+  }
+
+  isAutoCaptureEnabled(): boolean {
+    const row = this.db.prepare("SELECT value FROM atlas_settings WHERE key = 'auto_capture_enabled'").get() as { value: string } | undefined;
+    return row?.value !== "false";
+  }
+
+  setAutoCaptureEnabled(enabled: boolean): boolean {
+    this.db.prepare(
+      `INSERT INTO atlas_settings(key, value, updated_at)
+       VALUES ('auto_capture_enabled', ?, ?)
+       ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`,
+    ).run(enabled ? "true" : "false", now());
+    this.recordEvent("setting", "auto_capture_enabled", "setting.updated", { enabled });
+    return enabled;
+  }
+
   sanitizedExport(): SanitizedExport {
     const personalSourceClause = `source_id IN (SELECT id FROM sources WHERE sensitivity = 'personal')`;
     const openLoops = (this.db.prepare(`SELECT * FROM open_loops WHERE deleted_at IS NULL AND ${personalSourceClause} ORDER BY created_at`).all() as Row[]).map(mapOpenLoop);
     const decisions = (this.db.prepare(`SELECT id, title, summary, created_at FROM decisions WHERE deleted_at IS NULL AND ${personalSourceClause} ORDER BY created_at`).all() as Row[]).map(mapKnowledge);
-    const references = (this.db.prepare(`SELECT id, title, summary, created_at FROM reference_items WHERE deleted_at IS NULL AND ${personalSourceClause} ORDER BY created_at`).all() as Row[]).map(mapKnowledge);
+    const references = (this.db.prepare(
+      `SELECT id, title, summary, knowledge_kind, canonical_uri, created_at
+         FROM reference_items
+        WHERE deleted_at IS NULL AND ${personalSourceClause}
+        ORDER BY created_at`,
+    ).all() as Row[]).map(mapKnowledge);
     return { schemaVersion: 1, generatedAt: now(), openLoops, decisions, references };
   }
 
@@ -827,6 +920,8 @@ function mapCandidate(row: Row): ReviewCandidate {
     ...(optionalString(row.outcome_id) ? { outcomeId: String(row.outcome_id) } : {}),
     ...(optionalString(row.outcome_action) ? { outcomeAction: String(row.outcome_action) as "created" | "merged" } : {}),
     ...(row.outcome_version === null || row.outcome_version === undefined ? {} : { outcomeVersion: Number(row.outcome_version) }),
+    ...(optionalString(row.knowledge_kind) ? { knowledgeKind: String(row.knowledge_kind) as KnowledgeKind } : {}),
+    ...(optionalString(row.canonical_uri) ? { canonicalUri: String(row.canonical_uri) } : {}),
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),
     version: Number(row.version),
@@ -850,11 +945,20 @@ function mapOpenLoop(row: Row): OpenLoop {
   };
 }
 
-function mapKnowledge(row: Row): { id: string; title: string; summary?: string; createdAt: string } {
+function mapKnowledge(row: Row): {
+  id: string;
+  title: string;
+  summary?: string;
+  knowledgeKind?: KnowledgeKind;
+  canonicalUri?: string;
+  createdAt: string;
+} {
   return {
     id: String(row.id),
     title: String(row.title),
     ...(optionalString(row.summary) ? { summary: String(row.summary) } : {}),
+    ...(optionalString(row.knowledge_kind) ? { knowledgeKind: String(row.knowledge_kind) as KnowledgeKind } : {}),
+    ...(optionalString(row.canonical_uri) ? { canonicalUri: String(row.canonical_uri) } : {}),
     createdAt: String(row.created_at),
   };
 }
