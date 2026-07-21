@@ -99,8 +99,8 @@ claims.
 
 - Repository: https://github.com/randyhe/tracekeep
 - Windows release: https://github.com/randyhe/tracekeep/releases/latest
-- Video: `TBD — public YouTube URL`
-- `/feedback` Session ID: `TBD — account-owned final action`
+- Video: https://youtu.be/6vihaJ5nwW8
+- `/feedback` Session ID: provided privately through the required Devpost field
 
 ## Judge testing instructions
 
