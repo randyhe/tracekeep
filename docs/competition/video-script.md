@@ -1,7 +1,8 @@
 # Tracekeep Build Week Video Script
 
 Target duration: **2:42**. All visuals use synthetic data. No music is used.
-Voice: **Microsoft Zira Desktop**, English (United States), local Windows TTS.
+Voice: **Kokoro `af_heart`**, English (United States), generated locally with
+the Apache-2.0-licensed Kokoro-82M model and MIT-licensed `kokoro-onnx` runtime.
 
 | Time | Visual | Narration / caption |
 |---|---|---|
