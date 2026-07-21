@@ -39,4 +39,12 @@ describe("review undo state", () => {
   it("keeps rejection undo available because it has no accepted outcome", () => {
     expect(getReviewUndoState({ ...acceptedCandidate, status: "rejected", outcomeId: undefined }, [])).toEqual({ allowed: true });
   });
+
+  it("keeps auto-accepted learning-note undo available", () => {
+    expect(getReviewUndoState({
+      ...acceptedCandidate,
+      candidateType: "reference",
+      knowledgeKind: "paper",
+    }, [])).toEqual({ allowed: true });
+  });
 });

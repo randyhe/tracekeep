@@ -10,7 +10,7 @@
 
 Life rarely lets you finish one thing before the next begins. A call comes in, your child needs you, a meeting starts, or a new idea appears. The camp comparison you paused, the checkup you meant to book, and the reply you were waiting for can disappear beneath the next interruption.
 
-**Atlas is a conversation-first memory and action system for Codex.** Stay in the conversation and say what should not be lost. Later, ask where you stopped, what to do next, or why an idea was worth continuing. Atlas keeps the answer connected to its source, while a local Web Dashboard gives you one place to review and manage everything.
+**Atlas is a local second brain for Codex.** Once installed and enabled, it notices when a meaningful turn ends and turns the useful result into sourced learning notes, actions, and decisions. A conversation about a paper, a document you shared, a useful web page, an unfinished family plan, or an idea worth revisiting no longer disappears when the next interruption arrives.
 
 **Atlas remembers: Where did you stop? What should you do next? Why is it worth continuing?**
 
@@ -20,9 +20,9 @@ Life rarely lets you finish one thing before the next begins. A call comes in, y
 
 ## Use Atlas in 30 seconds
 
-1. **Say it when it happens**
+1. **Talk naturally**
 
-   > Atlas, remember this: keep comparing these three summer camps and check pickup times first.
+   > Compare these three summer camps. Pickup time matters most, but I need to continue later.
 
 2. **Ask when you need it**
 
@@ -37,6 +37,8 @@ Atlas, what should I focus on today?
 Atlas, search for my earlier family-trip decision and show its source.
 Atlas, open the Dashboard.
 ```
+
+You do not have to say “remember this” every time. At the end of a meaningful completed Codex turn, Atlas automatically preserves useful learning references and proposes actions or decisions for Review. Explicit capture remains available when something must be saved immediately.
 
 ## Install on Windows
 
@@ -60,7 +62,7 @@ Atlas is ready when all three checks pass:
 
 - **Installer:** the command window says `Atlas is installed and running` with no red error.
 - **Dashboard:** the browser opens Atlas and shows `Today`, `Capture`, `Review`, and `Search`.
-- **Codex:** Codex confirms a capture and the new item appears under **Review** in the Dashboard.
+- **Codex:** finish a meaningful test conversation; its learning note appears under **Learning**, while any proposed action appears under **Review**.
 
 After restarting Windows, double-click **`Start Atlas.cmd`**. Atlas first tries `127.0.0.1:4310` and safely falls back through ports 4311–4319. It never listens on the LAN or creates a Windows Firewall rule.
 
@@ -70,16 +72,16 @@ For checksum verification and common installation problems, see the [Windows tes
 
 Atlas is designed around two everyday actions:
 
-- **Capture in conversation:** explicitly ask Atlas to remember an idea, decision, reference, or future action.
+- **Let the conversation settle:** when a meaningful Codex turn finishes, Atlas extracts the useful result automatically.
 - **Resume with context:** ask Atlas what remains unfinished or search earlier records with their sources.
 
-An explicit Codex capture stores only the content you deliberately give Atlas; it does not silently archive the whole current conversation. A manually imported ChatGPT Export is different: imported conversations are stored locally so Atlas can extract candidates, search them, and preserve source traceability.
+The local Stop hook observes only completed turns while Atlas is installed, trusted, and enabled. It does not scan every historical conversation. Atlas skips short social exchanges and credential-like text. For a personal turn, useful conclusions, documents, papers, and URLs become accepted Learning Notes; proposed actions and decisions remain in Review. Work-related or restricted material is never auto-accepted.
 
-Newly extracted items enter **Review** before becoming accepted actions or decisions. Atlas does not execute imported instructions or open imported URLs. The Dashboard is an optional workspace for reviewing, searching, merging duplicates, scheduling, completing, or dismissing records.
+Atlas stores structured results, bounded summaries, source identifiers, and evidence needed for recall. It does not execute imported instructions or automatically open captured URLs. If Atlas is temporarily offline, the plugin keeps a private local retry queue. You can pause automatic capture at any time under **Settings** without disabling explicit capture, search, or recall.
 
-In the main conversation, Atlas responds as ordinary assistant text with a lightweight save or source status. It does not embed the Dashboard in the conversation body. A supported host may show a compact Atlas summary in a side chat, while the full Dashboard remains a separate local workspace.
+The Dashboard provides **Learning**, **Review**, **Search**, Today, Sources, and settings. It is a supporting workspace; everyday thinking and recall still begin in the conversation.
 
-Atlas is not a general chat archive and does not claim automatic access to all ChatGPT or Codex history. ChatGPT Export is a manual historical fallback.
+Atlas does not claim automatic access to all ChatGPT or Codex history. ChatGPT Export remains the manual historical fallback.
 
 ### Roadmap: ChatGPT Direct on mobile
 
@@ -106,9 +108,13 @@ The Web Dashboard is the place to review several records together, inspect evide
 
 See [SECURITY.md](SECURITY.md) for the threat boundary, reporting process, and current limitations.
 
-## Verified behavior in v0.2.1
+## Behavior implemented in v0.3.0
 
-- Conversation-first capture for Open Loop, Decision, and Reference candidates.
+- Automatic meaningful-turn capture through a trusted local Codex Stop hook.
+- Sourced Learning Notes for conversations, notes, documents, papers, and web pages.
+- Automatic acceptance for low-risk personal references; Review-first actions, decisions, work summaries, and restricted items.
+- A user-controlled automatic-capture switch and a dedicated Learning view.
+- Explicit conversation-first capture for Open Loop, Decision, and Reference candidates.
 - Review-first acceptance, editing, rejection, duplicate merge, and undo.
 - Open, waiting, scheduled, done, and dismissed lifecycle states.
 - Sourced FTS5 search, local backup and restore, and sanitized export.
@@ -139,6 +145,6 @@ Atlas is available under the [MIT License](LICENSE). Bundled dependencies remain
 
 ## Built with Codex and GPT-5.6
 
-The product owner defined the user problem, conversation-first interaction, review workflow, privacy and cost boundaries, schema v2 constraint, and release gates. Codex and GPT-5.6 were then used as the collaborative engineering environment to inspect the live repository, challenge product and architecture assumptions, implement scoped changes, generate and run regression tests, diagnose failures, exercise synthetic UAT journeys, scan privacy boundaries, and build the portable Windows release.
+The product owner defined the user problem, automatic conversation-to-memory interaction, review workflow, privacy and cost boundaries, and release gates. Codex and GPT-5.6 were then used as the collaborative engineering environment to inspect the live repository, challenge product and architecture assumptions, implement scoped changes, generate and run regression tests, diagnose failures, exercise synthetic UAT journeys, scan privacy boundaries, and build the portable Windows release.
 
 The human owner remained responsible for product, privacy, cost, and release decisions. Atlas keeps this collaboration auditable through public commits, test evidence, capability probes, and explicit claim boundaries instead of presenting generated output as autonomous product ownership.

@@ -168,3 +168,26 @@ describe("imports", () => {
     expect(fetchMock.mock.calls[0]?.[1]?.body).toBe(JSON.stringify({ date: "2026-07-15", content: "Reviewed log", sensitivity: "personal" }));
   });
 });
+
+describe("second-brain settings and learning notes", () => {
+  it("updates the automatic capture setting with an idempotency key", async () => {
+    const fetchMock = mockJson({ enabled: false });
+    const result = await api.updateAutoCaptureSetting(false);
+    expect(result).toEqual({ enabled: false });
+    expect(fetchMock.mock.calls[0]?.[0]).toBe("/api/v1/settings/auto-capture");
+    expect(fetchMock.mock.calls[0]?.[1]?.method).toBe("PATCH");
+    expect(new Headers(fetchMock.mock.calls[0]?.[1]?.headers).has("Idempotency-Key")).toBe(true);
+  });
+
+  it("loads sourced learning notes", async () => {
+    mockJson({ items: [{
+      id: "note-1",
+      title: "Useful paper",
+      knowledgeKind: "paper",
+      sourceTitle: "Codex learning turn",
+      createdAt: "2026-07-19T12:00:00Z",
+    }] });
+    const result = await api.learningNotes();
+    expect(result[0]).toMatchObject({ title: "Useful paper", knowledgeKind: "paper", sourceTitle: "Codex learning turn" });
+  });
+});

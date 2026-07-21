@@ -21,6 +21,9 @@ export type OpenLoopStatus = z.infer<typeof openLoopStatusSchema>;
 export const candidateTypeSchema = z.enum(["open_loop", "decision", "reference"]);
 export type CandidateType = z.infer<typeof candidateTypeSchema>;
 
+export const knowledgeKindSchema = z.enum(["conversation", "note", "document", "paper", "web_page"]);
+export type KnowledgeKind = z.infer<typeof knowledgeKindSchema>;
+
 export const reviewStatusSchema = z.enum(["pending", "accepted", "rejected"]);
 export type ReviewStatus = z.infer<typeof reviewStatusSchema>;
 
@@ -86,10 +89,31 @@ export interface ReviewCandidate {
   outcomeAction?: "created" | "merged";
   outcomeVersion?: number;
   duplicateOf?: string;
+  knowledgeKind?: KnowledgeKind;
+  canonicalUri?: string;
   createdAt: string;
   updatedAt: string;
   version: number;
 }
+
+export const learningAttachmentSchema = z.object({
+  kind: z.enum(["document", "paper", "web_page"]),
+  title: z.string().trim().min(1).max(500),
+  uri: z.string().trim().min(1).max(4_000),
+  mimeType: z.string().trim().max(200).optional(),
+});
+export type LearningAttachment = z.infer<typeof learningAttachmentSchema>;
+
+export const codexTurnInputSchema = z.object({
+  sessionId: z.string().trim().min(1).max(200),
+  turnId: z.string().trim().min(1).max(200),
+  userText: z.string().trim().min(1).max(200_000),
+  assistantText: z.string().max(200_000).optional(),
+  attachments: z.array(learningAttachmentSchema).max(20).default([]),
+  sensitivity: sensitivitySchema.default("personal"),
+  capturedAt: z.iso.datetime().optional(),
+});
+export type CodexTurnInput = z.infer<typeof codexTurnInputSchema>;
 
 export const captureInputSchema = z.object({
   text: z.string().trim().min(1).max(200_000),
@@ -209,5 +233,12 @@ export interface SanitizedExport {
   generatedAt: string;
   openLoops: OpenLoop[];
   decisions: Array<{ id: string; title: string; summary?: string; createdAt: string }>;
-  references: Array<{ id: string; title: string; summary?: string; createdAt: string }>;
+  references: Array<{
+    id: string;
+    title: string;
+    summary?: string;
+    knowledgeKind?: KnowledgeKind;
+    canonicalUri?: string;
+    createdAt: string;
+  }>;
 }

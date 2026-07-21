@@ -8,18 +8,18 @@ Internal target: **2026-07-20 7:00 PM CDT**.
 - [x] Category selected: Apps for Your Life.
 - [x] Public MIT-licensed repository available.
 - [x] Public repository PR merged and privacy-scanned.
-- [x] Windows x64 v0.2.1 package built from the validated competition source.
+- [x] Windows x64 v0.3.0 package built and validated locally.
 - [x] Staged and extracted package validation passed.
 - [x] Independent bundled-Node-only clean-room run passed.
-- [x] Validated v0.2.1 ZIP and `.sha256` published in GitHub Release.
+- [ ] Publish the validated v0.3.0 ZIP and `.sha256` in GitHub Release.
 - [x] Judge testing does not require a rebuild, API key, admin account, or login.
 - [x] Devpost English description drafted.
 - [x] Capability boundaries and pre-existing-project extension documented.
 - [x] Codex/MCP protocol probe completed with honest Experimental fallback.
-- [x] Final Playwright demo recorded with synthetic data.
-- [x] English Microsoft Zira narration and burned captions generated.
-- [x] Sub-three-minute MP4 and `.srt` sidecar mechanically validated.
-- [x] Video validation metadata and release link added to the repository.
+- [ ] Record the new automatic-second-brain demo with synthetic data.
+- [ ] Generate English narration, burned captions, and `.srt`.
+- [ ] Mechanically validate the sub-three-minute replacement MP4.
+- [ ] Update video validation metadata and release link.
 
 ## Agent-owned work
 
@@ -32,6 +32,10 @@ Internal target: **2026-07-20 7:00 PM CDT**.
   validated local checksum.
 - [x] Plugin validation, forbidden-artifact scan, privacy scan, and
   `git diff --check` passed.
+- [x] Authenticated Windows Stop-hook probe, idempotent replay, Learning UI,
+  Review UI, and automatic-capture toggle passed on isolated data.
+- [x] Product-owner Chat-first UAT passed: an ordinary meaningful turn was
+  captured automatically and recalled with its source from a separate task.
 
 ## Product-owner final review
 

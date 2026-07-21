@@ -63,6 +63,7 @@ if (Test-Path -LiteralPath $pluginAssets -PathType Container) {
     Copy-Item -LiteralPath $pluginAssets -Destination (Join-Path $stage "plugin\atlas") -Recurse -Force
 }
 Copy-Item -LiteralPath (Join-Path $repositoryRoot "plugins\atlas\skills") -Destination (Join-Path $stage "plugin\atlas") -Recurse -Force
+Copy-Item -LiteralPath (Join-Path $repositoryRoot "plugins\atlas\hooks") -Destination (Join-Path $stage "plugin\atlas") -Recurse -Force
 Copy-Item -LiteralPath (Join-Path $repositoryRoot "plugins\atlas\mcp-server\dist\index.js") -Destination (Join-Path $stage "plugin\atlas\mcp-server\dist\index.js") -Force
 Copy-Item -LiteralPath (Join-Path $repositoryRoot "plugins\atlas\mcp-server\package.json") -Destination (Join-Path $stage "plugin\atlas\mcp-server\package.json") -Force
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot "plugin.mcp.json") -Destination (Join-Path $stage "plugin\atlas\.mcp.json") -Force

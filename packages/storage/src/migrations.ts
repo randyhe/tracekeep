@@ -183,4 +183,33 @@ export const migrations = [
       CREATE INDEX idx_open_loops_active_status ON open_loops(deleted_at, status, due_at, priority);
     `,
   },
+  {
+    version: 3,
+    sql: `
+      ALTER TABLE review_candidates ADD COLUMN knowledge_kind TEXT;
+      ALTER TABLE review_candidates ADD COLUMN canonical_uri TEXT;
+      ALTER TABLE reference_items ADD COLUMN knowledge_kind TEXT;
+      ALTER TABLE reference_items ADD COLUMN canonical_uri TEXT;
+
+      CREATE INDEX idx_review_candidates_knowledge_kind
+        ON review_candidates(knowledge_kind, status, updated_at);
+      CREATE INDEX idx_reference_items_knowledge_kind
+        ON reference_items(knowledge_kind, created_at);
+      CREATE INDEX idx_reference_items_canonical_uri
+        ON reference_items(canonical_uri);
+    `,
+  },
+  {
+    version: 4,
+    sql: `
+      CREATE TABLE atlas_settings (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+
+      INSERT INTO atlas_settings(key, value, updated_at)
+      VALUES ('auto_capture_enabled', 'true', strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));
+    `,
+  },
 ] as const;

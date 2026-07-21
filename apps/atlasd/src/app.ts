@@ -4,6 +4,7 @@ import { timingSafeEqual } from "node:crypto";
 import { z, ZodError } from "zod";
 import {
   captureInputSchema,
+  codexTurnInputSchema,
   dailyLogInputSchema,
   openLoopPatchSchema,
   reviewActionSchema,
@@ -19,11 +20,14 @@ import {
   type CaptureBundle,
 } from "@atlas/storage";
 import { COMPETITION_EXTRACTOR_VERSION, extractCandidates } from "./extractor.js";
+import { buildCodexTurnCandidates } from "./second-brain.js";
 
 const idParamsSchema = z.object({ id: z.string().uuid() });
 const reviewQuerySchema = z.object({ status: z.enum(["pending", "accepted", "rejected"]).default("pending") });
 const openLoopQuerySchema = z.object({ status: z.enum(["open", "waiting", "scheduled", "done", "dismissed"]).optional() });
 const searchQuerySchema = z.object({ q: z.string().trim().min(1).max(500), limit: z.coerce.number().int().min(1).max(100).default(20) });
+const learningNotesQuerySchema = z.object({ limit: z.coerce.number().int().min(1).max(500).default(100) });
+const autoCaptureSettingSchema = z.object({ enabled: z.boolean() });
 
 export interface BuildAppOptions {
   storage: AtlasStorage;
@@ -86,6 +90,13 @@ export function buildApp(options: BuildAppOptions): FastifyInstance {
     externalHostingEnabled: false,
     monthlyExternalBudgetUsd: 0,
   }));
+  app.get("/api/v1/settings/auto-capture", async () => ({ enabled: storage.isAutoCaptureEnabled() }));
+  app.patch("/api/v1/settings/auto-capture", async (request) => {
+    const body = autoCaptureSettingSchema.parse(request.body);
+    return idempotent(request, storage, "setting.auto-capture", body, () => ({
+      enabled: storage.setAutoCaptureEnabled(body.enabled),
+    }));
+  });
   app.post("/api/v1/auth/session", async (request, reply) => {
     if (!authToken) return reply.status(204).send();
     const body = z.object({ token: z.string().min(32).max(512) }).parse(request.body);
@@ -136,6 +147,10 @@ export function buildApp(options: BuildAppOptions): FastifyInstance {
   app.get("/api/v1/search", async (request) => {
     const query = searchQuerySchema.parse(request.query);
     return { results: storage.search(query.q, query.limit) };
+  });
+  app.get("/api/v1/learning-notes", async (request) => {
+    const query = learningNotesQuerySchema.parse(request.query);
+    return { items: storage.listLearningNotes(query.limit) };
   });
   app.get("/api/v1/sources", async () => ({
     items: storage.listSources().map((source) => source.sensitivity === "restricted"
@@ -205,6 +220,58 @@ export function buildApp(options: BuildAppOptions): FastifyInstance {
         );
       });
       return importResponse(items);
+    });
+  });
+
+  app.post("/api/v1/imports/codex-turn", async (request) => {
+    const body = codexTurnInputSchema.parse(request.body);
+    if (!storage.isAutoCaptureEnabled()) {
+      return { skipped: true, reason: "auto_capture_disabled", candidates: [], autoAcceptedCount: 0, pendingCount: 0 };
+    }
+    return idempotent(request, storage, "import.codex-turn", body, () => {
+      const text = [
+        `user:\n${body.userText}`,
+        body.assistantText ? `assistant:\n${body.assistantText}` : undefined,
+      ].filter(Boolean).join("\n\n");
+      const extractedCandidates = buildCodexTurnCandidates(body);
+      const candidateInputs = body.sensitivity === "work_summary_only"
+        ? extractedCandidates.map(({ summary: _summary, canonicalUri: _canonicalUri, ...candidate }) => ({
+          ...candidate,
+          title: sanitizeWorkTitle(candidate.title),
+        }))
+        : extractedCandidates;
+      const bundle = storage.createCaptureWithCandidates({
+        source: {
+          type: "codex",
+          title: body.sensitivity === "work_summary_only"
+            ? "Codex work learning turn"
+            : `Codex learning turn: ${deriveTitle(body.userText)}`,
+          externalId: `codex:${body.sessionId}:${body.turnId}`,
+          completeness: "full",
+          sensitivity: body.sensitivity,
+        },
+        text,
+        candidates: candidateInputs,
+        locator: `codex-session:${body.sessionId}#${body.turnId}`,
+        extractorVersion: "second-brain-1",
+      });
+
+      let autoAcceptedCount = 0;
+      if (body.sensitivity === "personal") {
+        for (const candidate of bundle.candidates) {
+          if (candidate.candidateType !== "reference") continue;
+          storage.actOnReview(candidate.id, { action: "accept", expectedVersion: candidate.version });
+          autoAcceptedCount += 1;
+        }
+      }
+      const storedCandidates = bundle.candidates.map((candidate) => publicCandidate(storage.getReview(candidate.id)));
+      return {
+        ...publicBundle(bundle),
+        candidate: storedCandidates[0],
+        candidates: storedCandidates,
+        autoAcceptedCount,
+        pendingCount: storedCandidates.filter((candidate) => candidate.status === "pending").length,
+      };
     });
   });
 
@@ -336,6 +403,17 @@ function defaultSourceTitle(sourceType: z.infer<typeof captureInputSchema>["sour
   if (sourceType === "daily_log") return "Daily log capture";
   if (sourceType === "chatgpt_export") return "ChatGPT export capture";
   return "Manual capture";
+}
+
+function sanitizeWorkTitle(value: string): string {
+  return value
+    .replace(/\b[0-9a-f]{8}-[0-9a-f-]{27,}\b/giu, "[identifier]")
+    .replace(/\b(?:internal|private|confidential)[-_][A-Za-z0-9._-]{8,}\b/giu, "[internal item]")
+    .replace(/\bhttps?:\/\/\S+/giu, "[link]")
+    .replace(/\b[A-Za-z]:\\[^\r\n]+/gu, "[local document]")
+    .replace(/\s+/gu, " ")
+    .trim()
+    .slice(0, 180) || "Work learning item";
 }
 
 interface NormalizedConversation {

@@ -54,6 +54,17 @@ Copy-Item -LiteralPath $nodePath -Destination (Join-Path $pluginDestination "run
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 [System.IO.File]::WriteAllText((Join-Path $pluginDestination "release-root.txt"), $root, $utf8NoBom)
 
+# Codex starts stdio MCP servers from the active task directory unless an
+# explicit working directory is provided. Resolve it at install time so the
+# packaged plugin remains portable while its relative script path is reliable.
+$mcpPath = Join-Path $pluginDestination ".mcp.json"
+$mcpConfig = [System.IO.File]::ReadAllText($mcpPath) | ConvertFrom-Json
+$mcpServer = $mcpConfig.mcpServers.'atlas-memory-local'
+if ($null -eq $mcpServer) { throw "Atlas MCP configuration is missing atlas-memory-local." }
+$mcpServer | Add-Member -NotePropertyName "cwd" -NotePropertyValue $pluginDestination -Force
+$mcpJson = $mcpConfig | ConvertTo-Json -Depth 10
+[System.IO.File]::WriteAllText($mcpPath, $mcpJson, $utf8NoBom)
+
 New-Item -ItemType Directory -Path (Split-Path -Parent $marketplacePath) -Force | Out-Null
 $marketplace = [ordered]@{
     name = "atlas-release"

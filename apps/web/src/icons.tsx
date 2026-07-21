@@ -1,12 +1,13 @@
 import type { SVGProps } from "react";
 
-export type IconName = "today" | "capture" | "search" | "review" | "sources" | "settings" | "sun" | "moon" | "check" | "clock" | "arrow" | "mic" | "refresh" | "shield" | "menu";
+export type IconName = "today" | "capture" | "search" | "review" | "memory" | "sources" | "settings" | "sun" | "moon" | "check" | "clock" | "arrow" | "mic" | "refresh" | "shield" | "menu";
 
 const paths: Record<IconName, React.ReactNode> = {
   today: <><path d="M4 5.5h16v15H4z"/><path d="M8 3v5M16 3v5M4 10h16"/></>,
   capture: <><path d="M12 4v16M4 12h16"/></>,
   search: <><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></>,
   review: <><path d="M6 3h12v18H6z"/><path d="m9 9 2 2 4-4M9 16h6"/></>,
+  memory: <><path d="M6 4h9a3 3 0 0 1 3 3v13H9a3 3 0 0 1-3-3Z"/><path d="M9 4v16M12 8h3M12 12h3"/></>,
   sources: <><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></>,
   settings: <><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H3v-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3A1.7 1.7 0 0 0 10 3V3h4v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></>,
   sun: <><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></>,

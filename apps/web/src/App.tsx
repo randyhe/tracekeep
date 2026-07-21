@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink, Navigate, Route, Routes, useLocation } from "react-router-dom";
-import { CapturePage, ReviewPage, SearchPage, SettingsPage, SourcesPage, TodayPage } from "./pages";
+import { CapturePage, LearningNotesPage, ReviewPage, SearchPage, SettingsPage, SourcesPage, TodayPage } from "./pages";
 import { Icon, type IconName } from "./icons";
 
 const navigation: Array<{ to: string; label: string; icon: IconName; mobile?: boolean }> = [
@@ -8,6 +8,7 @@ const navigation: Array<{ to: string; label: string; icon: IconName; mobile?: bo
   { to: "/capture", label: "Capture", icon: "capture", mobile: true },
   { to: "/search", label: "Search", icon: "search", mobile: true },
   { to: "/review", label: "Review", icon: "review", mobile: true },
+  { to: "/learning", label: "Learning", icon: "memory" },
   { to: "/sources", label: "Sources", icon: "sources" },
   { to: "/settings", label: "Settings", icon: "settings" },
 ];
@@ -24,7 +25,7 @@ export default function App() {
       <div className="sidebar-footer"><span className="local-dot"/><span><strong>Local first</strong><small>Private on this device</small></span></div>
     </aside>
     <main id="main-content" data-testid="app-main" tabIndex={-1}><div className="content-wrap"><Routes>
-      <Route path="/today" element={<TodayPage/>}/><Route path="/capture" element={<CapturePage/>}/><Route path="/search" element={<SearchPage/>}/><Route path="/review" element={<ReviewPage/>}/><Route path="/sources" element={<SourcesPage/>}/><Route path="/settings" element={<SettingsPage theme={theme} setTheme={setThemeState}/>}/><Route path="*" element={<Navigate to="/today" replace/>}/>
+      <Route path="/today" element={<TodayPage/>}/><Route path="/capture" element={<CapturePage/>}/><Route path="/search" element={<SearchPage/>}/><Route path="/review" element={<ReviewPage/>}/><Route path="/learning" element={<LearningNotesPage/>}/><Route path="/sources" element={<SourcesPage/>}/><Route path="/settings" element={<SettingsPage theme={theme} setTheme={setThemeState}/>}/><Route path="*" element={<Navigate to="/today" replace/>}/>
     </Routes></div></main>
     <nav className="mobile-nav" aria-label="Mobile navigation">{navigation.filter((item) => item.mobile).map((item) => <NavLink key={item.to} to={item.to}><Icon name={item.icon}/><span>{item.label}</span></NavLink>)}</nav>
   </div>;

@@ -1,27 +1,29 @@
 {
   "name": "atlas",
-  "version": "0.2.1",
-  "description": "Remember ideas, resume interrupted work, and manage local Atlas memory directly from Codex conversations.",
+  "version": "0.3.0+codex.20260720200022",
+  "description": "Automatically turn meaningful Codex work into sourced local learning notes, actions, and decisions.",
   "author": {
     "name": "Local developer"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "Atlas",
-    "shortDescription": "Conversation-first memory and action for Codex.",
-    "longDescription": "Atlas turns explicit requests in Codex conversations into reviewable local memories and actions. Remember ideas, resume interrupted work, see today's focus, search sourced evidence, and update open loops without paid APIs or cloud hosting. The Web dashboard remains an optional workspace for batch review and settings.",
+    "shortDescription": "A local second brain that learns from meaningful Codex turns.",
+    "longDescription": "Atlas automatically turns meaningful completed Codex turns into sourced local learning notes, while proposed actions and decisions remain reviewable. It preserves ideas, documents, papers, and URLs; helps resume interrupted work; and searches prior evidence without paid APIs or cloud hosting. The Web dashboard provides learning notes, batch review, search, and settings.",
     "developerName": "Local developer",
     "category": "Productivity",
     "capabilities": [
       "local-mcp",
+      "auto-capture",
       "capture",
+      "learning-notes",
       "search",
       "review"
     ],
     "defaultPrompt": [
-      "Remember this idea in Atlas.",
+      "What did Atlas learn from my recent work?",
       "What unfinished work should I resume?",
-      "Search Atlas for my earlier decision and include its source."
+      "Search Atlas for the paper I studied and include its source."
     ]
   },
   "mcpServers": "./.mcp.json"
