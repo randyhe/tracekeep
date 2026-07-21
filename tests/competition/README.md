@@ -1,13 +1,13 @@
-# Atlas Competition QA Harness
+# Tracekeep Competition QA Harness
 
 This harness provides reproducible, synthetic competition evidence. It does not replace Gate 6 or a real 14-day user alpha.
 
 ## Safety boundary
 
-- Every server run sets `ATLAS_DATA_DIR` to an absolute child of `work/competition-runs/<run-id>`.
+- Every server run sets `TRACEKEEP_DATA_DIR` to an absolute child of `work/competition-runs/<run-id>`.
 - Every server run uses an available port from `4311-4399` and binds through the production entry point to `127.0.0.1`.
 - The harness refuses paths outside the competition run root.
-- It never reads or writes `%LOCALAPPDATA%\Atlas`.
+- It never reads or writes `%LOCALAPPDATA%\Tracekeep`.
 - SQLite, WAL, and SHM files are local test state and are excluded from publishable-artifact scans.
 - Imported commands and URLs remain inert strings. The harness never executes or opens them.
 
@@ -47,9 +47,9 @@ The API harness validates:
 2. Dynamic duplicate hint, merge, dual evidence, and undo.
 3. Restricted malicious text remaining inert and absent from ordinary search, sanitized export, and API responses.
 
-It also observes TCP connections owned by the `atlasd` PID on Windows. A passing report supports only this statement:
+It also observes TCP connections owned by the `tracekeepd` PID on Windows. A passing report supports only this statement:
 
-> No external requests were observed from Atlas processes during tested runtime flows.
+> No external requests were observed from Tracekeep processes during tested runtime flows.
 
 It does not make a whole-machine or browser network claim.
 

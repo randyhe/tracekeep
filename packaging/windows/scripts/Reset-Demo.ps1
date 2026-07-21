@@ -16,7 +16,7 @@ $workPath = Get-FullPath (Join-Path $root "work")
 $dataPath = Get-FullPath (Join-Path $workPath "demo-data")
 $expectedDataPath = Get-FullPath (Join-Path (Join-Path $root "work") "demo-data")
 $seedPath = Get-FullPath (Join-Path $root "demo-seed")
-$pidPath = Join-Path $workPath "atlas.pid"
+$pidPath = Join-Path $workPath "tracekeep.pid"
 
 if (-not [string]::Equals($dataPath, $expectedDataPath, [System.StringComparison]::OrdinalIgnoreCase)) {
     throw "Reset refused: the demo data path did not match the expected absolute path."
@@ -31,15 +31,15 @@ if ([string]::Equals($dataPath, [System.IO.Path]::GetPathRoot($dataPath).TrimEnd
     throw "Reset refused: a drive root can never be a demo data directory."
 }
 
-$officialDataPath = if ($env:LOCALAPPDATA) { Get-FullPath (Join-Path $env:LOCALAPPDATA "Atlas") } else { $null }
+$officialDataPath = if ($env:LOCALAPPDATA) { Get-FullPath (Join-Path $env:LOCALAPPDATA "Tracekeep") } else { $null }
 if ($officialDataPath -and [string]::Equals($dataPath, $officialDataPath, [System.StringComparison]::OrdinalIgnoreCase)) {
-    throw "Reset refused: the demo path must never be the official Atlas data directory."
+    throw "Reset refused: the demo path must never be the official Tracekeep data directory."
 }
 
 if (Test-Path -LiteralPath $pidPath) {
     $processId = Get-Content -LiteralPath $pidPath -ErrorAction SilentlyContinue | Select-Object -First 1
     if ($processId -and (Get-Process -Id $processId -ErrorAction SilentlyContinue)) {
-        throw "Atlas is still running as process $processId. Close it before resetting the demo."
+        throw "Tracekeep is still running as process $processId. Close it before resetting the demo."
     }
     Remove-Item -LiteralPath $pidPath -Force
 }

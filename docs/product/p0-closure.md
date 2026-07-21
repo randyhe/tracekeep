@@ -13,7 +13,7 @@
 
 - List valid local SQLite backups without exposing arbitrary filesystem paths.
 - Validate `quick_check` before offering a backup for restore.
-- Refuse restore while `atlasd` is listening; never hot-swap an open SQLite database.
+- Refuse restore while `tracekeepd` is listening; never hot-swap an open SQLite database.
 - Create a pre-restore backup and checkpoint the stopped database before replacement.
 - Accept only a backup basename resolved inside the configured backup directory.
 - Require an explicit confirmation token or flag and provide rollback on replacement failure.

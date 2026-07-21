@@ -1,8 +1,8 @@
-# Atlas — Devpost Submission Draft
+# Tracekeep — Devpost Submission Draft
 
 ## Project name
 
-Atlas — Local-First AI Memory & Action System
+Tracekeep — Local-First AI Memory & Action System
 
 ## Tagline
 
@@ -22,7 +22,7 @@ that were mentioned but never closed.
 
 ## What it does
 
-Atlas is a conversation-first, local-first second brain. When a meaningful
+Tracekeep is a conversation-first, local-first second brain. When a meaningful
 Codex turn ends, a trusted local hook preserves the useful result without
 requiring the user to say a magic phrase. Conclusions become sourced Learning
 Notes. Documents, papers, and web pages remain connected to their origin.
@@ -31,7 +31,7 @@ action list. Explicit capture and ChatGPT Export remain available for urgent
 items and historical backfill.
 
 The user can edit, accept, reject, merge, schedule, complete, dismiss, or undo.
-Every accepted item retains inspectable source evidence. Atlas can detect a
+Every accepted item retains inspectable source evidence. Tracekeep can detect a
 possible duplicate across sources, merge the new evidence into the existing
 item, and undo only that evidence link without deleting either source.
 
@@ -42,8 +42,8 @@ logs, screenshots, and competition artifacts.
 
 ## How we built it
 
-Atlas uses a TypeScript monorepo with Fastify, React, Vite, Zod, SQLite,
-better-sqlite3, Vitest, Playwright, and a local MCP adapter. `atlasd` is the only
+Tracekeep uses a TypeScript monorepo with Fastify, React, Vite, Zod, SQLite,
+better-sqlite3, Vitest, Playwright, and a local MCP adapter. `tracekeepd` is the only
 SQLite writer. Writes use idempotency keys, updates use optimistic concurrency,
 and deletion is soft. Business tables remain authoritative while audit and
 outbox tables support undo, export, and background work without introducing
@@ -74,9 +74,9 @@ owner made the product, privacy, cost, and release decisions. The required
 - A frozen 50-sample Holdout passed the required extraction thresholds; the
   Holdout remains private to prevent evaluation tuning.
 - The Windows package starts with bundled Node, binds only to `127.0.0.1`, and
-  leaves the normal Atlas database unchanged.
+  leaves the normal Tracekeep database unchanged.
 - Package scans found zero prohibited artifacts and zero prohibited content.
-- During tested Atlas flows, no non-loopback connection from the Atlas process
+- During tested Tracekeep flows, no non-loopback connection from the Tracekeep process
   was observed.
 
 ## What we learned
@@ -87,7 +87,7 @@ pause switch, and honest history boundaries make that possible.
 
 ## What's next
 
-After the competition, Atlas will complete the real 14-day Alpha and improve
+After the competition, Tracekeep will complete the real 14-day Alpha and improve
 candidate usefulness from user feedback. ChatGPT Direct mobile through a secure remote MCP gateway,
 weekly review, and sourced AI answers remain later capabilities. Paid providers,
 cloud hosting, complete
@@ -96,24 +96,24 @@ claims.
 
 ## Public links
 
-- Repository: https://github.com/randyhe/atlas
-- Windows release: https://github.com/randyhe/atlas/releases/latest
+- Repository: https://github.com/randyhe/tracekeep
+- Windows release: https://github.com/randyhe/tracekeep/releases/latest
 - Video: `TBD — public YouTube URL`
 - `/feedback` Session ID: `TBD — account-owned final action`
 
 ## Judge testing instructions
 
 1. Download the ZIP and `.sha256` file from the public release.
-2. Verify the checksum, extract the ZIP, and double-click `Start Atlas.cmd`.
+2. Verify the checksum, extract the ZIP, and double-click `Start Tracekeep.cmd`.
 3. No administrator account, Node.js, pnpm, rebuild, API key, or hosted account is
    required.
 4. Follow the three suggested journeys in `README-TESTING.md`.
-5. Atlas uses synthetic demo data and never reads the normal
-   `%LOCALAPPDATA%\Atlas` database.
+5. Tracekeep uses synthetic demo data and never reads the normal
+   `%LOCALAPPDATA%\Tracekeep` database.
 
 ## Required disclosure
 
-Atlas existed as a local Alpha before the Submission Period. The public Git
+Tracekeep existed as a local Alpha before the Submission Period. The public Git
 history documents the meaningful post-2026-07-13 extension: review and restore
 closure, automatic meaningful-turn capture, sourced learning notes for papers,
 documents and URLs, bilingual multi-candidate extraction, reversible task

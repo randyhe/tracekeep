@@ -1,0 +1,18 @@
+{
+  "description": "Automatically turn valuable Codex conversations into sourced Tracekeep learning notes and review candidates.",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$PLUGIN_ROOT/hooks/stop-capture.mjs\"",
+            "commandWindows": "powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -Command \"& (Join-Path $env:PLUGIN_ROOT 'hooks\\invoke-stop-capture.ps1')\"",
+            "timeout": 15,
+            "statusMessage": "Tracekeep is preserving valuable context"
+          }
+        ]
+      }
+    ]
+  }
+}

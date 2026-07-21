@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "atlas-memory-local": {
+    "tracekeep-memory-local": {
       "command": "powershell.exe",
       "args": [
         "-NoLogo",

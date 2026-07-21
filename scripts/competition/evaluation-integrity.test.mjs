@@ -13,7 +13,7 @@ test("canonicalTextSha256 produces the same hash for LF and CRLF", () => {
 });
 
 test("verifyDatasetManifest accepts a canonical hash and rejects a mismatch", async () => {
-  const directory = await mkdtemp(join(tmpdir(), "atlas-evaluator-"));
+  const directory = await mkdtemp(join(tmpdir(), "tracekeep-evaluator-"));
   try {
     const fixturePath = join(directory, "holdout-v1.json");
     const content = '{\r\n  "dataset": "example",\r\n  "samples": []\r\n}\r\n';

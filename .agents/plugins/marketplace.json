@@ -1,14 +1,14 @@
 {
-  "name": "atlas-public",
+  "name": "tracekeep-public",
   "interface": {
-    "displayName": "Atlas"
+    "displayName": "Tracekeep"
   },
   "plugins": [
     {
-      "name": "atlas",
+      "name": "tracekeep",
       "source": {
         "source": "local",
-        "path": "./plugins/atlas"
+        "path": "./plugins/tracekeep"
       },
       "policy": {
         "installation": "AVAILABLE",

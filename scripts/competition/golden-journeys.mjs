@@ -16,9 +16,9 @@ await mkdir(reportDirectory, { recursive: true });
 const port = await findPort();
 assertPort(port);
 const baseUrl = `http://127.0.0.1:${port}`;
-const child = spawn(process.execPath, [resolve(repositoryRoot, "apps/atlasd/dist/main.js")], {
+const child = spawn(process.execPath, [resolve(repositoryRoot, "apps/tracekeepd/dist/main.js")], {
   cwd: repositoryRoot,
-  env: { ...process.env, ATLAS_DATA_DIR: dataDirectory, ATLAS_PORT: String(port) },
+  env: { ...process.env, TRACEKEEP_DATA_DIR: dataDirectory, TRACEKEEP_PORT: String(port) },
   stdio: ["ignore", "pipe", "pipe"],
   windowsHide: true,
 });
@@ -26,14 +26,14 @@ const child = spawn(process.execPath, [resolve(repositoryRoot, "apps/atlasd/dist
 const stderr = [];
 child.stderr.on("data", (chunk) => stderr.push(String(chunk)));
 const results = [];
-const canary = ["ATLAS", "COMPETITION", randomUUID().replaceAll("-", "")].join("_");
+const canary = ["TRACEKEEP", "COMPETITION", randomUUID().replaceAll("-", "")].join("_");
 try {
   await waitUntilReady(baseUrl, child);
   results.push(await journeyOne(baseUrl));
   results.push(await journeyTwo(baseUrl));
   results.push(await journeyThree(baseUrl, canary));
   const network = observeNetwork(child.pid);
-  if (!network.passed) throw new Error(`Atlas process used a non-loopback TCP endpoint: ${JSON.stringify(network.nonLoopback)}`);
+  if (!network.passed) throw new Error(`Tracekeep process used a non-loopback TCP endpoint: ${JSON.stringify(network.nonLoopback)}`);
   const preliminaryReportPath = resolve(reportDirectory, "golden-journeys.json");
   await writeFile(preliminaryReportPath, `${JSON.stringify({
     runId,
@@ -58,7 +58,7 @@ try {
   process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
 } catch (error) {
   process.stderr.write(`${error instanceof Error ? error.stack : String(error)}\n`);
-  if (stderr.length) process.stderr.write(`atlasd stderr:\n${stderr.join("")}\n`);
+  if (stderr.length) process.stderr.write(`tracekeepd stderr:\n${stderr.join("")}\n`);
   process.exitCode = 1;
 } finally {
   child.kill("SIGTERM");
@@ -146,14 +146,14 @@ async function request(baseUrl, path, options = {}) {
 async function waitUntilReady(baseUrl, child) {
   const deadline = Date.now() + 15000;
   while (Date.now() < deadline) {
-    if (child.exitCode !== null) throw new Error(`atlasd exited before readiness with code ${child.exitCode}`);
+    if (child.exitCode !== null) throw new Error(`tracekeepd exited before readiness with code ${child.exitCode}`);
     try {
       const response = await fetch(`${baseUrl}/api/v1/health/ready`);
       if (response.ok) return;
     } catch {}
     await new Promise((done) => setTimeout(done, 150));
   }
-  throw new Error("atlasd did not become ready within 15 seconds");
+  throw new Error("tracekeepd did not become ready within 15 seconds");
 }
 
 async function findPort() {

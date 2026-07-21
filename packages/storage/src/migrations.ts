@@ -202,13 +202,13 @@ export const migrations = [
   {
     version: 4,
     sql: `
-      CREATE TABLE atlas_settings (
+      CREATE TABLE tracekeep_settings (
         key TEXT PRIMARY KEY,
         value TEXT NOT NULL,
         updated_at TEXT NOT NULL
       );
 
-      INSERT INTO atlas_settings(key, value, updated_at)
+      INSERT INTO tracekeep_settings(key, value, updated_at)
       VALUES ('auto_capture_enabled', 'true', strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));
     `,
   },

@@ -1,5 +1,5 @@
 {
-  "name": "@atlas/storage",
+  "name": "@tracekeep/storage",
   "version": "0.3.0",
   "private": true,
   "type": "module",
@@ -8,10 +8,10 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "pnpm --filter @atlas/contracts build && vitest run"
+    "test": "pnpm --filter @tracekeep/contracts build && vitest run"
   },
   "dependencies": {
-    "@atlas/contracts": "workspace:*",
+    "@tracekeep/contracts": "workspace:*",
     "better-sqlite3": "12.4.1"
   },
   "devDependencies": {

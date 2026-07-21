@@ -4,27 +4,27 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import Database from "better-sqlite3";
 import { describe, expect, it } from "vitest";
-import { AtlasStorage, StorageConflictError, fingerprint } from "./index.js";
+import { TracekeepStorage, StorageConflictError, fingerprint } from "./index.js";
 import { migrations } from "./migrations.js";
 
-function createStorage(): AtlasStorage {
-  return new AtlasStorage(":memory:", ".runtime-test/backups");
+function createStorage(): TracekeepStorage {
+  return new TracekeepStorage(":memory:", ".runtime-test/backups");
 }
 
-describe("AtlasStorage", () => {
+describe("TracekeepStorage", () => {
   it("creates a pending candidate and accepts it into an open loop", () => {
     const storage = createStorage();
     const bundle = storage.createCaptureBundle({
       source: { type: "manual", title: "Manual capture", sensitivity: "personal" },
-      text: "Finish the Atlas backend",
-      candidateTitle: "Finish the Atlas backend",
+      text: "Finish the Tracekeep backend",
+      candidateTitle: "Finish the Tracekeep backend",
     });
     const accepted = storage.actOnReview(bundle.candidate.id, {
       action: "accept",
       expectedVersion: 1,
       priority: 3,
     });
-    expect(accepted.outcome).toMatchObject({ title: "Finish the Atlas backend", priority: 3, status: "open" });
+    expect(accepted.outcome).toMatchObject({ title: "Finish the Tracekeep backend", priority: 3, status: "open" });
     expect(storage.getToday()).toHaveLength(1);
     storage.close();
   });
@@ -142,8 +142,8 @@ describe("AtlasStorage", () => {
     const storage = createStorage();
     storage.createCaptureWithCandidates({
       source: { type: "chatgpt_export", title: "Synthetic planning conversation", externalId: "search-source", sensitivity: "personal" },
-      text: "Decision: use SQLite for Atlas.",
-      candidates: [{ candidateType: "decision", title: "Use SQLite for Atlas" }],
+      text: "Decision: use SQLite for Tracekeep.",
+      candidates: [{ candidateType: "decision", title: "Use SQLite for Tracekeep" }],
       locator: "chatgpt-export:search-source",
     });
 
@@ -250,10 +250,10 @@ describe("AtlasStorage", () => {
   });
 
   it("creates a complete online SQLite backup", async () => {
-    const directory = await mkdtemp(join(tmpdir(), "atlas-storage-"));
-    const databasePath = join(directory, "atlas.sqlite");
+    const directory = await mkdtemp(join(tmpdir(), "tracekeep-storage-"));
+    const databasePath = join(directory, "tracekeep.sqlite");
     const backupDirectory = join(directory, "backups");
-    const storage = new AtlasStorage(databasePath, backupDirectory);
+    const storage = new TracekeepStorage(databasePath, backupDirectory);
     storage.createCaptureBundle({
       source: { type: "manual", title: "Backup test", sensitivity: "personal" },
       text: "Persist this",
@@ -261,7 +261,7 @@ describe("AtlasStorage", () => {
     });
     const backup = await storage.createBackup();
     expect(existsSync(join(backupDirectory, backup.fileName))).toBe(true);
-    const restored = new AtlasStorage(join(backupDirectory, backup.fileName), join(directory, "restored-backups"));
+    const restored = new TracekeepStorage(join(backupDirectory, backup.fileName), join(directory, "restored-backups"));
     expect(restored.integrityCheck()).toBe("ok");
     expect(restored.listReviews()).toHaveLength(1);
     restored.close();
@@ -342,14 +342,14 @@ describe("AtlasStorage", () => {
   });
 
   it("migrates a v1 database and supports decision/reference accept and undo", async () => {
-    const directory = await mkdtemp(join(tmpdir(), "atlas-v1-"));
-    const databasePath = join(directory, "atlas.sqlite");
+    const directory = await mkdtemp(join(tmpdir(), "tracekeep-v1-"));
+    const databasePath = join(directory, "tracekeep.sqlite");
     const raw = new Database(databasePath);
     raw.exec(migrations[0].sql);
     raw.prepare("INSERT INTO schema_migrations(version, applied_at) VALUES (1, ?)").run(new Date().toISOString());
     raw.close();
 
-    const storage = new AtlasStorage(databasePath, join(directory, "backups"));
+    const storage = new TracekeepStorage(databasePath, join(directory, "backups"));
     for (const candidateType of ["decision", "reference"] as const) {
       const candidate = storage.createCaptureBundle({
         source: { type: "manual", title: candidateType, sensitivity: "personal" },
@@ -369,10 +369,10 @@ describe("AtlasStorage", () => {
   });
 
   it("restores from a validated backup after creating a pre-restore backup", async () => {
-    const directory = await mkdtemp(join(tmpdir(), "atlas-restore-"));
-    const databasePath = join(directory, "atlas.sqlite");
+    const directory = await mkdtemp(join(tmpdir(), "tracekeep-restore-"));
+    const databasePath = join(directory, "tracekeep.sqlite");
     const backupDirectory = join(directory, "backups");
-    const storage = new AtlasStorage(databasePath, backupDirectory);
+    const storage = new TracekeepStorage(databasePath, backupDirectory);
     storage.createCaptureBundle({
       source: { type: "manual", title: "Before", sensitivity: "personal" },
       text: "Before backup",

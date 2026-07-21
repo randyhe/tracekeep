@@ -101,7 +101,7 @@ describe("search source attribution", () => {
       entityType: "decision",
       entityId: "decision-1",
       title: "Use SQLite",
-      snippet: "Use SQLite for Atlas",
+      snippet: "Use SQLite for Tracekeep",
       sourceId: "source-1",
       sourceTitle: "Synthetic planning conversation",
       sourceType: "chatgpt_export",

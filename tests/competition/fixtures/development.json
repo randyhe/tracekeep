@@ -1,8 +1,8 @@
 {
-  "dataset": "atlas-competition-development-v1",
+  "dataset": "tracekeep-competition-development-v1",
   "purpose": "Visible synthetic development data. Never use this file as holdout evidence.",
   "samples": [
-    {"id":"dev-001","source":"chatgpt_export","sensitivity":"personal","messages":[{"role":"user","content":"TODO: Finish the Atlas demo script."}],"shouldExtract":true,"expected":[{"candidateType":"open_loop","normalizedIntent":"finishtheatlasdemoscript"}]},
+    {"id":"dev-001","source":"chatgpt_export","sensitivity":"personal","messages":[{"role":"user","content":"TODO: Finish the Tracekeep demo script."}],"shouldExtract":true,"expected":[{"candidateType":"open_loop","normalizedIntent":"finishthetracekeepdemoscript"}]},
     {"id":"dev-002","source":"chatgpt_export","sensitivity":"personal","messages":[{"role":"user","content":"下一步：验证备份恢复。"}],"shouldExtract":true,"expected":[{"candidateType":"open_loop","normalizedIntent":"验证备份恢复"}]},
     {"id":"dev-003","source":"chatgpt_export","sensitivity":"personal","messages":[{"role":"user","content":"决定：采用本地 SQLite。"}],"shouldExtract":true,"expected":[{"candidateType":"decision","normalizedIntent":"采用本地sqlite"}]},
     {"id":"dev-004","source":"chatgpt_export","sensitivity":"personal","messages":[{"role":"user","content":"等 Mark 回复确认演示时间。"}],"shouldExtract":true,"expected":[{"candidateType":"open_loop","normalizedIntent":"等mark回复确认演示时间"}]},

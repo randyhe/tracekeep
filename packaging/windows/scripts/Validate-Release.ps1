@@ -8,28 +8,28 @@ $ErrorActionPreference = "Stop"
 Add-Type -AssemblyName System.Security
 $release = [System.IO.Path]::GetFullPath($ReleaseDirectory)
 $required = @(
-    "Start Atlas.cmd",
-    "Install Atlas.cmd",
-    "Uninstall Atlas.cmd",
+    "Start Tracekeep.cmd",
+    "Install Tracekeep.cmd",
+    "Uninstall Tracekeep.cmd",
     "Reset Demo.cmd",
     "bundled-node\node.exe",
-    "app\apps\atlasd\dist\main.js",
+    "app\apps\tracekeepd\dist\main.js",
     "app\apps\web\dist\index.html",
     "demo-seed",
     "demo-seed\demo-data.json",
     "README-TESTING.md",
     "LICENSE",
     "THIRD-PARTY-NOTICES.md",
-    "scripts\Start-Atlas.ps1",
-    "scripts\Install-Atlas.ps1",
-    "scripts\Uninstall-Atlas.ps1",
-    "plugin\atlas\.codex-plugin\plugin.json",
-    "plugin\atlas\hooks\hooks.json",
-    "plugin\atlas\hooks\invoke-stop-capture.ps1",
-    "plugin\atlas\hooks\stop-capture.mjs",
-    "plugin\atlas\.mcp.json",
-    "plugin\atlas\mcp-server\dist\index.js",
-    "plugin\atlas\scripts\Start-Mcp.ps1",
+    "scripts\Start-Tracekeep.ps1",
+    "scripts\Install-Tracekeep.ps1",
+    "scripts\Uninstall-Tracekeep.ps1",
+    "plugin\tracekeep\.codex-plugin\plugin.json",
+    "plugin\tracekeep\hooks\hooks.json",
+    "plugin\tracekeep\hooks\invoke-stop-capture.ps1",
+    "plugin\tracekeep\hooks\stop-capture.mjs",
+    "plugin\tracekeep\.mcp.json",
+    "plugin\tracekeep\mcp-server\dist\index.js",
+    "plugin\tracekeep\scripts\Start-Mcp.ps1",
     "scripts\Reset-Demo.ps1"
 )
 
@@ -47,10 +47,10 @@ foreach ($pattern in $forbiddenPatterns) {
     }
 }
 
-$startScript = Join-Path $release "scripts\Start-Atlas.ps1"
+$startScript = Join-Path $release "scripts\Start-Tracekeep.ps1"
 if (Test-Path -LiteralPath $startScript) {
     $startText = Get-Content -LiteralPath $startScript -Raw
-    foreach ($requiredToken in @("127.0.0.1", "4310..4319", "ATLAS_DATA_DIR", "ATLAS_AUTH_TOKEN", "atlas-port.txt")) {
+    foreach ($requiredToken in @("127.0.0.1", "4310..4319", "TRACEKEEP_DATA_DIR", "TRACEKEEP_AUTH_TOKEN", "tracekeep-port.txt")) {
         if (-not $startText.Contains($requiredToken)) {
             $errors.Add("Start script is missing required safety token: $requiredToken")
         }
@@ -63,7 +63,7 @@ if (Test-Path -LiteralPath $startScript) {
 $resetScript = Join-Path $release "scripts\Reset-Demo.ps1"
 if (Test-Path -LiteralPath $resetScript) {
     $resetText = Get-Content -LiteralPath $resetScript -Raw
-    foreach ($requiredToken in @("GetFullPath", "expectedDataPath", "official Atlas data directory", "Remove-Item -LiteralPath")) {
+    foreach ($requiredToken in @("GetFullPath", "expectedDataPath", "official Tracekeep data directory", "Remove-Item -LiteralPath")) {
         if (-not $resetText.Contains($requiredToken)) {
             $errors.Add("Reset script is missing required path guard: $requiredToken")
         }
@@ -90,7 +90,7 @@ try {
         [System.Security.Cryptography.DataProtectionScope]::CurrentUser
     )
     [System.IO.File]::WriteAllBytes((Join-Path $workPath "auth-token.dpapi"), $protected)
-    $launcher = Join-Path $release "Start Atlas.cmd"
+    $launcher = Join-Path $release "Start Tracekeep.cmd"
     $startInfo = [System.Diagnostics.ProcessStartInfo]::new()
     $startInfo.FileName = $env:ComSpec
     $startInfo.Arguments = "/d /c `"`"$launcher`" --demo --no-browser`""
@@ -100,10 +100,10 @@ try {
     $launcherProcess = [System.Diagnostics.Process]::Start($startInfo)
     if (-not $launcherProcess.WaitForExit(30000)) {
         $launcherProcess.Kill()
-        throw "Start Atlas.cmd did not return within 30 seconds."
+        throw "Start Tracekeep.cmd did not return within 30 seconds."
     }
-    if ($launcherProcess.ExitCode -ne 0) { throw "Start Atlas.cmd failed with exit code $($launcherProcess.ExitCode)." }
-    $runtimeProcessId = [int](Get-Content -LiteralPath (Join-Path $workPath "atlas.pid"))
+    if ($launcherProcess.ExitCode -ne 0) { throw "Start Tracekeep.cmd failed with exit code $($launcherProcess.ExitCode)." }
+    $runtimeProcessId = [int](Get-Content -LiteralPath (Join-Path $workPath "tracekeep.pid"))
     $listener = Get-NetTCPConnection -OwningProcess $runtimeProcessId -State Listen -ErrorAction Stop |
         Where-Object { $_.LocalAddress -eq "127.0.0.1" -and $_.LocalPort -in 4310..4319 } |
         Select-Object -First 1
@@ -114,8 +114,8 @@ try {
     if (@($loops.items).Count -ne 3) { throw "Synthetic demo seed did not create exactly three open loops." }
 }
 finally {
-    if (-not $runtimeProcessId -and (Test-Path -LiteralPath (Join-Path $workPath "atlas.pid"))) {
-        $runtimeProcessId = [int](Get-Content -LiteralPath (Join-Path $workPath "atlas.pid"))
+    if (-not $runtimeProcessId -and (Test-Path -LiteralPath (Join-Path $workPath "tracekeep.pid"))) {
+        $runtimeProcessId = [int](Get-Content -LiteralPath (Join-Path $workPath "tracekeep.pid"))
     }
     $runtimeProcess = if ($runtimeProcessId) { Get-Process -Id $runtimeProcessId -ErrorAction SilentlyContinue } else { $null }
     if ($runtimeProcess) {

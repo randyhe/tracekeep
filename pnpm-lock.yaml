@@ -18,12 +18,12 @@ importers:
         specifier: ^3.2.0
         version: 3.2.4(@types/node@24.3.0)(jsdom@26.1.0)
 
-  apps/atlasd:
+  apps/tracekeepd:
     dependencies:
-      '@atlas/contracts':
+      '@tracekeep/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
-      '@atlas/storage':
+      '@tracekeep/storage':
         specifier: workspace:*
         version: link:../../packages/storage
       '@fastify/static':
@@ -72,7 +72,7 @@ importers:
 
   packages/storage:
     dependencies:
-      '@atlas/contracts':
+      '@tracekeep/contracts':
         specifier: workspace:*
         version: link:../contracts
       better-sqlite3:
@@ -83,7 +83,7 @@ importers:
         specifier: ^7.6.13
         version: 7.6.13
 
-  plugins/atlas/mcp-server:
+  plugins/tracekeep/mcp-server:
     dependencies:
       '@modelcontextprotocol/sdk':
         specifier: 1.17.5

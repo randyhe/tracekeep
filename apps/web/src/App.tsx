@@ -14,13 +14,13 @@ const navigation: Array<{ to: string; label: string; icon: IconName; mobile?: bo
 ];
 
 export default function App() {
-  const [theme, setThemeState] = useState<"light" | "dark">(() => (localStorage.getItem("atlas.theme") as "light" | "dark") ?? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
+  const [theme, setThemeState] = useState<"light" | "dark">(() => ((localStorage.getItem("tracekeep.theme") ?? localStorage.getItem("atlas.theme")) as "light" | "dark") ?? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
   const location = useLocation();
-  useEffect(() => { document.documentElement.dataset.theme = theme; localStorage.setItem("atlas.theme", theme); }, [theme]);
+  useEffect(() => { document.documentElement.dataset.theme = theme; localStorage.setItem("tracekeep.theme", theme); }, [theme]);
   useEffect(() => { document.getElementById("main-content")?.focus({ preventScroll: true }); }, [location.pathname]);
   return <div className="app-shell">
     <aside className="sidebar">
-      <NavLink to="/today" className="brand" aria-label="Atlas home"><span className="brand-mark">A</span><span><strong>Atlas</strong><small>Second brain</small></span></NavLink>
+      <NavLink to="/today" className="brand" aria-label="Tracekeep home"><span className="brand-mark">T</span><span><strong>Tracekeep</strong><small>Second brain</small></span></NavLink>
       <nav aria-label="Primary navigation">{navigation.map((item) => <NavLink key={item.to} to={item.to}><Icon name={item.icon}/><span>{item.label}</span></NavLink>)}</nav>
       <div className="sidebar-footer"><span className="local-dot"/><span><strong>Local first</strong><small>Private on this device</small></span></div>
     </aside>

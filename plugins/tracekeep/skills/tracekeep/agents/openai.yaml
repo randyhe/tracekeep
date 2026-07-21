@@ -1,0 +1,4 @@
+interface:
+  display_name: "Tracekeep"
+  short_description: "Remember ideas and resume unfinished work in chat"
+  default_prompt: "Use $tracekeep to remember this idea or action from our conversation."

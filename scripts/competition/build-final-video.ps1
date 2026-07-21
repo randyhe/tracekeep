@@ -6,10 +6,10 @@ param(
 $ErrorActionPreference = "Stop"
 $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 $outputDirectory = Join-Path $repositoryRoot "output\playwright\final-video"
-$rawVideo = Join-Path $outputDirectory "atlas-build-week-raw.webm"
-$finalVideo = Join-Path $outputDirectory "atlas-build-week-final.mp4"
+$rawVideo = Join-Path $outputDirectory "tracekeep-build-week-raw.webm"
+$finalVideo = Join-Path $outputDirectory "tracekeep-build-week-final.mp4"
 $narrationFile = Join-Path $repositoryRoot "docs\competition\video-narration.txt"
-$subtitleFile = Join-Path $repositoryRoot "docs\competition\atlas-build-week-final.srt"
+$subtitleFile = Join-Path $repositoryRoot "docs\competition\tracekeep-build-week-final.srt"
 $audioDirectory = Join-Path $outputDirectory "narration-clips"
 
 if (-not (Test-Path -LiteralPath $Ffmpeg -PathType Leaf)) { throw "ffmpeg was not found: $Ffmpeg" }
@@ -49,7 +49,7 @@ for ($index = 0; $index -lt $clipPaths.Count; $index += 1) {
 }
 $audioInputs = (0..($clipPaths.Count - 1) | ForEach-Object { "[a$_]" }) -join ""
 $filters += "$audioInputs" + "amix=inputs=$($clipPaths.Count):duration=longest:normalize=0,apad=pad_dur=180[aout]"
-$subtitleFilter = "subtitles=docs/competition/atlas-build-week-final.srt:force_style='FontName=Segoe UI,FontSize=9,PrimaryColour=&H00FFFFFF,OutlineColour=&H90000000,BorderStyle=3,Outline=1,Shadow=0,MarginV=24'"
+$subtitleFilter = "subtitles=docs/competition/tracekeep-build-week-final.srt:force_style='FontName=Segoe UI,FontSize=9,PrimaryColour=&H00FFFFFF,OutlineColour=&H90000000,BorderStyle=3,Outline=1,Shadow=0,MarginV=24'"
 
 $arguments += @(
   "-filter_complex", ($filters -join ";"),

@@ -1,6 +1,6 @@
 # Competition evidence and claim boundaries
 
-Atlas is submitted to OpenAI Build Week under **Apps for Your Life**. This directory contains dated capability probes, synthetic evaluation evidence, readiness reports, submission material, and video scripts.
+Tracekeep is submitted to OpenAI Build Week under **Apps for Your Life**. This directory contains dated capability probes, synthetic evaluation evidence, readiness reports, submission material, and video scripts.
 
 ## Repeatable evidence
 
@@ -18,15 +18,15 @@ These are deterministic synthetic test results. They do not prove real-user rete
 
 The dated conversation-first probe verified 11 MCP tools and a typed `codex` capture against an isolated non-production database. MCP availability still depends on the Codex host. When MCP is unavailable, the installed skill uses the loopback HTTP fallback.
 
-Atlas does not claim automatic access to all ChatGPT or Codex history. ChatGPT Export is a manual backfill path.
+Tracekeep does not claim automatic access to all ChatGPT or Codex history. ChatGPT Export is a manual backfill path.
 
 ## Public claims
 
 Allowed claims include:
 
-- Atlas passed dated synthetic Golden Journey replays.
+- Tracekeep passed dated synthetic Golden Journey replays.
 - A user can review conversation-first captures, resume open loops, and search sourced evidence.
-- Atlas processes made no non-loopback request during the documented observed test flows.
+- Tracekeep processes made no non-loopback request during the documented observed test flows.
 - Codex and GPT-5.6 assisted implementation, testing, review, and packaging.
 
 Do not claim:

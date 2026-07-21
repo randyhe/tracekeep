@@ -14,7 +14,7 @@ async function establishLocalSession(): Promise<void> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ token }),
   });
-  if (!response.ok) throw new Error("Atlas local authentication failed.");
+  if (!response.ok) throw new Error("Tracekeep local authentication failed.");
 }
 
 void establishLocalSession().finally(() => {

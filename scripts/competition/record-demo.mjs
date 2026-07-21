@@ -10,10 +10,10 @@ const outputDirectory = resolve(repositoryRoot, "output/playwright/final-video")
 const runDirectory = resolve(repositoryRoot, `work/competition-runs/final-video-${Date.now()}`);
 const dataDirectory = resolve(runDirectory, "data");
 const fixturePath = resolve(repositoryRoot, "docs/competition/synthetic-conversations.json");
-const conversationPath = resolve(repositoryRoot, "scripts/competition/codex-atlas-conversation.html");
-const playwrightPath = process.env.ATLAS_PLAYWRIGHT_PATH;
-const browserExecutable = process.env.ATLAS_BROWSER_EXECUTABLE;
-if (!playwrightPath) throw new Error("ATLAS_PLAYWRIGHT_PATH is required.");
+const conversationPath = resolve(repositoryRoot, "scripts/competition/codex-tracekeep-conversation.html");
+const playwrightPath = process.env.TRACEKEEP_PLAYWRIGHT_PATH;
+const browserExecutable = process.env.TRACEKEEP_BROWSER_EXECUTABLE;
+if (!playwrightPath) throw new Error("TRACEKEEP_PLAYWRIGHT_PATH is required.");
 
 await mkdir(outputDirectory, { recursive: true });
 await mkdir(dataDirectory, { recursive: true });
@@ -21,18 +21,18 @@ const { chromium } = await import(pathToFileURL(resolve(playwrightPath, "index.m
 
 const port = await findFreePort();
 const baseUrl = `http://127.0.0.1:${port}`;
-const atlas = spawn(process.execPath, [resolve(repositoryRoot, "apps/atlasd/dist/main.js")], {
-  env: { ...process.env, ATLAS_DATA_DIR: dataDirectory, ATLAS_PORT: String(port) },
+const tracekeep = spawn(process.execPath, [resolve(repositoryRoot, "apps/tracekeepd/dist/main.js")], {
+  env: { ...process.env, TRACEKEEP_DATA_DIR: dataDirectory, TRACEKEEP_PORT: String(port) },
   stdio: ["ignore", "pipe", "pipe"],
 });
-let atlasError = "";
-atlas.stdout.on("data", (chunk) => { atlasError += chunk.toString(); });
-atlas.stderr.on("data", (chunk) => { atlasError += chunk.toString(); });
+let tracekeepError = "";
+tracekeep.stdout.on("data", (chunk) => { tracekeepError += chunk.toString(); });
+tracekeep.stderr.on("data", (chunk) => { tracekeepError += chunk.toString(); });
 
 let browser;
 let context;
 try {
-  await waitForAtlas();
+  await waitForTracekeep();
   await seedExistingOpenLoop();
   const codexCapture = await seedCodexConversationCapture();
   await seedSyntheticConversationImport();
@@ -57,7 +57,7 @@ try {
   await pause(24_000);
 
   await page.goto(`${baseUrl}/review`);
-  await page.evaluate(() => localStorage.setItem("atlas.theme", "light"));
+  await page.evaluate(() => localStorage.setItem("tracekeep.theme", "light"));
   await page.reload();
   await page.getByRole("heading", { name: "A few things need your judgement." }).waitFor();
   const codexCard = page.locator("article.review-card").filter({ hasText: "Confirm pickup times for the three summer camps." });
@@ -92,7 +92,7 @@ try {
   await pause(10_000);
 
   await page.getByTestId("review-tab-pending").click();
-  const decisionCard = page.locator("article.review-card").filter({ hasText: "keep Atlas local-first and review-first" });
+  const decisionCard = page.locator("article.review-card").filter({ hasText: "keep Tracekeep local-first and review-first" });
   await decisionCard.waitFor();
   await pause(3_000);
   await decisionCard.getByRole("button", { name: "Accept" }).click();
@@ -137,22 +137,22 @@ try {
   await context.close();
   context = undefined;
   const recordedPath = await video.path();
-  const finalPath = resolve(outputDirectory, "atlas-build-week-raw.webm");
+  const finalPath = resolve(outputDirectory, "tracekeep-build-week-raw.webm");
   await rename(recordedPath, finalPath);
   process.stdout.write(`${JSON.stringify({ finalPath, dataDirectory, baseUrl, syntheticOnly: true }, null, 2)}\n`);
 } finally {
   if (context) await context.close().catch(() => {});
   if (browser) await browser.close().catch(() => {});
-  atlas.kill();
+  tracekeep.kill();
   await Promise.race([
-    new Promise((done) => atlas.once("exit", done)),
+    new Promise((done) => tracekeep.once("exit", done)),
     pause(3_000),
   ]);
 }
 
-async function waitForAtlas() {
+async function waitForTracekeep() {
   for (let attempt = 0; attempt < 300; attempt += 1) {
-    if (atlas.exitCode !== null) throw new Error(`Isolated Atlas exited with ${atlas.exitCode}: ${atlasError}`);
+    if (tracekeep.exitCode !== null) throw new Error(`Isolated Tracekeep exited with ${tracekeep.exitCode}: ${tracekeepError}`);
     try {
       const response = await fetch(`${baseUrl}/api/v1/health/ready`);
       if (response.ok) return;
@@ -161,7 +161,7 @@ async function waitForAtlas() {
     }
     await pause(100);
   }
-  throw new Error(`Isolated Atlas did not become ready: ${atlasError}`);
+  throw new Error(`Isolated Tracekeep did not become ready: ${tracekeepError}`);
 }
 
 async function findFreePort() {
@@ -220,7 +220,7 @@ async function request(path, method, body) {
 async function showTitle(page) {
   await page.setContent(slide(`
     <div class="kicker">OPENAI BUILD WEEK · APPS FOR YOUR LIFE</div>
-    <h1>Atlas</h1>
+    <h1>Tracekeep</h1>
     <h2>Local-First AI Memory &amp; Action System</h2>
     <p>Recover the important things you already said — and move them forward.</p>
     <div class="pills"><span>Review first</span><span>Sourced</span><span>Reversible</span><span>Local</span></div>
@@ -234,11 +234,11 @@ async function showArchitecture(page) {
     <div class="flow">
       <div><b>Conversation</b><small>Codex skill · Local MCP</small></div><i>→</i>
       <div><b>Review</b><small>Edit · Merge · Reject · Undo</small></div><i>→</i>
-      <div><b>Atlas API</b><small>Fastify · Idempotent writes</small></div><i>→</i>
+      <div><b>Tracekeep API</b><small>Fastify · Idempotent writes</small></div><i>→</i>
       <div><b>SQLite</b><small>Evidence · FTS5 · Backup</small></div>
     </div>
     <p class="closing">Codex and GPT-5.6 turned product decisions into implementation, tests, privacy checks, and a judge-ready Windows release.</p>
-    <div class="footer"><span>github.com/randyhe/atlas</span><span>Windows x64 · $0 external budget</span></div>
+    <div class="footer"><span>github.com/randyhe/tracekeep</span><span>Windows x64 · $0 external budget</span></div>
   `));
 }
 
