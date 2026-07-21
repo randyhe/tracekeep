@@ -9,10 +9,10 @@ the controlling date.
 - [x] Category selected: Apps for Your Life.
 - [x] Public MIT-licensed repository available.
 - [x] Public repository PR merged and privacy-scanned.
-- [x] Windows x64 v0.4.0 package built and validated locally.
+- [x] Windows x64 v0.4.1 package built and validated locally.
 - [x] Staged and extracted package validation passed.
 - [x] Independent bundled-Node-only clean-room run passed.
-- [x] Validated v0.4.0 ZIP and `.sha256` published in GitHub Release.
+- [x] Validated v0.4.1 ZIP and `.sha256` published in GitHub Release.
 - [x] Judge testing does not require a rebuild, API key, admin account, or login.
 - [x] Devpost English description drafted.
 - [x] Capability boundaries and pre-existing-project extension documented.
@@ -33,6 +33,9 @@ the controlling date.
   `a8a6b8399e5780aedca0d47739d7b02b549395bd`; its ZIP and checksum assets are
   public, and GitHub reports SHA-256
   `f6963f879892946ef1a7cba1860828c7f10221545fb9c50ca20bcd132ae9288d`.
+- [x] Privacy hardening shipped through PR #31. The `v0.4.1` release points to
+  merge commit `a193f78a09a24835081ce92dc66e1386bae210c6`; its public Windows ZIP reports
+  SHA-256 `dcd19ad230fbe9619e7b89bcdd883d5621efd5651e2645d08397e5072d768cc7`.
 - [x] Plugin validation, forbidden-artifact scan, privacy scan, and
   `git diff --check` passed.
 - [x] Authenticated Windows Stop-hook probe, idempotent replay, Learning UI,
@@ -46,12 +49,13 @@ the controlling date.
 
 - [x] Review the final Codex-first video and captions. The obsolete
   dashboard-first encodes are not in scope.
-- [ ] Review the final Devpost text and public repository links.
-- [ ] Run `/feedback` in the core Codex project task and record the Session ID.
+- [x] Review the final Devpost text and public repository links.
+- [x] Record the core Codex project Session ID privately in the required Devpost
+  field.
 - [x] Upload the final MP4 to publicly visible YouTube.
 - [x] Paste the YouTube URL and Session ID into Devpost.
 - [ ] Submit the project before the internal deadline.
-- [ ] Recheck public repository, Release, YouTube, and testing links before the
+- [x] Recheck public repository, Release, YouTube, and testing links before the
   official deadline.
 
 ## Non-blocking quality follow-up
