@@ -97,6 +97,7 @@ claims.
 
 ## Public links
 
+- Submission: https://devpost.com/software/tracekeep-local-first-ai-memory-action-system
 - Repository: https://github.com/randyhe/tracekeep
 - Windows release: https://github.com/randyhe/tracekeep/releases/latest
 - Video: https://youtu.be/6vihaJ5nwW8
