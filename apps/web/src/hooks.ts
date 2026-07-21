@@ -27,8 +27,8 @@ export function useAsync<T>(loader: () => Promise<T>, dependencies: readonly unk
   return { data, error, loading, reload, setData };
 }
 
-export function usePersistentDraft(key: string) {
-  const [value, setValue] = useState(() => localStorage.getItem(key) ?? "");
+export function usePersistentDraft(key: string, legacyKey?: string) {
+  const [value, setValue] = useState(() => localStorage.getItem(key) ?? (legacyKey ? localStorage.getItem(legacyKey) : null) ?? "");
   useEffect(() => {
     const timeout = window.setTimeout(() => {
       if (value) localStorage.setItem(key, value);

@@ -4,8 +4,8 @@
 |---|---|---|---|---|
 | Local Node runtime | Confirmed | Node 24.14.1 | None required | Go |
 | SQLite FTS5 | Confirmed | SQLite 3.51.2 in-memory probe | `better-sqlite3` packaged FTS5 | Go |
-| Local port 4310 | Confirmed | Listener probe | `ATLAS_PORT` override | Go |
-| Codex local MCP | Protocol verified, host install blocked | All 11 tools listed over stdio; typed capture and `get_today` passed against isolated port 4388; packaged `codex.exe` denied shell execution | Installed Atlas skill over loopback HTTP | Conditional Go; install in Codex UI and verify in a new task |
+| Local port 4310 | Confirmed | Listener probe | `TRACEKEEP_PORT` override | Go |
+| Codex local MCP | Protocol verified, host install blocked | All 11 tools listed over stdio; typed capture and `get_today` passed against isolated port 4388; packaged `codex.exe` denied shell execution | Installed Tracekeep skill over loopback HTTP | Conditional Go; install in Codex UI and verify in a new task |
 | Codex completed-turn capture | Implemented; release validation pending | Trusted Stop hook parses the current turn, applies value/privacy gates, and calls the idempotent local turn-import endpoint | Explicit Skill capture and private retry queue | Go for local implementation; package and live-host validation required |
 | Learning notes | Implemented | Personal conversation, document, paper, and URL references persist with source metadata and appear in Learning/Search | Review history and FTS5 search | Go |
 | Automatic-capture control | Implemented | Local setting defaults on and can pause turn ingestion without disabling manual workflows | Disable the hook in `/hooks` | Go |

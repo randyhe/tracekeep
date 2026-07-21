@@ -1,12 +1,12 @@
-# Atlas V1 Implementation Status
+# Tracekeep V1 Implementation Status
 
 Date: 2026-07-21
 
 ## Production-local activation
 
 - The temporary `.runtime` browser-test instance was stopped on 2026-07-15.
-- On Windows, the active service uses `%LOCALAPPDATA%\Atlas\atlas.sqlite` by default.
-- Loopback Web returned HTTP 200, SQLite integrity returned `ok`, and the user-level Atlas Skill health check returned `ready`.
+- On Windows, the active service uses `%LOCALAPPDATA%\Tracekeep\tracekeep.sqlite` by default.
+- Loopback Web returned HTTP 200, SQLite integrity returned `ok`, and the user-level Tracekeep Skill health check returned `ready`.
 - The production-local database started empty: zero Today items, pending reviews, and sources.
 - Before the schema 2 activation, an online SQLite backup was created and passed `quick_check=ok`.
 - The production-local service was restarted on the v0.3.0 build and reports `schemaVersion: 4` and `integrity: ok`.
@@ -14,7 +14,7 @@ Date: 2026-07-21
 ## Delivered local Alpha core
 
 - Local Web with Today, Capture, Learning, Search, Review, Sources, and Settings.
-- Fastify `atlasd` bound to loopback and serving the production Web build.
+- Fastify `tracekeepd` bound to loopback and serving the production Web build.
 - SQLite business tables, FTS5, forward migration, audit/outbox records, idempotency, optimistic concurrency, online backup, and sanitized export.
 - Manual, Daily Log, and native ChatGPT Export import endpoints.
 - Trusted Codex Stop hook for meaningful completed turns, with a private local retry queue.
@@ -23,7 +23,7 @@ Date: 2026-07-21
 - User-controlled automatic-capture setting and five fixed Open Loop states.
 - Restricted-content redaction and exclusion from ordinary FTS/search responses.
 - Zero-external-budget status and no configured paid or cloud provider.
-- Codex plugin with a local Stop hook, 11 local MCP tools, and an Atlas skill.
+- Codex plugin with a local Stop hook, 11 local MCP tools, and an Tracekeep skill.
 
 ## Gate disposition
 

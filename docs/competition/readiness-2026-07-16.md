@@ -1,6 +1,6 @@
-# Atlas Competition Readiness — 2026-07-16
+# Tracekeep Competition Readiness — 2026-07-16
 
-Atlas has a **Conditional Go** recommendation for OpenAI Build Week submission.
+Tracekeep has a **Conditional Go** recommendation for OpenAI Build Week submission.
 This is competition-readiness evidence, not a claim of a 14-day real-user
 Alpha.
 
@@ -14,7 +14,7 @@ Alpha.
 | Golden Journey 2: duplicate merge and undo | Passed |
 | Golden Journey 3: Restricted import remains inert | Passed |
 | Restricted Canary scan | 0 hits |
-| Atlas process network observation | No non-loopback connection observed in tested flows |
+| Tracekeep process network observation | No non-loopback connection observed in tested flows |
 | Frozen 50-sample Holdout | Manifest verified and thresholds passed |
 | Open Loop precision | 35 TP, 0 FP; 100%, 95% CI 90.1%-100% |
 | Open Loop recall | 35 TP, 0 FN; 100%, 95% CI 90.1%-100% |
@@ -32,10 +32,10 @@ data. The public 30-sample Development fixture is available in
 
 ## Capability boundaries
 
-- Atlas does not claim access to all ChatGPT or Codex history.
+- Tracekeep does not claim access to all ChatGPT or Codex history.
 - Codex/MCP remains Experimental until a reproducible host invocation passes.
 - The default competition configuration enables no usage-based AI API,
   transcription, hosting, or external service budget.
-- The network statement is limited to Atlas processes and tested runtime flows.
+- The network statement is limited to Tracekeep processes and tested runtime flows.
 - Gate 6 remains `Not started`; simulated testing does not replace 14 days of
   real use.

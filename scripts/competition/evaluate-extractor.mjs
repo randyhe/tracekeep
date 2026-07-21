@@ -6,7 +6,7 @@ import { canonicalTextSha256, verifyDatasetManifest } from "./evaluation-integri
 const repositoryRoot = resolve(import.meta.dirname, "../..");
 const fixturePath = resolve(repositoryRoot, process.argv[2] ?? "tests/competition/fixtures/development.json");
 const outputPath = process.argv[3] ? assertCompetitionOutput(process.argv[3]) : undefined;
-const extractorPath = resolve(repositoryRoot, "apps/atlasd/dist/extractor.js");
+const extractorPath = resolve(repositoryRoot, "apps/tracekeepd/dist/extractor.js");
 const { extractCandidates, COMPETITION_EXTRACTOR_VERSION } = await import(pathToFileURL(extractorPath).href);
 const fixtureBytes = await readFile(fixturePath);
 const dataset = JSON.parse(fixtureBytes.toString("utf8"));

@@ -38,7 +38,7 @@ export function TodayPage() {
   }
   return <>
     <PageHeader eyebrow="Daily focus" title="Continue what matters." description="Three open loops worth moving forward today." />
-    {state.loading && !state.data ? <SkeletonCards /> : state.error ? <StatusPanel kind="error" title="Atlas could not load today"><p>{state.error.message}</p><button className="button quiet" onClick={state.reload}>Try again</button></StatusPanel> : state.data ? <>
+    {state.loading && !state.data ? <SkeletonCards /> : state.error ? <StatusPanel kind="error" title="Tracekeep could not load today"><p>{state.error.message}</p><button className="button quiet" onClick={state.reload}>Try again</button></StatusPanel> : state.data ? <>
       {state.data.partial && <PartialBanner reason={state.data.partialReason} />}
       <ActionError message={actionError?.message} conflict={actionError?.conflict} />
       {lastAction && <div className="inline-alert success status-undo" role="status"><strong>{lastAction.message}</strong><button className="button quiet compact" disabled={busyId === lastAction.after.id} onClick={undoLastAction}>Undo</button></div>}
@@ -63,7 +63,7 @@ function DeferredSection({ title, description, items, busyId, onRestore }: { tit
 type SpeechRecognitionConstructor = new () => { continuous: boolean; interimResults: boolean; lang: string; start(): void; stop(): void; onresult: ((event: { results: ArrayLike<{ 0: { transcript: string }; isFinal: boolean }> }) => void) | null; onend: (() => void) | null; onerror: (() => void) | null };
 
 export function CapturePage() {
-  const [draft, setDraft] = usePersistentDraft("atlas.quick-capture.draft");
+  const [draft, setDraft] = usePersistentDraft("tracekeep.quick-capture.draft", "atlas.quick-capture.draft");
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [listening, setListening] = useState(false);
   const [message, setMessage] = useState("");
@@ -84,14 +84,14 @@ export function CapturePage() {
     catch (error) { setStatus("error"); setMessage(error instanceof Error ? error.message : "Capture failed. Your draft is still here."); }
   }
   return <>
-    <PageHeader eyebrow="Quick capture" title="Get it out of your head." description="Write naturally. Atlas will propose structure, but you remain in control." />
+    <PageHeader eyebrow="Quick capture" title="Get it out of your head." description="Write naturally. Tracekeep will propose structure, but you remain in control." />
     <section className="capture-panel">
       <label htmlFor="capture-text">What do you want to remember?</label>
       <textarea id="capture-text" data-testid="capture-input" value={draft} onChange={(event) => { setDraft(event.target.value); setStatus("idle"); }} placeholder="For example: Follow up on the CI idea next Thursday…" rows={8} autoFocus />
       <div className="capture-footer"><div className="draft-note"><span className="save-dot"/>Draft saved on this device</div><div className="capture-actions">{Recognition && <button className={`button quiet ${listening ? "active" : ""}`} onClick={toggleListening} type="button"><Icon name="mic"/>{listening ? "Stop listening" : "Voice input"}</button>}<button className="button primary" data-testid="save-capture" disabled={!draft.trim() || status === "saving"} onClick={submit}>{status === "saving" ? "Saving…" : "Save capture"}<Icon name="arrow"/></button></div></div>
       {message && <div className={`inline-alert ${status === "saved" ? "success" : ""}`} role="status">{message}</div>}
     </section>
-    <aside className="privacy-note"><Icon name="shield"/><div><h2>Private by default</h2><p>Atlas stores the confirmed text, not microphone audio. Every capture enters Review before becoming an open loop.</p></div></aside>
+    <aside className="privacy-note"><Icon name="shield"/><div><h2>Private by default</h2><p>Tracekeep stores the confirmed text, not microphone audio. Every capture enters Review before becoming an open loop.</p></div></aside>
   </>;
 }
 
@@ -101,10 +101,10 @@ export function SearchPage() {
   const state = useAsync(() => submitted ? api.search(submitted) : Promise.resolve({ results: [] }), [submitted]);
   return <>
     <PageHeader eyebrow="Sourced search" title="Find the thread again." description="Search decisions, open loops, and references without sending data to a paid AI provider." />
-    <form className="search-box" data-testid="search-form" onSubmit={(event) => { event.preventDefault(); setSubmitted(query.trim()); }} role="search"><Icon name="search"/><label className="sr-only" htmlFor="atlas-search">Search Atlas</label><input id="atlas-search" data-testid="search-input" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="What did I decide about…"/><button className="button primary" disabled={!query.trim()}>Search</button></form>
+    <form className="search-box" data-testid="search-form" onSubmit={(event) => { event.preventDefault(); setSubmitted(query.trim()); }} role="search"><Icon name="search"/><label className="sr-only" htmlFor="tracekeep-search">Search Tracekeep</label><input id="tracekeep-search" data-testid="search-input" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="What did I decide about…"/><button className="button primary" disabled={!query.trim()}>Search</button></form>
     {!submitted ? <div className="search-prompt"><p className="eyebrow">Try asking</p><button onClick={() => { setQuery("What am I waiting for?"); setSubmitted("What am I waiting for?"); }}>What am I waiting for?</button><button onClick={() => { setQuery("Decisions from this week"); setSubmitted("Decisions from this week"); }}>Decisions from this week</button></div> : state.loading ? <SkeletonCards count={2}/> : state.error ? <StatusPanel kind="error" title="Search is unavailable"><p>{state.error.message}</p><button className="button quiet" onClick={state.reload}>Try again</button></StatusPanel> : state.data ? <section aria-live="polite">
       {state.data.partial && <PartialBanner reason={state.data.partialReason}/>}<div className="section-heading"><h2>{state.data.results.length} result{state.data.results.length === 1 ? "" : "s"}</h2><span className="as-of">Evidence-linked local search</span></div>
-      {state.data.results.length ? <div className="result-list" data-testid="search-results">{state.data.results.map((result) => <article key={result.id}><div className="result-type">{result.type ?? "Reference"}{result.occurredAt ? ` · ${formatDate(result.occurredAt)}` : ""}</div><h3>{result.title}</h3>{result.summary && <p>{result.summary}</p>}<EvidenceList evidence={result.evidence}/></article>)}</div> : <StatusPanel kind="empty" title="No matching memory"><p>Try fewer words or check Sources to see what Atlas can currently access.</p></StatusPanel>}
+      {state.data.results.length ? <div className="result-list" data-testid="search-results">{state.data.results.map((result) => <article key={result.id}><div className="result-type">{result.type ?? "Reference"}{result.occurredAt ? ` · ${formatDate(result.occurredAt)}` : ""}</div><h3>{result.title}</h3>{result.summary && <p>{result.summary}</p>}<EvidenceList evidence={result.evidence}/></article>)}</div> : <StatusPanel kind="empty" title="No matching memory"><p>Try fewer words or check Sources to see what Tracekeep can currently access.</p></StatusPanel>}
     </section> : null}
   </>;
 }
@@ -178,7 +178,7 @@ function SourceImports({ onImported }: { onImported: () => void }) {
     finally { setLogBusy(false); }
   }
   return <section className="imports-section" aria-labelledby="imports-heading"><div className="section-heading"><div><p className="eyebrow">Local import</p><h2 id="imports-heading">Bring in trusted files deliberately</h2></div></div>
-    <div className="import-policy"><Icon name="shield"/><p>Imported text is untrusted data. Atlas never executes commands, opens links, or follows instructions found inside it.</p></div>
+    <div className="import-policy"><Icon name="shield"/><p>Imported text is untrusted data. Tracekeep never executes commands, opens links, or follows instructions found inside it.</p></div>
     <div className="import-controls"><label htmlFor="import-sensitivity">Sensitivity for this import</label><select id="import-sensitivity" value={sensitivity} onChange={(event) => setSensitivity(event.target.value as Sensitivity)}><option value="personal">Personal</option><option value="work_summary_only">Work summary only</option><option value="restricted">Restricted</option></select></div>
     <div className="import-grid">
       <article><h3>ChatGPT Export</h3><p>Select a local <code>conversations.json</code> file. Up to 1,000 conversations per import.</p><label className="file-picker" htmlFor="chatgpt-file">Choose JSON file<input id="chatgpt-file" data-testid="chatgpt-import-file" type="file" accept="application/json,.json" onChange={(event) => setChatFile(event.target.files?.[0])}/></label>{chatFile && <p className="selected-file">{chatFile.name} · {(chatFile.size / 1024).toFixed(0)} KB</p>}<button className="button primary" data-testid="chatgpt-import-submit" disabled={!chatFile || chatBusy} onClick={importChat}>{chatBusy ? "Importing…" : "Import ChatGPT export"}</button>{chatStatus && <p className="setting-message" role="status">{chatStatus}</p>}</article>
@@ -190,7 +190,7 @@ function SourceImports({ onImported }: { onImported: () => void }) {
 export function SourcesPage() {
   const state = useAsync(api.sources, []);
   return <>
-    <PageHeader eyebrow="Source coverage" title="Know what Atlas knows." description="Access is conditional. Atlas never claims complete ChatGPT history." action={<button className="button quiet" onClick={state.reload}><Icon name="refresh"/>Refresh status</button>}/>
+    <PageHeader eyebrow="Source coverage" title="Know what Tracekeep knows." description="Access is conditional. Tracekeep never claims complete ChatGPT history." action={<button className="button quiet" onClick={state.reload}><Icon name="refresh"/>Refresh status</button>}/>
     {state.loading ? <SkeletonCards/> : state.error ? <StatusPanel kind="error" title="Sources unavailable"><p>{state.error.message}</p><button className="button quiet" onClick={state.reload}>Try again</button></StatusPanel> : state.data ? <>{state.data.partial && <PartialBanner reason={state.data.partialReason}/>}<div className="source-list" data-testid="source-list">{state.data.sources.map((source) => <article key={source.id}><div className="source-icon" aria-hidden="true">{source.name.slice(0, 1).toUpperCase()}</div><div className="source-body"><div><h2>{source.name}</h2><p>{source.detail ?? source.sourceType ?? "Local source"}</p></div><div className="source-meta"><CompletenessBadge value={source.completeness}/>{source.itemCount != null && <span>{source.itemCount} items</span>}{source.lastSyncedAt && <span>Synced {formatDate(source.lastSyncedAt)}</span>}</div></div></article>)}</div>{!state.data.sources.length && <StatusPanel kind="empty" title="No sources connected"><p>Manual capture still works. Connect a supported source when you are ready.</p></StatusPanel>}</> : null}
     <SourceImports onImported={state.reload}/>
   </>;
@@ -206,7 +206,7 @@ export function LearningNotesPage() {
       {note.summary && <p>{note.summary}</p>}
       {note.canonicalUri && <p className="source-locator"><strong>Original source</strong><code>{note.canonicalUri}</code></p>}
       <EvidenceList evidence={note.sourceTitle || note.sourceLocator ? [{ label: note.sourceTitle ?? "Source", sourceTitle: note.sourceTitle, sourceType: note.sourceType, locator: note.sourceLocator }] : []}/>
-    </article>)}</div> : <StatusPanel kind="empty" title="No learning notes yet"><p>Finish a meaningful Codex turn, discuss a document or paper, or share a URL. Atlas will preserve the useful result automatically.</p></StatusPanel>}
+    </article>)}</div> : <StatusPanel kind="empty" title="No learning notes yet"><p>Finish a meaningful Codex turn, discuss a document or paper, or share a URL. Tracekeep will preserve the useful result automatically.</p></StatusPanel>}
   </>;
 }
 
@@ -218,10 +218,10 @@ export function SettingsPage({ theme, setTheme }: { theme: "light" | "dark"; set
     <PageHeader eyebrow="Preferences" title="Local, legible, under your control." description="Manage appearance, verify zero-incremental-cost mode, and protect your data." />
     <div className="settings-stack"><section><div><h2>Appearance</h2><p>Choose the theme used on this device.</p></div><div className="segmented" aria-label="Color theme"><button aria-pressed={theme === "light"} onClick={() => setTheme("light")}><Icon name="sun"/>Light</button><button aria-pressed={theme === "dark"} onClick={() => setTheme("dark")}><Icon name="moon"/>Dark</button></div></section>
     <section><div><h2>Automatic second-brain capture</h2><p>At the end of each meaningful Codex turn, save learning notes automatically and send actions or decisions to Review. Short social messages and credential-like text are skipped.</p>{captureMessage && <p className="setting-message" role="status">{captureMessage}</p>}</div>{autoCapture.loading ? <span className="muted">Checking…</span> : autoCapture.error ? <span className="badge warning">Status unavailable</span> : autoCapture.data ? <button className={`button ${autoCapture.data.enabled ? "primary" : "quiet"}`} data-testid="auto-capture-toggle" aria-pressed={autoCapture.data.enabled} disabled={savingCapture} onClick={toggleAutoCapture}>{savingCapture ? "Saving…" : autoCapture.data.enabled ? "Automatic capture: On" : "Automatic capture: Off"}</button> : null}</section>
-    <section><div><h2>Cost protection</h2><p>Atlas V1 does not configure paid AI providers.</p></div>{cost.loading ? <span className="muted">Checking…</span> : cost.error ? <span className="badge warning">Status unavailable</span> : cost.data ? <div className="cost-box"><Icon name="shield"/><div><strong>${cost.data.externalBudgetUsd} external budget</strong><span>{cost.data.platformApiEnabled || cost.data.paidProvidersEnabled ? "Paid provider enabled — review configuration" : "Platform API and paid providers disabled"}</span></div></div> : null}</section>
-    <section><div><h2>Local backup</h2><p>Create a consistent online SQLite backup. Atlas will not upload it.</p>{backupMessage && <p className="setting-message" role="status">{backupMessage}</p>}</div><button className="button quiet" data-testid="backup-start" onClick={() => setConfirmBackup(true)} disabled={backingUp}>{backingUp ? "Creating…" : "Create backup"}</button></section>
-    <section><div><h2>Restore</h2><p>Web restore is unavailable because replacing a live database is unsafe. Restore requires stopping Atlas and using the verified local recovery workflow.</p></div><span className="badge warning">Service must be stopped</span></section>
-    <section><div><h2>Mobile access</h2><p>Use Tailscale Serve for tailnet-only HTTPS. Never enable Funnel for Atlas.</p></div><span className="badge">Manual setup</span></section></div>
-    {confirmBackup && <div className="dialog-backdrop" role="presentation"><div className="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="backup-dialog-title" data-testid="backup-confirm-dialog"><h2 id="backup-dialog-title">Create a local backup?</h2><p>Atlas will create a consistent SQLite backup in its configured local backup directory. Nothing is uploaded.</p><div className="review-actions"><button className="button primary" data-testid="backup-confirm" autoFocus onClick={async () => { setConfirmBackup(false); await backup(); }}>Create backup</button><button className="button quiet" onClick={() => setConfirmBackup(false)}>Cancel</button></div></div></div>}
+    <section><div><h2>Cost protection</h2><p>Tracekeep V1 does not configure paid AI providers.</p></div>{cost.loading ? <span className="muted">Checking…</span> : cost.error ? <span className="badge warning">Status unavailable</span> : cost.data ? <div className="cost-box"><Icon name="shield"/><div><strong>${cost.data.externalBudgetUsd} external budget</strong><span>{cost.data.platformApiEnabled || cost.data.paidProvidersEnabled ? "Paid provider enabled — review configuration" : "Platform API and paid providers disabled"}</span></div></div> : null}</section>
+    <section><div><h2>Local backup</h2><p>Create a consistent online SQLite backup. Tracekeep will not upload it.</p>{backupMessage && <p className="setting-message" role="status">{backupMessage}</p>}</div><button className="button quiet" data-testid="backup-start" onClick={() => setConfirmBackup(true)} disabled={backingUp}>{backingUp ? "Creating…" : "Create backup"}</button></section>
+    <section><div><h2>Restore</h2><p>Web restore is unavailable because replacing a live database is unsafe. Restore requires stopping Tracekeep and using the verified local recovery workflow.</p></div><span className="badge warning">Service must be stopped</span></section>
+    <section><div><h2>Mobile access</h2><p>Use Tailscale Serve for tailnet-only HTTPS. Never enable Funnel for Tracekeep.</p></div><span className="badge">Manual setup</span></section></div>
+    {confirmBackup && <div className="dialog-backdrop" role="presentation"><div className="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="backup-dialog-title" data-testid="backup-confirm-dialog"><h2 id="backup-dialog-title">Create a local backup?</h2><p>Tracekeep will create a consistent SQLite backup in its configured local backup directory. Nothing is uploaded.</p><div className="review-actions"><button className="button primary" data-testid="backup-confirm" autoFocus onClick={async () => { setConfirmBackup(false); await backup(); }}>Create backup</button><button className="button quiet" onClick={() => setConfirmBackup(false)}>Cancel</button></div></div></div>}
   </>;
 }

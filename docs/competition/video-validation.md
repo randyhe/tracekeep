@@ -4,7 +4,7 @@ Validation date: **2026-07-19**
 
 ## Final local artifact
 
-- Filename: `atlas-build-week-final.mp4`
+- Filename: `tracekeep-build-week-final.mp4`
 - Duration: `00:02:36.36`
 - Resolution: `1920x1080`
 - Video: H.264 High, 25 fps, yuv420p
@@ -18,7 +18,7 @@ added only after the product owner reviews the local artifact and publishes it.
 
 ## Recording boundary
 
-- The recording used an isolated Atlas data directory and an automatically
+- The recording used an isolated Tracekeep data directory and an automatically
   selected loopback port.
 - All displayed content is synthetic.
 - The opening is a clearly labeled simulated Codex conversation using synthetic
