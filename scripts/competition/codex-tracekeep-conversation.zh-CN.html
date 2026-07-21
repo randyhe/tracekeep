@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>Tracekeep 中文对话演示</title>
+  <style>
+    html, body, iframe { width: 100%; height: 100%; margin: 0; border: 0; overflow: hidden; }
+  </style>
+</head>
+<body>
+  <iframe id="demo" src="codex-tracekeep-conversation.html" title="Tracekeep 中文对话演示"></iframe>
+  <script>
+    const replacements = new Map([
+      ["＋ New task", "＋ 新任务"],
+      ["Today", "今天"],
+      ["Avoid forgetting in the morning", "避免早上忘带东西"],
+      ["Plan the family weekend", "规划家庭周末"],
+      ["Compare summer camps", "比较夏令营"],
+      ["Home repair follow-up", "跟进家庭维修"],
+      ["Conversation concept", "对话概念演示"],
+      ["Simulated conversation · synthetic data", "模拟对话 · 合成数据"],
+      ["You", "你"],
+      ["I discovered that putting tomorrow's must-carry items by the door makes them harder to forget. Summarize this method for me.", "我发现把第二天要带走的东西放在门边，早上就不容易忘记。帮我总结一下这个方法。"],
+      ["▱ Automatically captured", "▱ 已自动沉淀"],
+      ["Doorway trigger", "门边触发法"],
+      ["Put tomorrow's must-carry items by the door so the environment reminds you at the right time.", "把第二天要带走的东西放在门边，让环境在正确的时刻提醒你。"],
+      ["Key idea: Don't rely on memory; create a visible cue.", "关键思路：不要依靠记忆，而是建立看得见的提示。"],
+      ["Source: This conversation", "来源：本次对话"],
+      ["Saved automatically to Tracekeep", "已自动保存到 Tracekeep"],
+      ["▱ Sources", "▱ 来源"],
+      ["What method did I find for avoiding forgotten items in the morning? Show the source.", "我之前发现什么方法可以避免早上忘记带东西？请显示来源。"],
+      ["▱ From your local Tracekeep", "▱ 来自本机 Tracekeep"],
+      ["The method was: 门边触发法", "找到的方法是：门边触发法"],
+      ["The method was: Doorway trigger", "找到的方法是：门边触发法"],
+      ["Put the things you must carry the next day by the door or another unavoidable exit point.", "前一天晚上，把第二天必须携带的物品放在门边或必经出口处。"],
+      ["▱ Source · Codex conversation · Verified", "▱ 来源 · Codex 对话 · 已验证"],
+      ["Ask ChatGPT anything, or tell Tracekeep what to remember…", "可以向 ChatGPT 提问，也可以告诉 Tracekeep 要记住什么……"],
+      ["Local", "本地"],
+      ["Tracekeep connected", "Tracekeep 已连接"]
+    ]);
+
+    const demo = document.getElementById("demo");
+    const localize = () => {
+      const doc = demo.contentDocument;
+      doc.documentElement.lang = "zh-CN";
+      const walker = doc.createTreeWalker(doc.body, demo.contentWindow.NodeFilter.SHOW_TEXT);
+      let node;
+      while ((node = walker.nextNode())) {
+        let value = node.nodeValue;
+        for (const [from, to] of replacements) value = value.replaceAll(from, to);
+        node.nodeValue = value;
+      }
+      document.body.dataset.ready = "true";
+    };
+    demo.addEventListener("load", localize);
+    if (demo.contentDocument?.readyState === "complete") localize();
+  </script>
+</body>
+</html>
