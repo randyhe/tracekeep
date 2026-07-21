@@ -30,14 +30,14 @@ Life rarely lets you finish one thing before the next begins. A call comes in, y
 
    > Search Tracekeep for the method I found to avoid forgetting things in the morning, and show the source.
 
-You can also say:
+You can also talk naturally:
 
 ```text
-Tracekeep, remember this idea: take the kids to the natural history museum this weekend.
-Tracekeep, save “call the dentist next week” as a task.
-Tracekeep, what should I focus on today?
-Tracekeep, search for my earlier family-trip decision and show its source.
-Tracekeep, open the Dashboard.
+I have an idea: take the kids to the natural history museum this weekend. Help me think it through.
+I need to call the dentist next week.
+What should I focus on today?
+Find my earlier family-trip decision and show its source.
+Open the Tracekeep Dashboard.
 ```
 
 You do not have to say “remember this” every time. At the end of a meaningful completed Codex turn, Tracekeep automatically preserves useful learning references and proposes actions or decisions for Review. Explicit capture remains available when something must be saved immediately.
