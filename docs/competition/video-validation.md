@@ -4,14 +4,18 @@ Validation date: **2026-07-21**
 
 ## Final local artifact
 
-- Filename: `tracekeep-build-week-final.mp4`
-- Duration: `00:02:47.72`
+- Filename: `tracekeep-build-week-final-af-heart.mp4`
+- Duration: `00:02:48.96`
 - Resolution: `1920x1080`
 - Video: H.264 High, 25 fps, yuv420p
-- Audio: AAC LC, mono, Microsoft Zira Desktop narration
+- Audio: AAC LC, mono, Kokoro `af_heart` narration generated locally
 - Captions: 16 English cues burned into the video; `.srt` sidecar retained
-- Size: 6,570,237 bytes
-- SHA-256: `FC10E4CD41B3C6D066AB3168011A6C4B7BE462B5FD37442C0781107AF1E2FB46`
+- Size: 6,849,165 bytes
+- SHA-256: `53DD212AD38FFA44F462CABBE5987B44F791950F7D72471BDAA64E6F84D6FA11`
+
+The narration uses the Apache-2.0-licensed Kokoro-82M model through the
+MIT-licensed `kokoro-onnx` runtime. The final volume scan reported a `-0.4 dB`
+peak with no clipping.
 
 The MP4 is intentionally excluded from Git. The public YouTube URL will be
 added only after the product owner reviews the local artifact and publishes it.
