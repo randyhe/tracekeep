@@ -6,9 +6,9 @@
 [![Release](https://img.shields.io/github/v/release/randyhe/tracekeep)](https://github.com/randyhe/tracekeep/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-[下载 Tracekeep v0.4.0 Windows 版](https://github.com/randyhe/tracekeep/releases/latest) · [English](README.md) · [工作原理](#tracekeep-如何工作) · [隐私安全与费用](#隐私安全与费用)
+[下载 Tracekeep v0.4.1 Windows 版](https://github.com/randyhe/tracekeep/releases/latest) · [English](README.md) · [工作原理](#tracekeep-如何工作) · [隐私安全与费用](#隐私安全与费用)
 
-> **当前版本（2026-07-21）：** **Tracekeep v0.4.0** 是当前 Windows 正式版本。
+> **当前版本（2026-07-21）：** **Tracekeep v0.4.1** 是当前 Windows 正式版本。该版本从公开安装包中移除了组织专用工作术语，并支持通过 `TRACEKEEP_WORK_TERMS` 在本地私密配置。
 
 生活不会等你做完一件事再开始下一件事。电话来了，孩子叫你，一场会议开始了，一个新想法又冒出来。查了一半的夏令营、还没预约的体检、等待回复的维修安排，都可能被下一次打断重新埋下去。
 
@@ -79,6 +79,8 @@ Tracekeep 围绕两个最常用的动作设计：
 
 本地 Stop Hook 只处理 Tracekeep 安装、信任并启用之后完成的回合，不会扫描全部历史。简短寒暄和疑似密码、Token 的内容会跳过。个人对话中的有用结论、文档、论文和网址会自动成为 Learning Notes；行动、决定和不确定内容仍进入 Review。工作相关或 Restricted 内容不会自动接纳。
 
+Tracekeep 默认识别通用的工作系统和标签。若需保护组织专用名称，请仅在本地运行环境中通过 `TRACEKEEP_WORK_TERMS` 设置逗号分隔的私密词表，不要把该词表提交到仓库。
+
 Tracekeep 保存结构化结果、受限长度的摘要、来源标识和回忆所需的证据，不执行导入文字中的命令，也不会自动打开捕获到的网址。服务临时离线时，插件使用本地私有队列稍后重试。你可以在 **Settings** 随时暂停自动沉淀；主动记录、搜索和回忆仍可继续使用。
 
 Dashboard 增加 **Learning** 页面，并继续提供 Review、Search、Today、Sources 和 Settings。它是集中查看和管理的位置；日常思考和回忆仍从对话开始。
@@ -89,7 +91,7 @@ Tracekeep 不是完整聊天归档工具，也不宣称可以自动读取全部 
 
 Tracekeep 计划中的手机体验是 **ChatGPT Direct**，不是用手机浏览器远程操作电脑 Dashboard。用户可以直接在 ChatGPT 手机对话里自然交流，让有价值的回合自动沉淀，也可以随时问“我有哪些做到一半的事情”。
 
-这项能力尚未包含在 v0.4.0。目标架构是 ChatGPT App 通过远程 HTTPS MCP 网关和 OAuth 2.1 完成身份认证，再由用户电脑上的轻量同步程序主动取回待审核记录，交给本地 `tracekeepd` 写入 SQLite。SQLite 仍是唯一权威数据源；远程网关只是有时限的传输队列，不保存整套 Tracekeep 数据库，默认也不复制完整对话。
+这项能力尚未包含在 v0.4.1。目标架构是 ChatGPT App 通过远程 HTTPS MCP 网关和 OAuth 2.1 完成身份认证，再由用户电脑上的轻量同步程序主动取回待审核记录，交给本地 `tracekeepd` 写入 SQLite。SQLite 仍是唯一权威数据源；远程网关只是有时限的传输队列，不保存整套 Tracekeep 数据库，默认也不复制完整对话。
 
 完整的用户流程、隐私边界、实施阶段和发布条件，请查看 [ChatGPT Direct 手机端路线图](docs/product/chatgpt-direct-mobile-roadmap.md)。
 
@@ -110,7 +112,7 @@ Web Dashboard 适合一次查看多条记录、检查来源、搜索、合并重
 
 详细威胁边界和安全报告方式请查看 [SECURITY.md](SECURITY.md)。
 
-## v0.4.0 已实现能力
+## v0.4.1 已实现能力
 
 - 通过受信任的本地 Codex Stop Hook 自动捕获有价值的已完成回合。
 - 自动沉淀会话、笔记、文档、论文和网页，并保留来源。
