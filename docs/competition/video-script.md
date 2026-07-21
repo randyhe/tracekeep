@@ -1,19 +1,19 @@
 # Tracekeep Build Week Video Script
 
-Target duration: **2:42**. All visuals use synthetic data. No music is used.
+Target duration: **2:48**. All visuals use synthetic data. No music is used.
 Voice: **Kokoro `af_heart`**, English (United States), generated locally with
 the Apache-2.0-licensed Kokoro-82M model and MIT-licensed `kokoro-onnx` runtime.
 
 | Time | Visual | Narration / caption |
 |---|---|---|
-| 0:00–0:14 | Tracekeep title card | Life interrupts. Valuable learning, half-finished plans, and sudden ideas disappear inside the next conversation. Tracekeep turns them into a second brain. |
-| 0:14–0:42 | Real Codex conversation with synthetic daily-life paper and family-study example | The user talks naturally. No “remember this” command is required. When this meaningful turn ends, the trusted local Tracekeep hook extracts what is worth keeping. It does not scan every historical chat. |
-| 0:42–1:05 | Learning page: conversation note + paper note + visible source | The conclusion and the paper become local Learning Notes automatically, each connected to its source. Tracekeep can later find what was learned and why it mattered. |
-| 1:05–1:27 | Review page: proposed weekly routine → Accept | A proposed next action is different from a learning note. It waits in Review, where the user can edit, accept, merge, reject, or undo it before it affects Today. |
-| 1:27–1:48 | Today → Next week → Undo | Today highlights at most three priorities. Interrupted work can move to Waiting, Next week, Done, or back to Today, and the latest change can be undone. |
-| 1:48–2:07 | Search paper topic → sourced result | Local SQLite FTS5 search reconnects the user to the earlier conclusion and its evidence instead of relying on unsupported model memory. |
-| 2:07–2:25 | Settings: automatic capture On → Off → On, cost protection | Automatic capture is user-controlled. Short social exchanges and credential-like text are skipped, while paid providers and platform APIs remain disabled. |
-| 2:25–2:42 | Local architecture and Windows release card | Tracekeep runs on loopback with local authentication and SQLite. Codex and GPT-5.6 helped turn the product decisions into tests and a portable Windows release. |
+| 0:00–0:10 | Tracekeep title card | Tracekeep is a local second brain for Codex that turns completed conversations into sourced memory and action. |
+| 0:10–0:35 | Simulated Codex capture and sourced recall | Codex is the daily entry point. No “remember this” command or Tracekeep prefix is required; a meaningful completed turn is classified into sourced Learning or a reviewable proposal. |
+| 0:35–1:00 | Simulated Codex “what should I continue today?” conversation | Tracekeep returns a focused list of open loops with their original sources and concrete next actions without requiring the Dashboard. |
+| 1:00–1:25 | Simulated Codex resume-and-continue conversation | A prior decision, missing information, and next action are reconnected. Codex can draft the next step while Tracekeep keeps the loop reviewable and reversible. |
+| 1:25–1:45 | Conversation-first local architecture card | A local Stop hook calls the authenticated loopback API; `tracekeepd` alone writes SQLite. Capture begins after installation and does not claim all history. ChatGPT Direct remains planned. |
+| 1:45–2:06 | Web Review with Codex source evidence | The Dashboard is shown only as the supporting batch-review, evidence, backup, and settings workspace, not the daily entry point. |
+| 2:06–2:31 | Sanitized Codex project-delivery conversation | Codex and GPT-5.6 coordinated focused subagents across requirements, UX, architecture, implementation, tests, UAT, privacy, packaging, and documentation. |
+| 2:31–2:48 | Public PR and Release evidence card | Public PRs demonstrate Codex-assisted commits, review, CI, Release assets, narration, and submission preparation moving the product from decisions to a downloadable release. |
 
 ## Recording constraints
 

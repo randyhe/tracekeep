@@ -44,8 +44,9 @@ the controlling date.
 
 ## Product-owner final review
 
-- [ ] Review the new conversation-first video, captions, Devpost text, and
-  public repository. The obsolete dashboard-first video is not in scope.
+- [x] Review the final Codex-first video and captions. The obsolete
+  dashboard-first encodes are not in scope.
+- [ ] Review the final Devpost text and public repository links.
 - [ ] Run `/feedback` in the core Codex project task and record the Session ID.
 - [ ] Upload the final MP4 to publicly visible YouTube.
 - [ ] Paste the YouTube URL and Session ID into Devpost.

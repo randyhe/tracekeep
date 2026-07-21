@@ -54,6 +54,14 @@
     .composer-bottom { display: flex; align-items: center; justify-content: space-between; color: #747470; font-size: 12px; }
     .tools { display: flex; gap: 14px; align-items: center; }
     .send { width: 28px; height: 28px; border-radius: 8px; background: #222; color: white; display: grid; place-items: center; }
+    .memory-card { margin: 10px 0 10px 35px; border: 1px solid #deded9; border-radius: 12px; padding: 13px 15px; background: #fafaf8; }
+    .memory-card strong { display: block; margin-bottom: 5px; }
+    .memory-card small { color: #777773; }
+    .memory-card .next { margin-top: 8px; color: #214d40; font-weight: 650; }
+    .agent-grid { margin: 10px 0 10px 35px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .agent-card { border: 1px solid #deded9; border-radius: 12px; padding: 12px 14px; background: #fafaf8; }
+    .agent-card b { display: block; color: #214d40; margin-bottom: 5px; }
+    .agent-card span { color: #555552; font-size: 13px; line-height: 1.4; }
   </style>
 </head>
 <body>
@@ -69,7 +77,7 @@
       <div class="avatar">U</div>
     </aside>
     <aside class="sidebar">
-      <h1>ChatGPT</h1>
+      <h1>Codex</h1>
       <button class="new-task">＋ New task</button>
       <div class="section-label">Today</div>
       <div class="thread active">Avoid forgetting in the morning</div>
@@ -79,11 +87,11 @@
     </aside>
     <main class="main">
       <header class="topbar">
-        <div class="title-wrap"><strong>Avoid forgetting in the morning</strong><span class="workspace">Conversation concept</span></div>
-        <div class="demo-label">Simulated conversation · synthetic data</div>
+        <div class="title-wrap"><strong id="thread-title">Avoid forgetting in the morning</strong><span class="workspace">Tracekeep connected</span></div>
+        <div class="demo-label">Simulated Codex view · synthetic data</div>
       </header>
       <section class="conversation">
-        <div class="conversation-inner">
+        <div class="conversation-inner" id="conversation-body">
           <article class="message">
             <div class="message-head"><span class="mini-avatar user">You</span><span>You</span></div>
             <p>I discovered that putting tomorrow's must-carry items by the door makes them harder to forget. Summarize this method for me.</p>
@@ -115,11 +123,59 @@
       </section>
       <footer class="composer-wrap">
         <div class="composer">
-          <div class="placeholder">Ask ChatGPT anything, or tell Tracekeep what to remember…</div>
+          <div class="placeholder">Ask Codex anything. Tracekeep settles meaningful completed turns automatically…</div>
           <div class="composer-bottom"><div class="tools"><span>＋</span><span>Local</span><span>Tracekeep connected</span></div><span class="send">↑</span></div>
         </div>
       </footer>
     </main>
   </div>
+  <script>
+    const scene = new URLSearchParams(location.search).get("scene") || "capture";
+    const title = document.querySelector("#thread-title");
+    const body = document.querySelector("#conversation-body");
+    const activeThread = document.querySelector(".thread.active");
+    const scenes = {
+      today: {
+        title: "What should I continue today?",
+        html: `
+          <article class="message"><div class="message-head"><span class="mini-avatar user">You</span><span>You</span></div><p>What unfinished work should I continue today? Keep it focused, and show where each item came from.</p></article>
+          <article class="message"><div class="message-head"><span class="mini-avatar tracekeep">T</span><span>Tracekeep</span></div><div class="status-line">▱ Read from your local Tracekeep</div><div class="assistant-copy"><strong>Your three highest-priority open loops</strong></div>
+            <div class="memory-card"><strong>Confirm pickup times for the three summer camps</strong><small>Source · Codex conversation · Jul 21</small><div class="next">Next: compare the final schedules and message the organizers.</div></div>
+            <div class="memory-card"><strong>Verify the Windows release checksum</strong><small>Sources · Manual capture + Build Week planning conversation</small><div class="next">Next: compare the published SHA-256 with the local artifact.</div></div>
+            <div class="memory-card"><strong>Review the demo captions</strong><small>Source · Codex task · Jul 21</small><div class="next">Next: watch the final three-minute video once without pausing.</div></div>
+          </article>`
+      },
+      resume: {
+        title: "Resume the summer camp plan",
+        html: `
+          <article class="message"><div class="message-head"><span class="mini-avatar user">You</span><span>You</span></div><p>Continue the summer camp plan. What had I already decided, what is still missing, and what should I do next?</p></article>
+          <article class="message"><div class="message-head"><span class="mini-avatar tracekeep">T</span><span>Tracekeep</span></div><div class="status-line">▱ Reconnected from sourced local records</div><div class="assistant-copy">
+            <strong>You had narrowed the choice to three camps.</strong>
+            <ul><li>Decided: all three match the preferred weeks.</li><li>Still missing: confirmed pickup times for two camps.</li><li>Next action: send the prepared two-question message to each organizer.</li></ul>
+            <div class="sources">▱ Sources · Family planning conversation · Camp comparison note · Verified</div>
+          </div></article>
+          <article class="message"><div class="message-head"><span class="mini-avatar user">You</span><span>You</span></div><p>Draft the message, then keep this open until I confirm the replies.</p></article>
+          <article class="message"><div class="message-head"><span class="mini-avatar tracekeep">T</span><span>Tracekeep</span></div><div class="status-line">▱ Proposed update · Reviewable and reversible</div><div class="assistant-copy"><strong>Draft ready. The open loop remains active.</strong><div class="sources">No external message was sent.</div></div></article>`
+      },
+      build: {
+        title: "Build Tracekeep for OpenAI Build Week",
+        html: `
+          <article class="message"><div class="message-head"><span class="mini-avatar user">You</span><span>Product owner</span></div><p>Build a conversation-first, local-first second brain. Keep actions reviewable, preserve sources, spend no money on external APIs, and make the result judge-ready.</p></article>
+          <article class="message"><div class="message-head"><span class="mini-avatar tracekeep">C</span><span>Codex · GPT-5.6</span></div><div class="status-line">▱ End-to-end delivery · sanitized summary</div><div class="assistant-copy"><strong>I turned the product direction into a verified release and coordinated focused subagents.</strong></div>
+            <div class="agent-grid">
+              <div class="agent-card"><b>Requirements &amp; UX</b><span>Conversation-first flow, trust boundaries, acceptance criteria</span></div>
+              <div class="agent-card"><b>Architecture &amp; privacy</b><span>Local API, single SQLite writer, source and threat review</span></div>
+              <div class="agent-card"><b>Engineering &amp; tests</b><span>Implementation, regression tests, UAT, packaging probes</span></div>
+              <div class="agent-card"><b>Delivery &amp; submission</b><span>GitHub commits, PR review, CI, Release, demo and Devpost assets</span></div>
+            </div>
+          </article>`
+      }
+    };
+    if (scenes[scene]) {
+      title.textContent = scenes[scene].title;
+      activeThread.textContent = scenes[scene].title;
+      body.innerHTML = scenes[scene].html;
+    }
+  </script>
 </body>
 </html>
