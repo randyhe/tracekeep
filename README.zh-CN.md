@@ -2,7 +2,9 @@
 
 > **被打断没关系，Tracekeep 记得你做到哪里。**
 
-[下载 Windows 版](https://github.com/randyhe/tracekeep/releases/latest) · [English](README.md) · [工作原理](#tracekeep-如何工作) · [隐私安全与费用](#隐私安全与费用)
+[已发布版本（当前安装包仍为 Atlas v0.3.0）](https://github.com/randyhe/tracekeep/releases/latest) · [English](README.md) · [工作原理](#tracekeep-如何工作) · [隐私安全与费用](#隐私安全与费用)
+
+> **更名状态（2026-07-21）：** 源码和 GitHub 仓库已经使用 **Tracekeep**；当前最新公开 Windows 安装包仍是旧版 **Atlas v0.3.0**。Tracekeep 品牌的 Windows 包已完成构建和验证，但尚未发布。旧 Atlas 数据保持兼容；参见[更名迁移说明](docs/project/rename-migration.md)。
 
 生活不会等你做完一件事再开始下一件事。电话来了，孩子叫你，一场会议开始了，一个新想法又冒出来。查了一半的夏令营、还没预约的体检、等待回复的维修安排，都可能被下一次打断重新埋下去。
 
@@ -12,7 +14,7 @@
 
 ![Tracekeep 自动沉淀日常经验，并在之后的任务中带来源找回](docs/assets/tracekeep-chat-first-uat.png)
 
-*基于产品负责人真实 UAT 制作的隐私安全复现：一次普通对话被自动沉淀，随后在另一个 Codex 任务中带来源找回。Tracekeep 当前正式交付的是本地 Codex 插件；具体宿主界面可能有所变化。*
+*基于产品负责人真实 UAT 制作的隐私安全复现：一次普通对话被自动沉淀，随后在另一个 Codex 任务中带来源找回。该记录完成于更名前，因此截图保留旧界面名称，作为历史测试证据。Tracekeep 当前以本地 Codex 插件形式交付；具体宿主界面可能有所变化。*
 
 ## 30 秒理解 Tracekeep
 
@@ -38,9 +40,11 @@ Tracekeep，打开 Dashboard。
 
 ## Windows 安装方法
 
-Tracekeep 提供 Windows 10/11 x64 绿色版。电脑需要已安装 Codex Desktop，但不需要管理员权限，也不需要另外安装 Node.js、pnpm、数据库、API Key 或云端账户。
+Tracekeep 将提供 Windows 10/11 x64 绿色版。电脑需要已安装 Codex Desktop，但不需要管理员权限，也不需要另外安装 Node.js、pnpm、数据库、API Key 或云端账户。
 
-1. 打开 [Tracekeep 最新版本下载页](https://github.com/randyhe/tracekeep/releases/latest)。
+首个 Tracekeep 品牌的 GitHub Release 尚未发布。[当前最新版本](https://github.com/randyhe/tracekeep/releases/latest)仍包含 Atlas 名称的安装文件。首个 Tracekeep 版本发布后，请按以下步骤安装：
+
+1. 打开[最新版本页面](https://github.com/randyhe/tracekeep/releases/latest)，并确认该版本已经使用 Tracekeep 品牌。
 2. 在 **Assets** 中下载 `Tracekeep-Windows-x64.zip`，建议同时下载 `Tracekeep-Windows-x64.zip.sha256`。
 3. 右键 ZIP，选择 **全部解压（Extract All）**。不要直接在压缩包里运行。
 4. 打开解压后的文件夹，双击 **`Install Tracekeep.cmd`**。
