@@ -54,7 +54,8 @@ the controlling date.
   field.
 - [x] Upload the final MP4 to publicly visible YouTube.
 - [x] Paste the YouTube URL and Session ID into Devpost.
-- [ ] Submit the project before the internal deadline.
+- [x] Submit the project before the official deadline. Devpost confirmed
+  `Project submitted!` on 2026-07-21.
 - [x] Recheck public repository, Release, YouTube, and testing links before the
   official deadline.
 
