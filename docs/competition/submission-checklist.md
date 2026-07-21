@@ -11,7 +11,7 @@ Internal target: **2026-07-20 7:00 PM CDT**.
 - [x] Windows x64 v0.3.0 package built and validated locally.
 - [x] Staged and extracted package validation passed.
 - [x] Independent bundled-Node-only clean-room run passed.
-- [ ] Publish the validated v0.3.0 ZIP and `.sha256` in GitHub Release.
+- [x] Validated v0.3.0 ZIP and `.sha256` published in GitHub Release.
 - [x] Judge testing does not require a rebuild, API key, admin account, or login.
 - [x] Devpost English description drafted.
 - [x] Capability boundaries and pre-existing-project extension documented.
@@ -23,6 +23,10 @@ Internal target: **2026-07-20 7:00 PM CDT**.
 
 ## Agent-owned work
 
+- [x] Automatic second-brain source changes passed GitHub Actions and were
+  squash-merged through PR #18.
+- [x] The `v0.3.0` tag points to merge commit `9f5e720bdd3e3cc2628a14931a4c98673bbfd7b3`;
+  the uploaded ZIP digest matches the validated local checksum.
 - [x] v0.2.1 source changes published through PR #15; both GitHub Actions checks
   passed before squash merge.
 - [x] The `v0.2.1` tag fixes the validated release source at merge commit

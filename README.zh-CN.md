@@ -83,7 +83,7 @@ Atlas 不是完整聊天归档工具，也不宣称可以自动读取全部 Chat
 
 Atlas 计划中的手机体验是 **ChatGPT Direct**，不是用手机浏览器远程操作电脑 Dashboard。用户可以直接在 ChatGPT 手机对话里告诉 Atlas“记住这件事”，也可以随时问“我有哪些做到一半的事情”。
 
-这项能力尚未包含在 v0.2.1。目标架构是 ChatGPT App 通过远程 HTTPS MCP 网关和 OAuth 2.1 完成身份认证，再由用户电脑上的轻量同步程序主动取回待审核记录，交给本地 `atlasd` 写入 SQLite。SQLite 仍是唯一权威数据源；远程网关只是有时限的传输队列，不保存整套 Atlas 数据库，默认也不复制完整对话。
+这项能力尚未包含在 v0.3.0。目标架构是 ChatGPT App 通过远程 HTTPS MCP 网关和 OAuth 2.1 完成身份认证，再由用户电脑上的轻量同步程序主动取回待审核记录，交给本地 `atlasd` 写入 SQLite。SQLite 仍是唯一权威数据源；远程网关只是有时限的传输队列，不保存整套 Atlas 数据库，默认也不复制完整对话。
 
 完整的用户流程、隐私边界、实施阶段和发布条件，请查看 [ChatGPT Direct 手机端路线图](docs/product/chatgpt-direct-mobile-roadmap.md)。
 
