@@ -6,9 +6,9 @@
 [![Release](https://img.shields.io/github/v/release/randyhe/tracekeep)](https://github.com/randyhe/tracekeep/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-[Published releases (current binary: Atlas v0.3.0)](https://github.com/randyhe/tracekeep/releases/latest) · [中文说明](README.zh-CN.md) · [How it works](#how-tracekeep-works) · [Privacy & security](#privacy-security-and-cost)
+[Download Tracekeep v0.4.0 for Windows](https://github.com/randyhe/tracekeep/releases/latest) · [中文说明](README.zh-CN.md) · [How it works](#how-tracekeep-works) · [Privacy & security](#privacy-security-and-cost)
 
-> **Rename status (July 21, 2026):** The source code and GitHub repositories now use **Tracekeep**. The latest published Windows binary is still the legacy **Atlas v0.3.0** release. A Tracekeep-branded Windows package has been built and validated, but it has not been published yet. Existing Atlas data remains compatible; see [Upgrade from Atlas](#upgrade-from-atlas).
+> **Current release (July 21, 2026):** **Tracekeep v0.4.0** is the first Windows release under the new name. Existing Atlas data remains compatible; see [Upgrade from Atlas](#upgrade-from-atlas).
 
 Life rarely lets you finish one thing before the next begins. A call comes in, your child needs you, a meeting starts, or a new idea appears. The camp comparison you paused, the checkup you meant to book, and the reply you were waiting for can disappear beneath the next interruption.
 
@@ -44,11 +44,9 @@ You do not have to say “remember this” every time. At the end of a meaningfu
 
 ## Install on Windows
 
-Tracekeep will be distributed as a portable Windows 10/11 x64 package. It requires Codex Desktop, but does not require administrator rights, Node.js, pnpm, a separate database, an API key, or a hosted Tracekeep account.
+Tracekeep is distributed as a portable Windows 10/11 x64 package. It requires Codex Desktop, but does not require administrator rights, Node.js, pnpm, a separate database, an API key, or a hosted Tracekeep account.
 
-The first Tracekeep-branded GitHub Release has not been published. The [current latest release](https://github.com/randyhe/tracekeep/releases/latest) still contains Atlas-named assets. After the first Tracekeep-branded release is published:
-
-1. Open the [latest release](https://github.com/randyhe/tracekeep/releases/latest) and confirm that it is branded Tracekeep.
+1. Open the [latest Tracekeep release](https://github.com/randyhe/tracekeep/releases/latest).
 2. Under **Assets**, download `Tracekeep-Windows-x64.zip` and, preferably, `Tracekeep-Windows-x64.zip.sha256`.
 3. Right-click the ZIP and choose **Extract All**. Do not run Tracekeep from inside the ZIP.
 4. Open the extracted folder and double-click **`Install Tracekeep.cmd`**.
