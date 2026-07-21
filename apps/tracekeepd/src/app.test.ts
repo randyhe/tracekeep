@@ -150,7 +150,7 @@ describe("tracekeepd", () => {
       payload: {
         sessionId: "session-work",
         turnId: "turn-work",
-        userText: `Review the WCT plan containing ${secretDetail}.`,
+        userText: `Review the internal project plan containing ${secretDetail}.`,
         assistantText: `A work summary containing ${secretDetail}.`,
         attachments: [],
         sensitivity: "work_summary_only",

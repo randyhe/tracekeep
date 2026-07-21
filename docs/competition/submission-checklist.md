@@ -21,7 +21,7 @@ the controlling date.
 - [x] Generate English narration, burned captions, and `.srt`.
 - [x] Mechanically validate the sub-three-minute replacement MP4.
 - [x] Update local video validation metadata.
-- [ ] Publish and verify the public YouTube link.
+- [x] Publish and verify the public YouTube link.
 
 ## Agent-owned work
 
@@ -48,8 +48,8 @@ the controlling date.
   dashboard-first encodes are not in scope.
 - [ ] Review the final Devpost text and public repository links.
 - [ ] Run `/feedback` in the core Codex project task and record the Session ID.
-- [ ] Upload the final MP4 to publicly visible YouTube.
-- [ ] Paste the YouTube URL and Session ID into Devpost.
+- [x] Upload the final MP4 to publicly visible YouTube.
+- [x] Paste the YouTube URL and Session ID into Devpost.
 - [ ] Submit the project before the internal deadline.
 - [ ] Recheck public repository, Release, YouTube, and testing links before the
   official deadline.

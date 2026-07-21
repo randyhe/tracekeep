@@ -9,6 +9,8 @@ const URL_PATTERN = /\bhttps?:\/\/[^\s<>"'`]+/giu;
 const FILE_SECTION_PATTERN = /^##\s+(.+\.(?:pdf|docx?|pptx?|xlsx?|csv|txt|md))\s*$/gimu;
 const SECRET_PATTERN =
   /(?:api[_ -]?key|password|passwd|secret|private[_ -]?key|bearer)\s*[:=]\s*[^\s]{8,}|(?:ghp|gho|github_pat)_[A-Za-z0-9_]{12,}/iu;
+const WORK_CONTEXT_PATTERN =
+  /\b(?:internal|company|client|customer|confidential|proprietary|work item|Azure DevOps|Jira|Confluence|SharePoint)\b/iu;
 
 export function buildCodexTurnCandidates(input: CodexTurnInput): CandidateRecordInput[] {
   const assistantSummary = cleanAssistantSummary(input.assistantText);
@@ -101,10 +103,20 @@ export function containsCredentialLikeText(text: string): boolean {
 
 export function inferTurnSensitivity(text: string): CodexTurnInput["sensitivity"] {
   if (containsCredentialLikeText(text)) return "restricted";
-  if (/\b(?:WCT|ADO|Azure DevOps|LINQX|CEMLife|CEMManager|PlugPRO)\b/iu.test(text)) {
+  if (WORK_CONTEXT_PATTERN.test(text) || containsConfiguredWorkTerm(text)) {
     return "work_summary_only";
   }
   return "personal";
+}
+
+function containsConfiguredWorkTerm(text: string, configuredTerms = process.env.TRACEKEEP_WORK_TERMS): boolean {
+  if (!configuredTerms) return false;
+  const normalizedText = text.toLocaleLowerCase();
+  return configuredTerms
+    .split(",")
+    .map((term) => term.trim().toLocaleLowerCase())
+    .filter(Boolean)
+    .some((term) => normalizedText.includes(term));
 }
 
 export function shouldCaptureTurn(input: Pick<CodexTurnInput, "userText" | "assistantText" | "attachments">): boolean {

@@ -46,7 +46,7 @@ test("captures substantive turns, skips trivial and credential turns", () => {
     assistantText: "A".repeat(300),
     attachments: [],
   }), true);
-  assert.equal(inferSensitivity("Review the WCT Azure DevOps plan"), "work_summary_only");
+  assert.equal(inferSensitivity("Review the internal Azure DevOps plan"), "work_summary_only");
   assert.equal(isValuableTurn({
     userText: "api_key=super-secret-value",
     assistantText: "Never persist this.",
