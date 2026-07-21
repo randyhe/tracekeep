@@ -8,7 +8,7 @@
 
 [下载 Tracekeep v0.4.0 Windows 版](https://github.com/randyhe/tracekeep/releases/latest) · [English](README.md) · [工作原理](#tracekeep-如何工作) · [隐私安全与费用](#隐私安全与费用)
 
-> **当前版本（2026-07-21）：** **Tracekeep v0.4.0** 是更名后的首个 Windows 正式版本。旧 Atlas 数据保持兼容；参见[从 Atlas 升级](#从-atlas-升级)。
+> **当前版本（2026-07-21）：** **Tracekeep v0.4.0** 是当前 Windows 正式版本。
 
 生活不会等你做完一件事再开始下一件事。电话来了，孩子叫你，一场会议开始了，一个新想法又冒出来。查了一半的夏令营、还没预约的体检、等待回复的维修安排，都可能被下一次打断重新埋下去。
 
@@ -18,7 +18,7 @@
 
 ![Tracekeep 自动沉淀日常经验，并在之后的任务中带来源找回](docs/assets/tracekeep-chat-first-uat.png)
 
-*基于产品负责人真实 UAT 制作的隐私安全复现：一次普通对话被自动沉淀，随后在另一个 Codex 任务中带来源找回。该记录完成于更名前，因此截图保留旧界面名称，作为历史测试证据。Tracekeep 当前以本地 Codex 插件形式交付；具体宿主界面可能有所变化。*
+*基于产品负责人真实 UAT 制作的隐私安全复现：一次普通对话被自动沉淀，随后在另一个 Codex 任务中带来源找回。Tracekeep 当前以本地 Codex 插件形式交付；具体宿主界面可能有所变化。*
 
 ## 30 秒理解 Tracekeep
 
@@ -97,7 +97,7 @@ Tracekeep 计划中的手机体验是 **ChatGPT Direct**，不是用手机浏览
 
 Web Dashboard 适合一次查看多条记录、检查来源、搜索、合并重复项和管理状态。它为对话优先的体验提供集中管理，但不要求你每次记录或回忆之前都先打开网页。
 
-![Tracekeep Today 页面，使用合成的日常生活示例](docs/assets/tracekeep-today.png)
+![Tracekeep Today 页面，使用合成的日常生活示例](docs/assets/tracekeep-today-en.png)
 
 ## 隐私、安全与费用
 
@@ -126,10 +126,6 @@ Web Dashboard 适合一次查看多条记录、检查来源、搜索、合并重
 ## 开发与技术资料
 
 Tracekeep 使用 Node.js、TypeScript、Fastify、React 和 SQLite。
-
-### 从 Atlas 升级
-
-Tracekeep 是原 Atlas 项目的新名称。服务和自动沉淀 Hook 优先使用新的 `TRACEKEEP_*` 环境变量和 `%LOCALAPPDATA%\Tracekeep`，同时继续识别旧的 `ATLAS_*` 变量和已有的 `%LOCALAPPDATA%\Atlas\atlas.sqlite` 数据库。运行时会同时持有旧版和新版生命周期锁，防止 Atlas 与 Tracekeep 服务并发写入同一个数据库。升级过程不会自动移动或删除旧数据目录；详情参见 [`docs/project/rename-migration.md`](docs/project/rename-migration.md)。
 
 ```powershell
 pnpm install

@@ -8,7 +8,7 @@
 
 [Download Tracekeep v0.4.0 for Windows](https://github.com/randyhe/tracekeep/releases/latest) · [中文说明](README.zh-CN.md) · [How it works](#how-tracekeep-works) · [Privacy & security](#privacy-security-and-cost)
 
-> **Current release (July 21, 2026):** **Tracekeep v0.4.0** is the first Windows release under the new name. Existing Atlas data remains compatible; see [Upgrade from Atlas](#upgrade-from-atlas).
+> **Current release (July 21, 2026):** **Tracekeep v0.4.0** is the current Windows release.
 
 Life rarely lets you finish one thing before the next begins. A call comes in, your child needs you, a meeting starts, or a new idea appears. The camp comparison you paused, the checkup you meant to book, and the reply you were waiting for can disappear beneath the next interruption.
 
@@ -126,10 +126,6 @@ See [SECURITY.md](SECURITY.md) for the threat boundary, reporting process, and c
 ## Development
 
 Tracekeep uses Node.js, TypeScript, Fastify, React, and SQLite.
-
-### Upgrade from Atlas
-
-Tracekeep is the new product name for the project previously called Atlas. The service and automatic-capture hook prefer the new `TRACEKEEP_*` environment variables and `%LOCALAPPDATA%\Tracekeep`, but continue to recognize legacy `ATLAS_*` variables and an existing `%LOCALAPPDATA%\Atlas\atlas.sqlite` database. The runtime holds both legacy and current lifetime locks so old and new services cannot write the same database concurrently. The upgrade path never moves or deletes the legacy data directory automatically; see [`docs/project/rename-migration.md`](docs/project/rename-migration.md).
 
 ```powershell
 pnpm install
