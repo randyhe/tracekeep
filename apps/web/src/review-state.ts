@@ -23,7 +23,7 @@ export function getReviewUndoState(
   if (!outcome) {
     return {
       allowed: false,
-      reason: "The accepted item is no longer active, so Atlas cannot undo it safely.",
+      reason: "The accepted item is no longer active, so Tracekeep cannot undo it safely.",
     };
   }
 

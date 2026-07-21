@@ -1,15 +1,15 @@
-Important work often disappears inside chats. Atlas recovers the unfinished loops behind everyday ideas, decisions, and follow-ups.
+Important work often disappears inside chats. Tracekeep recovers the unfinished loops behind everyday ideas, decisions, and follow-ups.
 
-Atlas starts where the thought happens: in the conversation. Say what to remember, then ask what unfinished work is worth resuming. This screen uses synthetic data and does not claim automatic access to every chat.
+Tracekeep starts where the thought happens: in the conversation. Say what to remember, then ask what unfinished work is worth resuming. This screen uses synthetic data and does not claim automatic access to every chat.
 
-The capture is now a real local Atlas record with its Codex source attached. It waits in Review, where the user can inspect it before accepting it. The Dashboard is the control room, not the required daily entry point.
+The capture is now a real local Tracekeep record with its Codex source attached. It waits in Review, where the user can inspect it before accepting it. The Dashboard is the control room, not the required daily entry point.
 
-The same follow-up can appear in more than one place. Atlas marks a possible duplicate, merges only when asked, and keeps both pieces of evidence inspectable. Undo removes the added evidence link without deleting the original work.
+The same follow-up can appear in more than one place. Tracekeep marks a possible duplicate, merges only when asked, and keeps both pieces of evidence inspectable. Undo removes the added evidence link without deleting the original work.
 
 Today highlights at most three priorities. An item can move to Waiting, Next week, Done, or back to Today, and the latest change can be undone immediately.
 
-Local SQLite FTS5 search returns the record together with its human-readable source. Atlas helps the user return to evidence instead of trusting an unsupported memory.
+Local SQLite FTS5 search returns the record together with its human-readable source. Tracekeep helps the user return to evidence instead of trusting an unsupported memory.
 
 Restricted content stays out of ordinary search and sanitized export. The competition build keeps a zero-dollar external budget, with paid providers and platform APIs disabled.
 
-Codex and GPT-5.6 turned product decisions into implementation, tests, privacy checks, and a judge-ready Windows release. Atlas remembers where you stopped, what comes next, and why it was worth continuing.
+Codex and GPT-5.6 turned product decisions into implementation, tests, privacy checks, and a judge-ready Windows release. Tracekeep remembers where you stopped, what comes next, and why it was worth continuing.

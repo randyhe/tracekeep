@@ -20,7 +20,7 @@ import type {
   Source,
   SourceCompleteness,
   SourceType,
-} from "@atlas/contracts";
+} from "@tracekeep/contracts";
 import { migrations } from "./migrations.js";
 
 type Row = Record<string, unknown>;
@@ -89,7 +89,7 @@ export function fingerprint(value: unknown): string {
   return createHash("sha256").update(JSON.stringify(value)).digest("hex");
 }
 
-export class AtlasStorage {
+export class TracekeepStorage {
   db: Database.Database;
 
   constructor(
@@ -704,13 +704,13 @@ export class AtlasStorage {
   }
 
   isAutoCaptureEnabled(): boolean {
-    const row = this.db.prepare("SELECT value FROM atlas_settings WHERE key = 'auto_capture_enabled'").get() as { value: string } | undefined;
+    const row = this.db.prepare("SELECT value FROM tracekeep_settings WHERE key = 'auto_capture_enabled'").get() as { value: string } | undefined;
     return row?.value !== "false";
   }
 
   setAutoCaptureEnabled(enabled: boolean): boolean {
     this.db.prepare(
-      `INSERT INTO atlas_settings(key, value, updated_at)
+      `INSERT INTO tracekeep_settings(key, value, updated_at)
        VALUES ('auto_capture_enabled', ?, ?)
        ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`,
     ).run(enabled ? "true" : "false", now());
@@ -731,7 +731,7 @@ export class AtlasStorage {
     return { schemaVersion: 1, generatedAt: now(), openLoops, decisions, references };
   }
 
-  async createBackup(prefix = "atlas"): Promise<{ fileName: string; createdAt: string }> {
+  async createBackup(prefix = "tracekeep"): Promise<{ fileName: string; createdAt: string }> {
     await mkdir(this.backupDirectory, { recursive: true });
     const createdAt = now();
     const fileName = `${prefix}-${createdAt.replaceAll(":", "-")}-${randomUUID().slice(0, 8)}.sqlite`;
@@ -848,7 +848,7 @@ function assertValidDatabase(path: string): void {
     const schema = candidate
       .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name IN ('sources', 'captures', 'review_candidates')")
       .all() as Array<{ name: string }>;
-    if (schema.length !== 3) throw new StorageConflictError("Backup is not an Atlas database");
+    if (schema.length !== 3) throw new StorageConflictError("Backup is not an Tracekeep database");
   } finally {
     candidate.close();
   }

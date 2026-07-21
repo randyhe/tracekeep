@@ -1,6 +1,6 @@
 # Third-Party Notices
 
-Atlas includes open-source packages distributed under their respective licenses. The Windows demo release contains the production dependency closure produced from the locked pnpm workspace and a bundled Node.js runtime.
+Tracekeep includes open-source packages distributed under their respective licenses. The Windows demo release contains the production dependency closure produced from the locked pnpm workspace and a bundled Node.js runtime.
 
 Key runtime components include:
 

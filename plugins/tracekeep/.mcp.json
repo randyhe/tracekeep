@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "tracekeep-memory-local": {
+      "command": "node",
+      "args": ["./mcp-server/dist/index.js"],
+      "env": {
+        "TRACEKEEP_BASE_URL": "http://127.0.0.1:4310"
+      }
+    }
+  }
+}

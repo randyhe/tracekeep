@@ -1,6 +1,6 @@
 [
   {
-    "conversation_id": "atlas-build-week-demo",
+    "conversation_id": "tracekeep-build-week-demo",
     "title": "Synthetic Build Week planning conversation",
     "mapping": {
       "assistant-node": {
@@ -14,7 +14,7 @@
           "author": { "role": "user" },
           "content": {
             "parts": [
-              "TODO: Verify the Windows release checksum.\nWaiting for product review of the captions.\nDecision: keep Atlas local-first and review-first."
+              "TODO: Verify the Windows release checksum.\nWaiting for product review of the captions.\nDecision: keep Tracekeep local-first and review-first."
             ]
           }
         }

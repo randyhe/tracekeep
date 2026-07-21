@@ -1,8 +1,8 @@
-# Atlas V1 Requirements Baseline
+# Tracekeep V1 Requirements Baseline
 
 ## Core promise
 
-Atlas helps a user remember what mattered and resume what was interrupted, directly from the conversations they already use.
+Tracekeep helps a user remember what mattered and resume what was interrupted, directly from the conversations they already use.
 
 ## P0 requirements
 
@@ -12,7 +12,7 @@ Atlas helps a user remember what mattered and resume what was interrupted, direc
 | AUTO-01 | Meaningful-turn capture | At the end of a meaningful Codex turn, automatically create sourced learning references and reviewable action or decision candidates without requiring a magic phrase. |
 | LEARN-01 | Learning memory | Preserve useful conversation conclusions, documents, papers, and web pages as searchable Learning Notes with source metadata. |
 | AUTO-02 | User control | Allow automatic capture to be paused without disabling explicit capture, recall, search, or lifecycle management. |
-| RECALL-01 | Interrupted-work recall | From a Codex conversation, retrieve unfinished items, today's focus, or sourced search results from Atlas rather than model memory. |
+| RECALL-01 | Interrupted-work recall | From a Codex conversation, retrieve unfinished items, today's focus, or sourced search results from Tracekeep rather than model memory. |
 | CAP-01 | Quick capture | Save confirmed text without AI and return a sourced candidate within 2 seconds p95. |
 | LOOP-01 | Open-loop lifecycle | Support open, waiting, scheduled, done, and dismissed with optimistic concurrency. |
 | TODAY-01 | Daily focus | Return at most three ranked actionable open loops using deterministic local rules. |

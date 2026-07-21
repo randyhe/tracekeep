@@ -1,24 +1,26 @@
-# Atlas
+# Tracekeep
 
-> **Life interrupts. Atlas remembers where you left off.**
+> **Life interrupts. Tracekeep remembers where you left off.**
 
-[![CI](https://github.com/randyhe/atlas/actions/workflows/ci.yml/badge.svg)](https://github.com/randyhe/atlas/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/randyhe/atlas)](https://github.com/randyhe/atlas/releases/latest)
+[![CI](https://github.com/randyhe/tracekeep/actions/workflows/ci.yml/badge.svg)](https://github.com/randyhe/tracekeep/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/randyhe/tracekeep)](https://github.com/randyhe/tracekeep/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-[Download for Windows](https://github.com/randyhe/atlas/releases/latest) · [中文说明](README.zh-CN.md) · [How it works](#how-atlas-works) · [Privacy & security](#privacy-security-and-cost)
+[Published releases (current binary: Atlas v0.3.0)](https://github.com/randyhe/tracekeep/releases/latest) · [中文说明](README.zh-CN.md) · [How it works](#how-tracekeep-works) · [Privacy & security](#privacy-security-and-cost)
+
+> **Rename status (July 21, 2026):** The source code and GitHub repositories now use **Tracekeep**. The latest published Windows binary is still the legacy **Atlas v0.3.0** release. A Tracekeep-branded Windows package has been built and validated, but it has not been published yet. Existing Atlas data remains compatible; see [Upgrade from Atlas](#upgrade-from-atlas).
 
 Life rarely lets you finish one thing before the next begins. A call comes in, your child needs you, a meeting starts, or a new idea appears. The camp comparison you paused, the checkup you meant to book, and the reply you were waiting for can disappear beneath the next interruption.
 
-**Atlas is a local second brain for Codex.** Once installed and enabled, it notices when a meaningful turn ends and turns the useful result into sourced learning notes, actions, and decisions. A conversation about a paper, a document you shared, a useful web page, an unfinished family plan, or an idea worth revisiting no longer disappears when the next interruption arrives.
+**Tracekeep is a local second brain for Codex.** Once installed and enabled, it notices when a meaningful turn ends and turns the useful result into sourced learning notes, actions, and decisions. A conversation about a paper, a document you shared, a useful web page, an unfinished family plan, or an idea worth revisiting no longer disappears when the next interruption arrives.
 
-**Atlas remembers: Where did you stop? What should you do next? Why is it worth continuing?**
+**Tracekeep remembers: Where did you stop? What should you do next? Why is it worth continuing?**
 
-![Atlas automatically preserves an everyday insight and recalls it later with source evidence](docs/assets/atlas-chat-first-uat.png)
+![Tracekeep automatically preserves an everyday insight and recalls it later with source evidence](docs/assets/tracekeep-chat-first-uat.png)
 
-*Privacy-safe recreation of the product-owner UAT: an ordinary conversation was automatically preserved, then recalled from a separate Codex task with source evidence. Atlas currently ships as a local Codex plugin; exact host layout may vary.*
+*Privacy-safe recreation of the product-owner UAT recorded before the Tracekeep rename: an ordinary conversation was automatically preserved, then recalled from a separate Codex task with source evidence. The screenshot retains the former UI label as historical test evidence. Tracekeep currently ships as a local Codex plugin; exact host layout may vary.*
 
-## Use Atlas in 30 seconds
+## Use Tracekeep in 30 seconds
 
 1. **Talk naturally**
 
@@ -26,68 +28,70 @@ Life rarely lets you finish one thing before the next begins. A call comes in, y
 
 2. **Ask when you need it**
 
-   > Search Atlas for the method I found to avoid forgetting things in the morning, and show the source.
+   > Search Tracekeep for the method I found to avoid forgetting things in the morning, and show the source.
 
 You can also say:
 
 ```text
-Atlas, remember this idea: take the kids to the natural history museum this weekend.
-Atlas, save “call the dentist next week” as a task.
-Atlas, what should I focus on today?
-Atlas, search for my earlier family-trip decision and show its source.
-Atlas, open the Dashboard.
+Tracekeep, remember this idea: take the kids to the natural history museum this weekend.
+Tracekeep, save “call the dentist next week” as a task.
+Tracekeep, what should I focus on today?
+Tracekeep, search for my earlier family-trip decision and show its source.
+Tracekeep, open the Dashboard.
 ```
 
-You do not have to say “remember this” every time. At the end of a meaningful completed Codex turn, Atlas automatically preserves useful learning references and proposes actions or decisions for Review. Explicit capture remains available when something must be saved immediately.
+You do not have to say “remember this” every time. At the end of a meaningful completed Codex turn, Tracekeep automatically preserves useful learning references and proposes actions or decisions for Review. Explicit capture remains available when something must be saved immediately.
 
 ## Install on Windows
 
-Atlas is distributed as a portable Windows 10/11 x64 package. It requires Codex Desktop, but does not require administrator rights, Node.js, pnpm, a separate database, an API key, or a hosted Atlas account.
+Tracekeep will be distributed as a portable Windows 10/11 x64 package. It requires Codex Desktop, but does not require administrator rights, Node.js, pnpm, a separate database, an API key, or a hosted Tracekeep account.
 
-1. Open the [latest Atlas release](https://github.com/randyhe/atlas/releases/latest).
-2. Under **Assets**, download `Atlas-Windows-x64.zip` and, preferably, `Atlas-Windows-x64.zip.sha256`.
-3. Right-click the ZIP and choose **Extract All**. Do not run Atlas from inside the ZIP.
-4. Open the extracted folder and double-click **`Install Atlas.cmd`**.
+The first Tracekeep-branded GitHub Release has not been published. The [current latest release](https://github.com/randyhe/tracekeep/releases/latest) still contains Atlas-named assets. After the first Tracekeep-branded release is published:
+
+1. Open the [latest release](https://github.com/randyhe/tracekeep/releases/latest) and confirm that it is branded Tracekeep.
+2. Under **Assets**, download `Tracekeep-Windows-x64.zip` and, preferably, `Tracekeep-Windows-x64.zip.sha256`.
+3. Right-click the ZIP and choose **Extract All**. Do not run Tracekeep from inside the ZIP.
+4. Open the extracted folder and double-click **`Install Tracekeep.cmd`**.
 5. Wait for this message:
 
    ```text
-   Atlas is installed and running. Open a new Codex task to use it.
+   Tracekeep is installed and running. Open a new Codex task to use it.
    ```
 
-6. Fully quit and restart Codex. Open **Plugins → Atlas**, click **Connect**, then start a new conversation.
+6. Fully quit and restart Codex. Open **Plugins → Tracekeep**, click **Connect**, then start a new conversation.
 
 ### How to know installation succeeded
 
-Atlas is ready when all three checks pass:
+Tracekeep is ready when all three checks pass:
 
-- **Installer:** the command window says `Atlas is installed and running` with no red error.
-- **Dashboard:** the browser opens Atlas and shows `Today`, `Capture`, `Review`, and `Search`.
+- **Installer:** the command window says `Tracekeep is installed and running` with no red error.
+- **Dashboard:** the browser opens Tracekeep and shows `Today`, `Capture`, `Review`, and `Search`.
 - **Codex:** finish a meaningful test conversation; its learning note appears under **Learning**, while any proposed action appears under **Review**.
 
-After restarting Windows, double-click **`Start Atlas.cmd`**. Atlas first tries `127.0.0.1:4310` and safely falls back through ports 4311–4319. It never listens on the LAN or creates a Windows Firewall rule.
+After restarting Windows, double-click **`Start Tracekeep.cmd`**. Tracekeep first tries `127.0.0.1:4310` and safely falls back through ports 4311–4319. It never listens on the LAN or creates a Windows Firewall rule.
 
 For checksum verification and common installation problems, see the [Windows testing guide](packaging/windows/README-TESTING.md).
 
-## How Atlas works
+## How Tracekeep works
 
-Atlas is designed around two everyday actions:
+Tracekeep is designed around two everyday actions:
 
-- **Let the conversation settle:** when a meaningful Codex turn finishes, Atlas extracts the useful result automatically.
-- **Resume with context:** ask Atlas what remains unfinished or search earlier records with their sources.
+- **Let the conversation settle:** when a meaningful Codex turn finishes, Tracekeep extracts the useful result automatically.
+- **Resume with context:** ask Tracekeep what remains unfinished or search earlier records with their sources.
 
-The local Stop hook observes only completed turns while Atlas is installed, trusted, and enabled. It does not scan every historical conversation. Atlas skips short social exchanges and credential-like text. For a personal turn, useful conclusions, documents, papers, and URLs become accepted Learning Notes; proposed actions and decisions remain in Review. Work-related or restricted material is never auto-accepted.
+The local Stop hook observes only completed turns while Tracekeep is installed, trusted, and enabled. It does not scan every historical conversation. Tracekeep skips short social exchanges and credential-like text. For a personal turn, useful conclusions, documents, papers, and URLs become accepted Learning Notes; proposed actions and decisions remain in Review. Work-related or restricted material is never auto-accepted.
 
-Atlas stores structured results, bounded summaries, source identifiers, and evidence needed for recall. It does not execute imported instructions or automatically open captured URLs. If Atlas is temporarily offline, the plugin keeps a private local retry queue. You can pause automatic capture at any time under **Settings** without disabling explicit capture, search, or recall.
+Tracekeep stores structured results, bounded summaries, source identifiers, and evidence needed for recall. It does not execute imported instructions or automatically open captured URLs. If Tracekeep is temporarily offline, the plugin keeps a private local retry queue. You can pause automatic capture at any time under **Settings** without disabling explicit capture, search, or recall.
 
 The Dashboard provides **Learning**, **Review**, **Search**, Today, Sources, and settings. It is a supporting workspace; everyday thinking and recall still begin in the conversation.
 
-Atlas does not claim automatic access to all ChatGPT or Codex history. ChatGPT Export remains the manual historical fallback.
+Tracekeep does not claim automatic access to all ChatGPT or Codex history. ChatGPT Export remains the manual historical fallback.
 
 ### Roadmap: ChatGPT Direct on mobile
 
-The planned mobile experience is **ChatGPT Direct**, not a phone browser remotely controlling the desktop Dashboard. A user should be able to tell Atlas to remember something, or ask what to resume, directly in the ChatGPT mobile conversation.
+The planned mobile experience is **ChatGPT Direct**, not a phone browser remotely controlling the desktop Dashboard. A user should be able to tell Tracekeep to remember something, or ask what to resume, directly in the ChatGPT mobile conversation.
 
-This capability is not shipped in v0.3.0. The planned design uses a ChatGPT App with a remote HTTPS MCP gateway and OAuth 2.1. A small outbound sync agent on the user's computer transfers reviewable records to the local `atlasd`; SQLite remains the authoritative store. The gateway is a short-lived transport queue, not a cloud copy of the Atlas database, and full conversations are not copied by default.
+This capability is not shipped in v0.3.0. The planned design uses a ChatGPT App with a remote HTTPS MCP gateway and OAuth 2.1. A small outbound sync agent on the user's computer transfers reviewable records to the local `tracekeepd`; SQLite remains the authoritative store. The gateway is a short-lived transport queue, not a cloud copy of the Tracekeep database, and full conversations are not copied by default.
 
 See the [ChatGPT Direct mobile roadmap](docs/product/chatgpt-direct-mobile-roadmap.md) for the target user flow, architecture, privacy boundary, delivery phases, and release gates.
 
@@ -95,14 +99,14 @@ See the [ChatGPT Direct mobile roadmap](docs/product/chatgpt-direct-mobile-roadm
 
 The Web Dashboard is the place to review several records together, inspect evidence, search, merge duplicates, and manage lifecycle states. It supports the conversation-first experience; it is not required before every capture or recall.
 
-![Atlas Today dashboard with synthetic daily-life examples](docs/assets/atlas-today.png)
+![Tracekeep Today dashboard with synthetic daily-life examples](docs/assets/tracekeep-today.png)
 
 ## Privacy, security, and cost
 
-- **Local-first:** `atlasd` binds only to `127.0.0.1`; SQLite remains on the user's computer.
+- **Local-first:** `tracekeepd` binds only to `127.0.0.1`; SQLite remains on the user's computer.
 - **Local authentication:** the Windows release creates a 256-bit token protected with Windows DPAPI and uses an HttpOnly, SameSite browser session cookie.
 - **Untrusted imports:** imported text, commands, and URLs remain inert data. Restricted content is excluded from ordinary search, sanitized exports, logs, and screenshots.
-- **No paid provider required:** capture, review, open-loop tracking, backup, and FTS5 search work without an AI API key. Atlas does not silently enable usage-based AI APIs or cloud hosting.
+- **No paid provider required:** capture, review, open-loop tracking, backup, and FTS5 search work without an AI API key. Tracekeep does not silently enable usage-based AI APIs or cloud hosting.
 - **Portable release:** the installer does not request elevation, edit the registry, or modify Windows Firewall.
 - **Verifiable download:** every release ZIP includes a SHA-256 checksum. The current package is not Authenticode-signed; Windows may display a security warning.
 
@@ -123,7 +127,11 @@ See [SECURITY.md](SECURITY.md) for the threat boundary, reporting process, and c
 
 ## Development
 
-Atlas uses Node.js, TypeScript, Fastify, React, and SQLite.
+Tracekeep uses Node.js, TypeScript, Fastify, React, and SQLite.
+
+### Upgrade from Atlas
+
+Tracekeep is the new product name for the project previously called Atlas. The service and automatic-capture hook prefer the new `TRACEKEEP_*` environment variables and `%LOCALAPPDATA%\Tracekeep`, but continue to recognize legacy `ATLAS_*` variables and an existing `%LOCALAPPDATA%\Atlas\atlas.sqlite` database. The runtime holds both legacy and current lifetime locks so old and new services cannot write the same database concurrently. The upgrade path never moves or deletes the legacy data directory automatically; see [`docs/project/rename-migration.md`](docs/project/rename-migration.md).
 
 ```powershell
 pnpm install
@@ -131,7 +139,7 @@ pnpm check
 pnpm start
 ```
 
-Open `http://127.0.0.1:4310`. Development data defaults to `%LOCALAPPDATA%\Atlas`; set `ATLAS_DATA_DIR` to isolate it. The downloadable release instead uses its portable `work/data` directory.
+Open `http://127.0.0.1:4310`. Development data defaults to `%LOCALAPPDATA%\Tracekeep`; set `TRACEKEEP_DATA_DIR` to isolate it. The downloadable release instead uses its portable `work/data` directory.
 
 - [Technical reference and architecture](docs/technical-reference.md)
 - [ChatGPT Direct mobile roadmap](docs/product/chatgpt-direct-mobile-roadmap.md)
@@ -141,10 +149,10 @@ Open `http://127.0.0.1:4310`. Development data defaults to `%LOCALAPPDATA%\Atlas
 
 ## License and attribution
 
-Atlas is available under the [MIT License](LICENSE). Bundled dependencies remain under their own licenses; see [Third-Party Notices](THIRD-PARTY-NOTICES.md).
+Tracekeep is available under the [MIT License](LICENSE). Bundled dependencies remain under their own licenses; see [Third-Party Notices](THIRD-PARTY-NOTICES.md).
 
 ## Built with Codex and GPT-5.6
 
 The product owner defined the user problem, automatic conversation-to-memory interaction, review workflow, privacy and cost boundaries, and release gates. Codex and GPT-5.6 were then used as the collaborative engineering environment to inspect the live repository, challenge product and architecture assumptions, implement scoped changes, generate and run regression tests, diagnose failures, exercise synthetic UAT journeys, scan privacy boundaries, and build the portable Windows release.
 
-The human owner remained responsible for product, privacy, cost, and release decisions. Atlas keeps this collaboration auditable through public commits, test evidence, capability probes, and explicit claim boundaries instead of presenting generated output as autonomous product ownership.
+The human owner remained responsible for product, privacy, cost, and release decisions. Tracekeep keeps this collaboration auditable through public commits, test evidence, capability probes, and explicit claim boundaries instead of presenting generated output as autonomous product ownership.

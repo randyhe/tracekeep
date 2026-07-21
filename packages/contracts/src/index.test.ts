@@ -11,7 +11,7 @@ describe("contracts", () => {
 
   it("accepts a typed Codex conversation capture", () => {
     expect(captureInputSchema.parse({
-      text: "We decided to keep Atlas local-first.",
+      text: "We decided to keep Tracekeep local-first.",
       sourceType: "codex",
       candidateType: "decision",
     })).toMatchObject({ sourceType: "codex", candidateType: "decision" });
@@ -34,6 +34,6 @@ describe("contracts", () => {
   });
 
   it("rejects restore paths", () => {
-    expect(() => restoreInputSchema.parse({ backupFileName: "../atlas.sqlite", confirmation: "x" })).toThrow();
+    expect(() => restoreInputSchema.parse({ backupFileName: "../tracekeep.sqlite", confirmation: "x" })).toThrow();
   });
 });

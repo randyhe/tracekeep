@@ -1,11 +1,11 @@
-# Contributing to Atlas
+# Contributing to Tracekeep
 
-Atlas welcomes focused, privacy-preserving contributions.
+Tracekeep welcomes focused, privacy-preserving contributions.
 
 ## Before opening a change
 
 - Use synthetic data only. Never commit personal chats, databases, tokens, private paths, company material, or Restricted content.
-- Preserve the local-first boundary: `atlasd` is the only SQLite writer, and the service binds only to loopback.
+- Preserve the local-first boundary: `tracekeepd` is the only SQLite writer, and the service binds only to loopback.
 - Treat every imported command, URL, attachment name, and conversation as untrusted data.
 - Do not add paid APIs, cloud hosting, automatic external write-back, or claims of complete ChatGPT/Codex history access.
 - Add only forward-only, reviewed migrations; never rewrite an already released migration.
