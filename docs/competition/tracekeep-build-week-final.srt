@@ -1,63 +1,107 @@
 1
-00:00:00,000 --> 00:00:06,000
-Important work often disappears inside chats.
+00:00:02,000 --> 00:00:09,125
+Tracekeep is a local second brain for Codex, turning completed conversations into sourced memory and action.
 
 2
-00:00:06,000 --> 00:00:12,000
-Tracekeep recovers the unfinished loops behind everyday ideas, decisions, and follow-ups.
+00:00:10,000 --> 00:00:11,703
+Use Codex as usual.
 
 3
-00:00:12,000 --> 00:00:24,000
-Tracekeep starts where the thought happens: in the conversation. Say what to remember, then ask what unfinished work is worth resuming.
+00:00:11,703 --> 00:00:14,685
+This is the default daily entry point.
 
 4
-00:00:24,000 --> 00:00:36,000
-This screen uses synthetic data and does not claim automatic access to every chat.
+00:00:14,685 --> 00:00:19,800
+You do not need to say "remember this" or prefix a message with "Tracekeep."
 
 5
-00:00:36,000 --> 00:00:46,000
-The capture is now a real local Tracekeep record with its Codex source attached.
+00:00:19,800 --> 00:00:25,757
+When a meaningful turn completes, a trusted local hook classifies the result.
 
 6
-00:00:46,000 --> 00:00:56,000
-It waits in Review before acceptance. The Dashboard is the control room, not the required daily entry point.
+00:00:25,757 --> 00:00:32,997
+Durable conclusions become sourced Learning Notes; actions, decisions, and uncertain items become proposals the user can review.
 
 7
-00:00:56,000 --> 00:01:07,000
-The same follow-up can appear in more than one place. Tracekeep marks a possible duplicate and merges only when asked.
+00:00:35,000 --> 00:00:39,275
+Then ask inside Codex what unfinished work deserves attention today.
 
 8
-00:01:07,000 --> 00:01:18,000
-Both pieces of evidence remain inspectable. Undo removes the added link without deleting the original work.
+00:00:39,275 --> 00:00:47,397
+Tracekeep returns a short, focused list from the local store, with the original source and a concrete next action.
 
 9
-00:01:18,000 --> 00:01:29,000
-Today highlights at most three priorities. An item can move to Waiting, Next week, Done, or back to Today.
+00:00:47,397 --> 00:00:50,816
+No browsing through folders or lists is required.
 
 10
-00:01:29,000 --> 00:01:40,000
-The latest change can be undone immediately.
+00:00:50,816 --> 00:00:57,656
+The user stays in the conversation instead of opening a dashboard just to remember what mattered.
 
 11
-00:01:40,000 --> 00:01:50,000
-Local SQLite FTS5 search returns the record together with its human-readable source.
+00:01:00,000 --> 00:01:08,127
+Ask Tracekeep to resume one open loop, and it reconnects the earlier decision, what is still missing, and what to do next.
 
 12
-00:01:50,000 --> 00:02:00,000
-Tracekeep helps the user return to evidence instead of trusting an unsupported memory.
+00:01:08,127 --> 00:01:12,560
+Codex can draft the next step while Tracekeep keeps the loop open.
 
 13
-00:02:00,000 --> 00:02:09,000
-Restricted content stays out of ordinary search and sanitized export.
+00:01:12,560 --> 00:01:18,840
+When the reply arrives, tell Codex to update or close it, and the local history stays reversible.
 
 14
-00:02:09,000 --> 00:02:18,000
-The competition build keeps a zero-dollar external budget, with paid providers and platform APIs disabled.
+00:01:18,840 --> 00:01:22,165
+Nothing is sent externally, and the source remains visible.
 
 15
-00:02:18,000 --> 00:02:28,000
-Codex and GPT-5.6 turned product decisions into implementation, tests, privacy checks, and a judge-ready Windows release.
+00:01:25,500 --> 00:01:30,899
+A local Stop hook calls tracekeepd through an authenticated loopback API.
 
 16
-00:02:28,000 --> 00:02:36,300
-Tracekeep remembers where you stopped, what comes next, and why it was worth continuing.
+00:01:30,899 --> 00:01:36,298
+Tracekeepd alone writes SQLite; sources, evidence, and FTS5 search stay local.
+
+17
+00:01:36,298 --> 00:01:41,207
+Capture begins after installation and never claims every historical chat.
+
+18
+00:01:41,207 --> 00:01:44,642
+Direct ChatGPT integration is planned, not shipped.
+
+19
+00:01:45,500 --> 00:01:51,513
+The Web Dashboard is only the supporting workspace for batch review, evidence, backup, and settings.
+
+20
+00:01:51,513 --> 00:01:59,530
+Here the user can inspect a proposed action, accept it, edit it, reject it, merge duplicates, or undo a change.
+
+21
+00:01:59,530 --> 00:02:02,737
+It is not the required daily entry point.
+
+22
+00:02:06,000 --> 00:02:12,822
+Tracekeep itself was built end to end in Codex with GPT-5.6.
+
+23
+00:02:12,822 --> 00:02:18,000
+From the product owner's problem and trust boundaries, Codex coordinated focused subagents
+
+24
+00:02:18,000 --> 00:02:23,000
+for requirements, interaction design, architecture, and implementation,
+
+25
+00:02:23,000 --> 00:02:28,741
+then regression tests, synthetic UAT, privacy review, Windows packaging, and documentation.
+
+26
+00:02:31,000 --> 00:02:38,166
+Codex also handled GitHub commits, pull requests, CI, release assets, captions, narration, and submission preparation.
+
+27
+00:02:38,166 --> 00:02:47,243
+Public PRs show automatic capture, the Windows release, and competition materials moving from decisions to a tested, downloadable product.
