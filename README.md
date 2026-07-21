@@ -123,6 +123,14 @@ See [SECURITY.md](SECURITY.md) for the threat boundary, reporting process, and c
 - Manual, Daily Log, and ChatGPT Export imports with deterministic local extraction.
 - Portable Windows launcher with loopback-only port fallback.
 
+## Built with Codex and GPT-5.6
+
+Tracekeep existed as a local Alpha before OpenAI Build Week. The work submitted for judging is the meaningful extension completed during the July 13–21, 2026 submission period, documented by the repository's dated [pull-request history](https://github.com/randyhe/tracekeep/pulls?q=is%3Apr+is%3Amerged) and [competition evidence](docs/competition/README.md).
+
+Codex and GPT-5.6 served as the collaborative engineering environment for product critique, architecture tradeoffs, implementation, regression testing, privacy review, UAT playback, Windows packaging, and release verification. They accelerated the automatic completed-turn capture flow, sourced Learning Notes, reversible Review lifecycle, privacy and network probes, bilingual documentation, and reproducible demo assets.
+
+The human owner made the consequential product decisions: local SQLite remains authoritative; proposed actions and decisions require Review; imported instructions stay inert; restricted content stays out of ordinary outputs; complete chat-history access is not claimed; and paid providers, cloud hosting, and autonomous external writes remain outside V1. The current result is a runnable Windows release, not a prompt-only prototype.
+
 ## Development
 
 Tracekeep uses Node.js, TypeScript, Fastify, React, and SQLite.
