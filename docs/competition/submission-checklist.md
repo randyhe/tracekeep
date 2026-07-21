@@ -1,49 +1,49 @@
 # OpenAI Build Week Submission Checklist
 
 Official deadline: **2026-07-21 5:00 PM PDT / 7:00 PM CDT**.
-Internal target: **2026-07-20 7:00 PM CDT**.
+Internal target (missed): **2026-07-20 7:00 PM CDT**. The official deadline is
+the controlling date.
 
 ## Completed
 
 - [x] Category selected: Apps for Your Life.
 - [x] Public MIT-licensed repository available.
 - [x] Public repository PR merged and privacy-scanned.
-- [x] Windows x64 v0.3.0 package built and validated locally.
+- [x] Windows x64 v0.4.0 package built and validated locally.
 - [x] Staged and extracted package validation passed.
 - [x] Independent bundled-Node-only clean-room run passed.
-- [x] Validated v0.3.0 ZIP and `.sha256` published in GitHub Release.
+- [x] Validated v0.4.0 ZIP and `.sha256` published in GitHub Release.
 - [x] Judge testing does not require a rebuild, API key, admin account, or login.
 - [x] Devpost English description drafted.
 - [x] Capability boundaries and pre-existing-project extension documented.
 - [x] Codex/MCP protocol probe completed with honest Experimental fallback.
-- [ ] Record the new automatic-second-brain demo with synthetic data.
-- [ ] Generate English narration, burned captions, and `.srt`.
-- [ ] Mechanically validate the sub-three-minute replacement MP4.
-- [ ] Update video validation metadata and release link.
+- [x] Record the automatic-second-brain demo with synthetic data.
+- [x] Generate English narration, burned captions, and `.srt`.
+- [x] Mechanically validate the sub-three-minute replacement MP4.
+- [x] Update local video validation metadata.
+- [ ] Publish and verify the public YouTube link.
 
 ## Agent-owned work
 
 - [x] Automatic second-brain source changes passed GitHub Actions and were
   squash-merged through PR #18.
-- [x] The `v0.3.0` tag points to merge commit `9f5e720bdd3e3cc2628a14931a4c98673bbfd7b3`;
-  the uploaded ZIP digest matches the validated local checksum.
-- [x] v0.2.1 source changes published through PR #15; both GitHub Actions checks
+- [x] Current Windows release source published through PR #22; GitHub Actions
   passed before squash merge.
-- [x] The `v0.2.1` tag fixes the validated release source at merge commit
-  `aac51d1a443b8ac0153088b343bb6b930daea9ca`; public `main` contains that
-  release source plus documentation-only publication-status updates.
-- [x] Release ZIP uploaded successfully; GitHub's SHA-256 digest matches the
-  validated local checksum.
+- [x] The `v0.4.0` release points to commit
+  `a8a6b8399e5780aedca0d47739d7b02b549395bd`; its ZIP and checksum assets are
+  public, and GitHub reports SHA-256
+  `f6963f879892946ef1a7cba1860828c7f10221545fb9c50ca20bcd132ae9288d`.
 - [x] Plugin validation, forbidden-artifact scan, privacy scan, and
   `git diff --check` passed.
 - [x] Authenticated Windows Stop-hook probe, idempotent replay, Learning UI,
   Review UI, and automatic-capture toggle passed on isolated data.
 - [x] Product-owner Chat-first UAT passed: an ordinary meaningful turn was
   captured automatically and recalled with its source from a separate task.
+- [x] README describes how Codex and GPT-5.6 accelerated the work and which
+  consequential product decisions remained human-owned.
 
 ## Product-owner final review
 
-- [ ] Complete UAT-017 blind candidate usefulness review.
 - [ ] Review the new conversation-first video, captions, Devpost text, and
   public repository. The obsolete dashboard-first video is not in scope.
 - [ ] Run `/feedback` in the core Codex project task and record the Session ID.
@@ -52,6 +52,12 @@ Internal target: **2026-07-20 7:00 PM CDT**.
 - [ ] Submit the project before the internal deadline.
 - [ ] Recheck public repository, Release, YouTube, and testing links before the
   official deadline.
+
+## Non-blocking quality follow-up
+
+- [ ] Complete UAT-017 blind candidate usefulness review. This is a project
+  quality gate, not an official submission requirement, and must not be marked
+  complete without the product owner's 40 blind ratings.
 
 ## Rejected claims
 

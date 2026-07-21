@@ -66,7 +66,8 @@ owner made the product, privacy, cost, and release decisions. The required
 
 ## Accomplishments
 
-- 90 automated TypeScript, unit, integration, hook, and Web checks pass.
+- All repository typechecks, automated tests, and production builds pass; the
+  v0.4.0 release validation records 96 automated tests.
 - An authenticated Windows Stop-hook probe produced sourced paper and
   conversation notes plus a reviewable next action, and idempotent replay
   produced no duplicates.
@@ -119,3 +120,11 @@ closure, automatic meaningful-turn capture, sourced learning notes for papers,
 documents and URLs, bilingual multi-candidate extraction, reversible task
 states, privacy and network harnesses, Windows packaging, plugin distribution,
 and competition release evidence.
+
+Key dated submission-period evidence includes the initial public competition
+release ([PR #1](https://github.com/randyhe/tracekeep/pull/1)), automatic
+meaningful-turn capture and sourced Learning Notes
+([PR #18](https://github.com/randyhe/tracekeep/pull/18)), the Tracekeep v0.4.0
+Windows release ([PR #22](https://github.com/randyhe/tracekeep/pull/22)), and the
+final public documentation review
+([PR #27](https://github.com/randyhe/tracekeep/pull/27)).
