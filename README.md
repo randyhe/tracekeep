@@ -91,7 +91,7 @@ Tracekeep does not claim automatic access to all ChatGPT or Codex history. ChatG
 
 The planned mobile experience is **ChatGPT Direct**, not a phone browser remotely controlling the desktop Dashboard. A user should be able to tell Tracekeep to remember something, or ask what to resume, directly in the ChatGPT mobile conversation.
 
-This capability is not shipped in v0.3.0. The planned design uses a ChatGPT App with a remote HTTPS MCP gateway and OAuth 2.1. A small outbound sync agent on the user's computer transfers reviewable records to the local `tracekeepd`; SQLite remains the authoritative store. The gateway is a short-lived transport queue, not a cloud copy of the Tracekeep database, and full conversations are not copied by default.
+This capability is not shipped in v0.4.0. The planned design uses a ChatGPT App with a remote HTTPS MCP gateway and OAuth 2.1. A small outbound sync agent on the user's computer transfers reviewable records to the local `tracekeepd`; SQLite remains the authoritative store. The gateway is a short-lived transport queue, not a cloud copy of the Tracekeep database, and full conversations are not copied by default.
 
 See the [ChatGPT Direct mobile roadmap](docs/product/chatgpt-direct-mobile-roadmap.md) for the target user flow, architecture, privacy boundary, delivery phases, and release gates.
 
@@ -112,7 +112,7 @@ The Web Dashboard is the place to review several records together, inspect evide
 
 See [SECURITY.md](SECURITY.md) for the threat boundary, reporting process, and current limitations.
 
-## Behavior implemented in v0.3.0
+## Behavior implemented in v0.4.0
 
 - Automatic meaningful-turn capture through a trusted local Codex Stop hook.
 - Sourced Learning Notes for conversations, notes, documents, papers, and web pages.
