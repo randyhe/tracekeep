@@ -14,19 +14,19 @@ Life rarely lets you finish one thing before the next begins. A call comes in, y
 
 **Atlas remembers: Where did you stop? What should you do next? Why is it worth continuing?**
 
-![Simulated conversation-first Atlas experience based on the provided ChatGPT interface](docs/assets/atlas-codex-conversation.png)
+![Atlas automatically preserves an everyday insight and recalls it later with source evidence](docs/assets/atlas-chat-first-uat.png)
 
-*Conversation-first interaction concept using synthetic data and the provided ChatGPT interface as its visual reference. Atlas currently ships as a local Codex plugin; the exact host layout and available surfaces may vary.*
+*Privacy-safe recreation of the product-owner UAT: an ordinary conversation was automatically preserved, then recalled from a separate Codex task with source evidence. Atlas currently ships as a local Codex plugin; exact host layout may vary.*
 
 ## Use Atlas in 30 seconds
 
 1. **Talk naturally**
 
-   > Compare these three summer camps. Pickup time matters most, but I need to continue later.
+   > I discovered that putting tomorrow's must-carry items by the door makes them harder to forget. Summarize this method for me.
 
 2. **Ask when you need it**
 
-   > Atlas, what unfinished work should I resume?
+   > Search Atlas for the method I found to avoid forgetting things in the morning, and show the source.
 
 You can also say:
 
