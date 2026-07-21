@@ -6,9 +6,9 @@
 [![Release](https://img.shields.io/github/v/release/randyhe/tracekeep)](https://github.com/randyhe/tracekeep/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-[Download Tracekeep v0.4.0 for Windows](https://github.com/randyhe/tracekeep/releases/latest) · [中文说明](README.zh-CN.md) · [How it works](#how-tracekeep-works) · [Privacy & security](#privacy-security-and-cost)
+[Download Tracekeep v0.4.1 for Windows](https://github.com/randyhe/tracekeep/releases/latest) · [中文说明](README.zh-CN.md) · [How it works](#how-tracekeep-works) · [Privacy & security](#privacy-security-and-cost)
 
-> **Current release (July 21, 2026):** **Tracekeep v0.4.0** is the current Windows release.
+> **Current release (July 21, 2026):** **Tracekeep v0.4.1** is the current Windows release. It removes organization-specific work terms from the public package and supports private local terms through `TRACEKEEP_WORK_TERMS`.
 
 Life rarely lets you finish one thing before the next begins. A call comes in, your child needs you, a meeting starts, or a new idea appears. The camp comparison you paused, the checkup you meant to book, and the reply you were waiting for can disappear beneath the next interruption.
 
@@ -79,6 +79,8 @@ Tracekeep is designed around two everyday actions:
 
 The local Stop hook observes only completed turns while Tracekeep is installed, trusted, and enabled. It does not scan every historical conversation. Tracekeep skips short social exchanges and credential-like text. For a personal turn, useful conclusions, documents, papers, and URLs become accepted Learning Notes; proposed actions, decisions, and uncertain items remain in Review. Work-related or restricted material is never auto-accepted.
 
+Tracekeep recognizes generic work systems and labels by default. To protect organization-specific names without publishing them, set `TRACEKEEP_WORK_TERMS` to a private comma-separated list in the local runtime environment; never commit that list to the repository.
+
 Tracekeep stores structured results, bounded summaries, source identifiers, and evidence needed for recall. It does not execute imported instructions or automatically open captured URLs. If Tracekeep is temporarily offline, the plugin keeps a private local retry queue. You can pause automatic capture at any time under **Settings** without disabling explicit capture, search, or recall.
 
 The Dashboard provides **Learning**, **Review**, **Search**, Today, Sources, and settings. It is a supporting workspace; everyday thinking and recall still begin in the conversation.
@@ -89,7 +91,7 @@ Tracekeep does not claim automatic access to all ChatGPT or Codex history. ChatG
 
 The planned mobile experience is **ChatGPT Direct**, not a phone browser remotely controlling the desktop Dashboard. A user should be able to talk naturally and let a meaningful turn settle automatically, or ask what to resume, directly in the ChatGPT mobile conversation.
 
-This capability is not shipped in v0.4.0. The planned design uses a ChatGPT App with a remote HTTPS MCP gateway and OAuth 2.1. A small outbound sync agent on the user's computer transfers reviewable records to the local `tracekeepd`; SQLite remains the authoritative store. The gateway is a short-lived transport queue, not a cloud copy of the Tracekeep database, and full conversations are not copied by default.
+This capability is not shipped in v0.4.1. The planned design uses a ChatGPT App with a remote HTTPS MCP gateway and OAuth 2.1. A small outbound sync agent on the user's computer transfers reviewable records to the local `tracekeepd`; SQLite remains the authoritative store. The gateway is a short-lived transport queue, not a cloud copy of the Tracekeep database, and full conversations are not copied by default.
 
 See the [ChatGPT Direct mobile roadmap](docs/product/chatgpt-direct-mobile-roadmap.md) for the target user flow, architecture, privacy boundary, delivery phases, and release gates.
 
@@ -110,7 +112,7 @@ The Web Dashboard is the place to review several records together, inspect evide
 
 See [SECURITY.md](SECURITY.md) for the threat boundary, reporting process, and current limitations.
 
-## Behavior implemented in v0.4.0
+## Behavior implemented in v0.4.1
 
 - Automatic meaningful-turn capture through a trusted local Codex Stop hook.
 - Sourced Learning Notes for conversations, notes, documents, papers, and web pages.

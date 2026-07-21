@@ -5,6 +5,8 @@ import { basename, extname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 
 const DEFAULT_BASE_URL = "http://127.0.0.1:4310";
+const WORK_CONTEXT_PATTERN =
+  /\b(?:internal|company|client|customer|confidential|proprietary|work item|Azure DevOps|Jira|Confluence|SharePoint)\b/iu;
 export function parseCodexTurnTranscript(jsonl, requestedTurnId) {
   let currentTurnId;
   const turns = new Map();
@@ -59,8 +61,18 @@ export function inferSensitivity(text) {
   if (/(?:api[_ -]?key|password|passwd|secret|private[_ -]?key|bearer)\s*[:=]\s*[^\s]{8,}|(?:ghp|gho|github_pat)_[A-Za-z0-9_]{12,}/iu.test(text)) {
     return "restricted";
   }
-  if (/\b(?:WCT|ADO|Azure DevOps|LINQX|CEMLife|CEMManager|PlugPRO)\b/iu.test(text)) return "work_summary_only";
+  if (WORK_CONTEXT_PATTERN.test(text) || containsConfiguredWorkTerm(text)) return "work_summary_only";
   return "personal";
+}
+
+function containsConfiguredWorkTerm(text, configuredTerms = process.env.TRACEKEEP_WORK_TERMS) {
+  if (!configuredTerms) return false;
+  const normalizedText = text.toLocaleLowerCase();
+  return configuredTerms
+    .split(",")
+    .map((term) => term.trim().toLocaleLowerCase())
+    .filter(Boolean)
+    .some((term) => normalizedText.includes(term));
 }
 
 export function isValuableTurn(turn) {

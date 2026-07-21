@@ -69,7 +69,7 @@ describe("second-brain turn extraction", () => {
       assistantText: "Do not save this.",
       attachments: [],
     })).toBe(false);
-    expect(inferTurnSensitivity("Review the WCT Azure DevOps test plan")).toBe("work_summary_only");
+    expect(inferTurnSensitivity("Review the internal Azure DevOps test plan")).toBe("work_summary_only");
   });
 
   it("ignores short social turns but captures substantive learning", () => {

@@ -17,8 +17,9 @@ The narration uses the Apache-2.0-licensed Kokoro-82M model through the
 MIT-licensed `kokoro-onnx` runtime. The final volume scan reported a `-0.3 dB`
 peak with no clipping.
 
-The MP4 is intentionally excluded from Git. The public YouTube URL will be
-added only after the product owner reviews the local artifact and publishes it.
+The MP4 is intentionally excluded from Git. After product-owner review, the
+same validated artifact was published publicly at
+https://youtu.be/6vihaJ5nwW8.
 
 ## Recording boundary
 
@@ -47,7 +48,8 @@ added only after the product owner reviews the local artifact and publishes it.
   seconds to Codex use and Codex delivery, and about 20 seconds to the Web.
 - Silence detection confirmed a 2.03-second opening buffer and no inter-scene
   silent interval longer than 3.44 seconds.
-- Final public-link verification remains pending until YouTube publication.
+- The public YouTube page resolves to the expected title, plays the 2:48 video,
+  and reports the published artifact with no copyright issues.
 - Regeneration from public `main` commit `3e69bdd3855a41a44fac374d232a1b2545a8f3c7`
   completed successfully on Windows using the repository recording and encoding
   scripts.
