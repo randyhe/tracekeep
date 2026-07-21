@@ -49,12 +49,26 @@ try {
 
   await showTitle(page);
   await page.screenshot({ path: resolve(outputDirectory, "01-title.png") });
-  await pause(12_000);
+  await pause(10_000);
 
   await page.goto(pathToFileURL(conversationPath).href);
-  await page.getByText("Simulated conversation · synthetic data").waitFor();
+  await page.getByText("Simulated Codex view · synthetic data").waitFor();
   await page.screenshot({ path: resolve(outputDirectory, "02-conversation-first.png") });
-  await pause(24_000);
+  await pause(25_000);
+
+  await page.goto(`${pathToFileURL(conversationPath).href}?scene=today`);
+  await page.getByText("Your three highest-priority open loops").waitFor();
+  await page.screenshot({ path: resolve(outputDirectory, "03-codex-today.png") });
+  await pause(25_000);
+
+  await page.goto(`${pathToFileURL(conversationPath).href}?scene=resume`);
+  await page.getByText("You had narrowed the choice to three camps.").waitFor();
+  await page.screenshot({ path: resolve(outputDirectory, "04-codex-resume.png") });
+  await pause(25_000);
+
+  await showHowItWorks(page);
+  await page.screenshot({ path: resolve(outputDirectory, "05-conversation-architecture.png") });
+  await pause(20_000);
 
   await page.goto(`${baseUrl}/review`);
   await page.evaluate(() => localStorage.setItem("tracekeep.theme", "light"));
@@ -62,76 +76,24 @@ try {
   await page.getByRole("heading", { name: "A few things need your judgement." }).waitFor();
   const codexCard = page.locator("article.review-card").filter({ hasText: "Confirm pickup times for the three summer camps." });
   await codexCard.waitFor();
-  await pause(7_000);
+  await pause(5_000);
   await codexCard.getByTestId(`accept-${codexCapture.candidate.id}`).click();
   await page.getByTestId("review-tab-accepted").click();
   const acceptedCodexCard = page.locator("article.review-card").filter({ hasText: "Confirm pickup times for the three summer camps." });
   await acceptedCodexCard.waitFor();
   await acceptedCodexCard.getByRole("button", { name: /View evidence/u }).click();
   await acceptedCodexCard.getByText("Codex conversation capture").waitFor();
-  await page.screenshot({ path: resolve(outputDirectory, "03-codex-review.png") });
-  await pause(13_000);
-  await page.getByTestId("review-tab-pending").click();
+  await page.screenshot({ path: resolve(outputDirectory, "06-dashboard-review.png") });
+  await pause(15_000);
 
-  const duplicateCard = page.locator("article.review-card").filter({ hasText: "Verify the Windows release checksum." });
-  await duplicateCard.getByText("Possible duplicate").waitFor();
-  await page.screenshot({ path: resolve(outputDirectory, "04-review-duplicate.png") });
-  await pause(10_000);
-  await duplicateCard.getByRole("button", { name: "Merge" }).click();
-  await pause(4_000);
-  await duplicateCard.getByRole("button", { name: "Merge evidence" }).click();
-  await page.getByTestId("review-tab-accepted").click();
-  const acceptedDuplicate = page.locator("article.review-card")
-    .filter({ hasText: "Verify the Windows release checksum." })
-    .filter({ hasText: "Merged into" });
-  await acceptedDuplicate.getByText("Merged into").waitFor();
-  await pause(4_000);
-  await acceptedDuplicate.getByRole("button", { name: /View evidence/u }).click();
-  await acceptedDuplicate.getByText("Synthetic Build Week planning conversation").waitFor();
-  await page.screenshot({ path: resolve(outputDirectory, "05-merged-evidence.png") });
-  await pause(10_000);
+  await page.goto(`${pathToFileURL(conversationPath).href}?scene=build`);
+  await page.getByText("I turned the product direction into a verified release").waitFor();
+  await page.screenshot({ path: resolve(outputDirectory, "07-codex-built-tracekeep.png") });
+  await pause(25_000);
 
-  await page.getByTestId("review-tab-pending").click();
-  const decisionCard = page.locator("article.review-card").filter({ hasText: "keep Tracekeep local-first and review-first" });
-  await decisionCard.waitFor();
-  await pause(3_000);
-  await decisionCard.getByRole("button", { name: "Accept" }).click();
-  await pause(4_000);
-
-  await page.getByRole("link", { name: "Today" }).click();
-  const targetLoop = page.locator("article.loop-card").filter({ hasText: "Verify the Windows release checksum." });
-  await targetLoop.waitFor();
-  await pause(4_000);
-  await targetLoop.getByRole("button", { name: /View evidence/u }).click();
-  await targetLoop.getByText("Synthetic Build Week planning conversation").waitFor();
-  await page.screenshot({ path: resolve(outputDirectory, "06-today-evidence.png") });
-  await pause(5_000);
-  await targetLoop.getByRole("button", { name: "Next week" }).click();
-  await page.getByText("Scheduled for next week.").waitFor();
-  await pause(4_000);
-  await page.getByRole("button", { name: "Undo" }).click();
-  await targetLoop.waitFor();
-  await page.getByText("Scheduled for next week.").waitFor({ state: "detached" });
-  await pause(4_000);
-
-  await page.getByRole("link", { name: "Search" }).click();
-  await page.getByTestId("search-input").fill("local-first");
-  await page.getByRole("button", { name: "Search" }).click();
-  await page.getByTestId("search-results").waitFor();
-  await pause(4_000);
-  const searchResult = page.getByTestId("search-results").locator("article").first();
-  await searchResult.locator("summary").click();
-  await page.screenshot({ path: resolve(outputDirectory, "07-sourced-search.png") });
-  await pause(14_000);
-
-  await page.getByRole("link", { name: "Settings" }).click();
-  await page.getByText("$0 external budget").waitFor();
-  await page.screenshot({ path: resolve(outputDirectory, "08-cost-protection.png") });
-  await pause(13_000);
-
-  await showArchitecture(page);
-  await page.screenshot({ path: resolve(outputDirectory, "09-architecture.png") });
-  await pause(14_000);
+  await showDeliveryEvidence(page);
+  await page.screenshot({ path: resolve(outputDirectory, "08-delivery-evidence.png") });
+  await pause(17_000);
 
   await page.close();
   await context.close();
@@ -227,25 +189,40 @@ async function showTitle(page) {
   `));
 }
 
-async function showArchitecture(page) {
+async function showHowItWorks(page) {
   await page.setContent(slide(`
-    <div class="kicker">LOCAL-FIRST ARCHITECTURE</div>
-    <h1 class="small">Chat → Review → Action</h1>
+    <div class="kicker">HOW THE CONVERSATION-FIRST LOOP WORKS</div>
+    <h1 class="small">Talk → Settle → Recall → Continue</h1>
     <div class="flow">
-      <div><b>Conversation</b><small>Codex skill · Local MCP</small></div><i>→</i>
-      <div><b>Review</b><small>Edit · Merge · Reject · Undo</small></div><i>→</i>
-      <div><b>Tracekeep API</b><small>Fastify · Idempotent writes</small></div><i>→</i>
-      <div><b>SQLite</b><small>Evidence · FTS5 · Backup</small></div>
+      <div><b>Codex turn</b><small>Use ordinary language. No prefix or special remember command.</small></div><i>→</i>
+      <div><b>Local Stop hook</b><small>A completed meaningful turn becomes Learning or a reviewable proposal.</small></div><i>→</i>
+      <div><b>tracekeepd</b><small>Loopback-only API · authenticated, idempotent writes.</small></div><i>→</i>
+      <div><b>Local SQLite</b><small>Sources · FTS5 search · evidence · backup.</small></div>
     </div>
-    <p class="closing">Codex and GPT-5.6 turned product decisions into implementation, tests, privacy checks, and a judge-ready Windows release.</p>
-    <div class="footer"><span>github.com/randyhe/tracekeep</span><span>Windows x64 · $0 external budget</span></div>
+    <p class="closing">Ask again in Codex to recover the source, the unfinished decision, and the next action. The Web is only the batch review workspace.</p>
+    <div class="footer"><span>Available now: local Codex plugin</span><span>ChatGPT Direct: planned · Export backfill: manual</span></div>
+  `));
+}
+
+async function showDeliveryEvidence(page) {
+  await page.setContent(slide(`
+    <div class="kicker">CODEX DELIVERED THE PROJECT END TO END</div>
+    <h1 class="small">From product brief to public submission.</h1>
+    <div class="evidence">
+      <div><b>PR #18</b><span>Automatic second-brain capture</span><small>Merged · CI passed</small></div>
+      <div><b>PR #22</b><span>Portable Windows v0.4.0 release</span><small>Merged · checksum published</small></div>
+      <div><b>PR #28</b><span>Build Week submission materials</span><small>Merged · privacy reviewed</small></div>
+      <div><b>PR #29</b><span>Open-source Kokoro narration</span><small>Merged · CI passed</small></div>
+    </div>
+    <p class="closing">Requirements, subagent coordination, design, code, tests, UAT, GitHub commits, PR review, CI, Release assets, captions, and submission preparation were carried out in Codex with GPT-5.6.</p>
+    <div class="footer"><span>github.com/randyhe/tracekeep</span><span>v0.4.0 · Windows x64 · MIT</span></div>
   `));
 }
 
 function slide(content) {
   return `<!doctype html><html><head><meta charset="utf-8"><style>
     *{box-sizing:border-box} body{margin:0;width:100vw;height:100vh;overflow:hidden;background:radial-gradient(circle at 78% 20%,#1d4c46 0,#102a29 30%,#081817 70%);color:#f4f1e9;font-family:Inter,Segoe UI,Arial,sans-serif;display:flex;align-items:center;justify-content:center}
-    main{width:1600px;padding:100px 120px}.kicker{font-weight:800;letter-spacing:.22em;color:#7dd8c8;font-size:23px;margin-bottom:32px}h1{font-size:170px;line-height:.88;margin:0 0 24px;letter-spacing:-.07em}h1.small{font-size:94px;letter-spacing:-.055em;margin-bottom:65px}h2{font-size:48px;font-weight:600;margin:0 0 28px;color:#d9e5df}p{font-size:32px;line-height:1.45;color:#b9cbc4;max-width:1200px}.pills{display:flex;gap:18px;margin-top:55px}.pills span{border:1px solid #4d8178;border-radius:999px;padding:14px 24px;font-size:23px;color:#d9f4ee;background:#143a36}.flow{display:flex;align-items:stretch;gap:20px}.flow div{flex:1;padding:32px 26px;border:1px solid #376c63;border-radius:20px;background:#10322f}.flow b{display:block;font-size:31px;margin-bottom:14px}.flow small{display:block;font-size:20px;line-height:1.4;color:#a9c5be}.flow i{align-self:center;font-size:42px;color:#65cbbb}.closing{margin-top:58px;color:#eaf7f3}.footer{display:flex;justify-content:space-between;margin-top:54px;padding-top:24px;border-top:1px solid #31524d;color:#8fb2aa;font-size:22px}
+    main{width:1600px;padding:100px 120px}.kicker{font-weight:800;letter-spacing:.22em;color:#7dd8c8;font-size:23px;margin-bottom:32px}h1{font-size:170px;line-height:.88;margin:0 0 24px;letter-spacing:-.07em}h1.small{font-size:82px;letter-spacing:-.055em;margin-bottom:48px}h2{font-size:48px;font-weight:600;margin:0 0 28px;color:#d9e5df}p{font-size:30px;line-height:1.4;color:#b9cbc4;max-width:1320px}.pills{display:flex;gap:18px;margin-top:55px}.pills span{border:1px solid #4d8178;border-radius:999px;padding:14px 24px;font-size:23px;color:#d9f4ee;background:#143a36}.flow{display:flex;align-items:stretch;gap:16px}.flow div{flex:1;padding:28px 23px;border:1px solid #376c63;border-radius:20px;background:#10322f}.flow b{display:block;font-size:28px;margin-bottom:12px}.flow small{display:block;font-size:18px;line-height:1.4;color:#a9c5be}.flow i{align-self:center;font-size:38px;color:#65cbbb}.evidence{display:grid;grid-template-columns:1fr 1fr;gap:18px}.evidence div{padding:24px 28px;border:1px solid #376c63;border-radius:18px;background:#10322f}.evidence b{display:block;color:#7dd8c8;font-size:24px;margin-bottom:7px}.evidence span{display:block;font-size:25px;font-weight:700}.evidence small{display:block;color:#9ebdb5;font-size:18px;margin-top:8px}.closing{margin-top:42px;color:#eaf7f3}.footer{display:flex;justify-content:space-between;margin-top:38px;padding-top:22px;border-top:1px solid #31524d;color:#8fb2aa;font-size:21px}
   </style></head><body><main>${content}</main></body></html>`;
 }
 

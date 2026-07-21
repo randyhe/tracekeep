@@ -1,15 +1,15 @@
-Important work often disappears inside chats. Tracekeep recovers the unfinished loops behind everyday ideas, decisions, and follow-ups.
+Tracekeep is a local second brain for Codex, turning completed conversations into sourced memory and action.
 
-Tracekeep starts where the thought happens: in the conversation. Say what to remember, then ask what unfinished work is worth resuming. This screen uses synthetic data and does not claim automatic access to every chat.
+Use Codex as usual. This is the default daily entry point. You do not need to say "remember this" or prefix a message with "Tracekeep." When a meaningful turn completes, a trusted local hook classifies the result. Durable conclusions become sourced Learning Notes; actions, decisions, and uncertain items become proposals the user can review.
 
-The capture is now a real local Tracekeep record with its Codex source attached. It waits in Review, where the user can inspect it before accepting it. The Dashboard is the control room, not the required daily entry point.
+Then ask inside Codex what unfinished work deserves attention today. Tracekeep returns a short, focused list from the local store, with the original source and a concrete next action. No browsing through folders or lists is required. The user stays in the conversation instead of opening a dashboard just to remember what mattered.
 
-The same follow-up can appear in more than one place. Tracekeep marks a possible duplicate, merges only when asked, and keeps both pieces of evidence inspectable. Undo removes the added evidence link without deleting the original work.
+Ask Tracekeep to resume one open loop, and it reconnects the earlier decision, what is still missing, and what to do next. Codex can draft the next step while Tracekeep keeps the loop open. When the reply arrives, tell Codex to update or close it, and the local history stays reversible. Nothing is sent externally, and the source remains visible.
 
-Today highlights at most three priorities. An item can move to Waiting, Next week, Done, or back to Today, and the latest change can be undone immediately.
+A local Stop hook calls tracekeepd through an authenticated loopback API. Tracekeepd alone writes SQLite; sources, evidence, and FTS5 search stay local. Capture begins after installation and never claims every historical chat. Direct ChatGPT integration is planned, not shipped.
 
-Local SQLite FTS5 search returns the record together with its human-readable source. Tracekeep helps the user return to evidence instead of trusting an unsupported memory.
+The Web Dashboard is only the supporting workspace for batch review, evidence, backup, and settings. Here the user can inspect a proposed action, accept it, edit it, reject it, merge duplicates, or undo a change. It is not the required daily entry point.
 
-Restricted content stays out of ordinary search and sanitized export. The competition build keeps a zero-dollar external budget, with paid providers and platform APIs disabled.
+Tracekeep itself was built end to end in Codex with GPT-5.6. From the product owner's problem and trust boundaries, Codex coordinated focused subagents for requirements, interaction design, architecture, implementation, regression tests, synthetic UAT, privacy review, Windows packaging, and documentation.
 
-Codex and GPT-5.6 turned product decisions into implementation, tests, privacy checks, and a judge-ready Windows release. Tracekeep remembers where you stopped, what comes next, and why it was worth continuing.
+Codex also handled GitHub commits, pull requests, CI, release assets, captions, narration, and submission preparation. Public PRs show automatic capture, the Windows release, and competition materials moving from decisions to a tested, downloadable product.
