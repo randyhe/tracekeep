@@ -123,6 +123,14 @@ Web Dashboard 适合一次查看多条记录、检查来源、搜索、合并重
 - Manual、Daily Log 和 ChatGPT Export 导入，以及确定性的本地提取。
 - Windows 绿色启动和仅限本机的端口回退。
 
+## 使用 Codex 和 GPT-5.6 构建
+
+Tracekeep 在 OpenAI Build Week 之前已经是一个本地 Alpha。提交评审的是 2026 年 7 月 13–21 日比赛期间完成的实质性扩展；仓库的[已合并 PR 记录](https://github.com/randyhe/tracekeep/pulls?q=is%3Apr+is%3Amerged)和[比赛证据](docs/competition/README.md)保留了带日期的开发记录。
+
+Codex 和 GPT-5.6 是产品审查、架构取舍、实现、回归测试、隐私评审、UAT 回放、Windows 打包和发布验证的协作工程环境。它们加速了对话结束自动沉淀、带来源 Learning Notes、可撤销 Review 生命周期、隐私与网络探针、中英文文档和可复现演示材料的完成。
+
+关键产品决定仍由项目负责人作出：本地 SQLite 是权威数据源；行动和决定必须经过 Review；导入指令始终作为惰性数据；Restricted 内容不能进入普通输出；不宣称可读取完整聊天历史；付费 Provider、云托管和自动外部写入不属于 V1。当前交付物是可以运行的 Windows 版本，而不是只有提示词的原型。
+
 ## 开发与技术资料
 
 Tracekeep 使用 Node.js、TypeScript、Fastify、React 和 SQLite。

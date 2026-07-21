@@ -9,7 +9,7 @@ Date: 2026-07-21
 - Loopback Web returned HTTP 200, SQLite integrity returned `ok`, and the user-level Tracekeep Skill health check returned `ready`.
 - The production-local database started empty: zero Today items, pending reviews, and sources.
 - Before the schema 2 activation, an online SQLite backup was created and passed `quick_check=ok`.
-- The production-local service was restarted on the v0.3.0 build and reports `schemaVersion: 4` and `integrity: ok`.
+- The production-local service was restarted on the v0.4.0 build and reports `schemaVersion: 4` and `integrity: ok`.
 
 ## Delivered local Alpha core
 
@@ -23,7 +23,7 @@ Date: 2026-07-21
 - User-controlled automatic-capture setting and five fixed Open Loop states.
 - Restricted-content redaction and exclusion from ordinary FTS/search responses.
 - Zero-external-budget status and no configured paid or cloud provider.
-- Codex plugin with a local Stop hook, 11 local MCP tools, and an Tracekeep skill.
+- Codex plugin with a local Stop hook, 11 local MCP tools, and a Tracekeep skill.
 
 ## Gate disposition
 
@@ -50,7 +50,7 @@ Date: 2026-07-21
 
 - ChatGPT Export import is bounded to 12 MB and parsed in memory; streaming ZIP ingestion and checkpoint/resume remain.
 - Source adapters do not yet implement incremental `discover/fetch_page/checkpoint`; MCP `sync_sources` returns an explicit unavailable fallback.
-- The rebuilt v0.3.0 package, fresh-host MCP call, trusted Stop-hook capture,
+- The rebuilt v0.4.0 package, fresh-host MCP call, trusted Stop-hook capture,
   and real product-owner cross-task recall UAT passed. The broader UAT-017
   sample and 14-day Alpha remain incomplete.
 - No stable public contract was found for reading all ChatGPT/Codex history; this is not a product claim.

@@ -1,17 +1,17 @@
 # Build Week Demo Video Validation
 
-Validation date: **2026-07-19**
+Validation date: **2026-07-21**
 
 ## Final local artifact
 
 - Filename: `tracekeep-build-week-final.mp4`
-- Duration: `00:02:36.36`
+- Duration: `00:02:47.72`
 - Resolution: `1920x1080`
 - Video: H.264 High, 25 fps, yuv420p
 - Audio: AAC LC, mono, Microsoft Zira Desktop narration
 - Captions: 16 English cues burned into the video; `.srt` sidecar retained
-- Size: 5,939,618 bytes
-- SHA-256: `E3062D7C6C41563633750801C31C76BE9298CCAC7050896DB58B02798AD4172C`
+- Size: 6,570,237 bytes
+- SHA-256: `FC10E4CD41B3C6D066AB3168011A6C4B7BE462B5FD37442C0781107AF1E2FB46`
 
 The MP4 is intentionally excluded from Git. The public YouTube URL will be
 added only after the product owner reviews the local artifact and publishes it.
@@ -39,3 +39,6 @@ added only after the product owner reviews the local artifact and publishes it.
 - The first encode was rejected because its captions obscured product controls.
   The final encode uses 16 shorter cues and a reduced caption size.
 - Final public-link verification remains pending until YouTube publication.
+- Regeneration from public `main` commit `efb62a6e89c06a02d4464f06143052ee4cfdf059`
+  completed successfully on Windows using the repository recording and encoding
+  scripts.
