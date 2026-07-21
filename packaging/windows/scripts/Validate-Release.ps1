@@ -24,6 +24,9 @@ $required = @(
     "scripts\Install-Atlas.ps1",
     "scripts\Uninstall-Atlas.ps1",
     "plugin\atlas\.codex-plugin\plugin.json",
+    "plugin\atlas\hooks\hooks.json",
+    "plugin\atlas\hooks\invoke-stop-capture.ps1",
+    "plugin\atlas\hooks\stop-capture.mjs",
     "plugin\atlas\.mcp.json",
     "plugin\atlas\mcp-server\dist\index.js",
     "plugin\atlas\scripts\Start-Mcp.ps1",
@@ -107,7 +110,7 @@ try {
     if (-not $listener) { throw "Runtime smoke test did not find the required loopback listener." }
     $health = Invoke-RestMethod "http://127.0.0.1:$($listener.LocalPort)/api/v1/health/ready"
     $loops = Invoke-RestMethod "http://127.0.0.1:$($listener.LocalPort)/api/v1/open-loops" -Headers @{ Authorization = "Bearer $token" }
-    if ($health.status -ne "ready" -or $health.schemaVersion -ne 2) { throw "Runtime smoke health or schema check failed." }
+    if ($health.status -ne "ready" -or $health.schemaVersion -ne 4) { throw "Runtime smoke health or schema check failed." }
     if (@($loops.items).Count -ne 3) { throw "Synthetic demo seed did not create exactly three open loops." }
 }
 finally {
@@ -128,4 +131,4 @@ finally {
     if (Test-Path -LiteralPath $workPath) { throw "Runtime smoke cleanup could not remove the isolated work directory." }
 }
 
-Write-Host "Release validation passed. Bundled Node: $nodeVersion; schema v2; synthetic loops: 3"
+Write-Host "Release validation passed. Bundled Node: $nodeVersion; schema v4; synthetic loops: 3"

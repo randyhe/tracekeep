@@ -6,8 +6,8 @@ Atlas — Local-First AI Memory & Action System
 
 ## Tagline
 
-Turn unfinished thoughts from chats and daily notes into sourced, reviewable
-actions that do not disappear.
+Let meaningful conversations become sourced learning and unfinished work that
+does not disappear.
 
 ## Category
 
@@ -22,11 +22,13 @@ that were mentioned but never closed.
 
 ## What it does
 
-Atlas is a conversation-first, local-first personal memory and action system.
-In Codex, the user can explicitly say what should be remembered and later ask
-what unfinished work is worth resuming. Atlas can also import deliberate
-ChatGPT exports, daily logs, or manual captures. Every extracted open loop or
-decision goes to Review before it can affect the user's action list.
+Atlas is a conversation-first, local-first second brain. When a meaningful
+Codex turn ends, a trusted local hook preserves the useful result without
+requiring the user to say a magic phrase. Conclusions become sourced Learning
+Notes. Documents, papers, and web pages remain connected to their origin.
+Proposed actions and decisions go to Review before they can affect the user's
+action list. Explicit capture and ChatGPT Export remain available for urgent
+items and historical backfill.
 
 The user can edit, accept, reject, merge, schedule, complete, dismiss, or undo.
 Every accepted item retains inspectable source evidence. Atlas can detect a
@@ -64,7 +66,10 @@ owner made the product, privacy, cost, and release decisions. The required
 
 ## Accomplishments
 
-- 74 automated TypeScript, unit, and integration checks pass.
+- 90 automated TypeScript, unit, integration, hook, and Web checks pass.
+- An authenticated Windows Stop-hook probe produced sourced paper and
+  conversation notes plus a reviewable next action, and idempotent replay
+  produced no duplicates.
 - Three isolated Golden Journeys pass.
 - A frozen 50-sample Holdout passed the required extraction thresholds; the
   Holdout remains private to prevent evaluation tuning.
@@ -76,15 +81,14 @@ owner made the product, privacy, cost, and release decisions. The required
 
 ## What we learned
 
-A useful second brain needs a trust loop more than it needs autonomous agents.
-Review, source visibility, undo, and honest capability boundaries are the
-features that make extracted suggestions safe enough to use every day.
+A useful second brain must reduce capture effort without taking control away.
+Automatic learning memory, reviewable actions, source visibility, undo, a
+pause switch, and honest history boundaries make that possible.
 
 ## What's next
 
-After the competition, Atlas will complete the real 14-day Alpha, improve
-candidate usefulness from user feedback, and retest the optional Codex plugin
-after installation. ChatGPT Direct mobile through a secure remote MCP gateway,
+After the competition, Atlas will complete the real 14-day Alpha and improve
+candidate usefulness from user feedback. ChatGPT Direct mobile through a secure remote MCP gateway,
 weekly review, and sourced AI answers remain later capabilities. Paid providers,
 cloud hosting, complete
 history access, email/calendar write-back, and autonomous execution are not V1
@@ -101,7 +105,7 @@ claims.
 
 1. Download the ZIP and `.sha256` file from the public release.
 2. Verify the checksum, extract the ZIP, and double-click `Start Atlas.cmd`.
-3. No administrator account, Node.js, pnpm, rebuild, API key, or test account is
+3. No administrator account, Node.js, pnpm, rebuild, API key, or hosted account is
    required.
 4. Follow the three suggested journeys in `README-TESTING.md`.
 5. Atlas uses synthetic demo data and never reads the normal
@@ -111,6 +115,7 @@ claims.
 
 Atlas existed as a local Alpha before the Submission Period. The public Git
 history documents the meaningful post-2026-07-13 extension: review and restore
-closure, bilingual multi-candidate extraction, sourced search, reversible task
+closure, automatic meaningful-turn capture, sourced learning notes for papers,
+documents and URLs, bilingual multi-candidate extraction, reversible task
 states, privacy and network harnesses, Windows packaging, plugin distribution,
 and competition release evidence.
