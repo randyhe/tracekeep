@@ -2,9 +2,13 @@
 
 > **被打断没关系，Tracekeep 记得你做到哪里。**
 
+[![CI](https://github.com/randyhe/tracekeep/actions/workflows/ci.yml/badge.svg)](https://github.com/randyhe/tracekeep/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/randyhe/tracekeep)](https://github.com/randyhe/tracekeep/releases/latest)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 [下载 Tracekeep v0.4.0 Windows 版](https://github.com/randyhe/tracekeep/releases/latest) · [English](README.md) · [工作原理](#tracekeep-如何工作) · [隐私安全与费用](#隐私安全与费用)
 
-> **当前版本（2026-07-21）：** **Tracekeep v0.4.0** 是更名后的首个 Windows 正式版本。旧 Atlas 数据保持兼容；参见[更名迁移说明](docs/project/rename-migration.md)。
+> **当前版本（2026-07-21）：** **Tracekeep v0.4.0** 是更名后的首个 Windows 正式版本。旧 Atlas 数据保持兼容；参见[从 Atlas 升级](#从-atlas-升级)。
 
 生活不会等你做完一件事再开始下一件事。电话来了，孩子叫你，一场会议开始了，一个新想法又冒出来。查了一半的夏令营、还没预约的体检、等待回复的维修安排，都可能被下一次打断重新埋下去。
 
@@ -24,7 +28,7 @@
 
 2. **需要时就问**
 
-   > 搜索 Tracekeep：我之前发现什么方法可以避免早上忘记带东西？请显示来源。
+   > 我之前发现什么方法可以避免早上忘记带东西？请显示来源。
 
 你还可以像平常一样自然地说：
 
@@ -36,7 +40,7 @@
 打开 Tracekeep Dashboard。
 ```
 
-你不需要每次都说“请记住”。一次有价值的 Codex 回合结束后，Tracekeep 会自动保存学习内容，并把可能影响计划的行动或决定放进 Review。明确记录仍然保留，适合你希望马上确认保存的事情。
+你不需要说“请记住”，也不需要用“Tracekeep”作为消息开头。一次有价值的 Codex 回合结束后，Tracekeep 会自动保存学习内容，并把行动、决定或不确定内容放进 Review。明确记录仍然保留，适合你希望马上确认保存的事情。
 
 ## Windows 安装方法
 
@@ -59,7 +63,7 @@ Tracekeep 提供 Windows 10/11 x64 绿色版。电脑需要已安装 Codex Deskt
 以下三项都满足，说明 Tracekeep 已经可以使用：
 
 - **安装窗口：** 显示 `Tracekeep is installed and running`，没有红色错误。
-- **Dashboard：** 浏览器打开 Tracekeep，并能看到 `Today`、`Learning`、`Review` 和 `Search`。
+- **Dashboard：** 浏览器打开 Tracekeep，并能看到 `Today`、`Capture`、`Learning`、`Review` 和 `Search`。
 - **Codex 对话：** 完成一段有实际内容的测试对话后，学习结论出现在 **Learning**；如果包含下一步行动，则同时出现在 **Review**。
 
 电脑重启后，只需双击 **`Start Tracekeep.cmd`**。Tracekeep 优先使用 `127.0.0.1:4310`；端口已被使用时会依次尝试 4311–4319。它不会监听局域网，也不会创建 Windows 防火墙规则。
@@ -73,7 +77,7 @@ Tracekeep 围绕两个最常用的动作设计：
 - **让对话自然沉淀：** 有价值的 Codex 回合结束时，Tracekeep 自动提取值得保留的内容。
 - **带着上下文继续：** 询问还有哪些事情没有闭环，或搜索以前的记录和来源。
 
-本地 Stop Hook 只处理 Tracekeep 安装、信任并启用之后完成的回合，不会扫描全部历史。简短寒暄和疑似密码、Token 的内容会跳过。个人对话中的有用结论、文档、论文和网址会自动成为 Learning Notes；行动和决定仍进入 Review。工作摘要、Restricted 内容和不确定内容不会自动接纳。
+本地 Stop Hook 只处理 Tracekeep 安装、信任并启用之后完成的回合，不会扫描全部历史。简短寒暄和疑似密码、Token 的内容会跳过。个人对话中的有用结论、文档、论文和网址会自动成为 Learning Notes；行动、决定和不确定内容仍进入 Review。工作相关或 Restricted 内容不会自动接纳。
 
 Tracekeep 保存结构化结果、受限长度的摘要、来源标识和回忆所需的证据，不执行导入文字中的命令，也不会自动打开捕获到的网址。服务临时离线时，插件使用本地私有队列稍后重试。你可以在 **Settings** 随时暂停自动沉淀；主动记录、搜索和回忆仍可继续使用。
 
@@ -83,7 +87,7 @@ Tracekeep 不是完整聊天归档工具，也不宣称可以自动读取全部 
 
 ### 后续方向：手机端 ChatGPT Direct
 
-Tracekeep 计划中的手机体验是 **ChatGPT Direct**，不是用手机浏览器远程操作电脑 Dashboard。用户可以直接在 ChatGPT 手机对话里告诉 Tracekeep“记住这件事”，也可以随时问“我有哪些做到一半的事情”。
+Tracekeep 计划中的手机体验是 **ChatGPT Direct**，不是用手机浏览器远程操作电脑 Dashboard。用户可以直接在 ChatGPT 手机对话里自然交流，让有价值的回合自动沉淀，也可以随时问“我有哪些做到一半的事情”。
 
 这项能力尚未包含在 v0.4.0。目标架构是 ChatGPT App 通过远程 HTTPS MCP 网关和 OAuth 2.1 完成身份认证，再由用户电脑上的轻量同步程序主动取回待审核记录，交给本地 `tracekeepd` 写入 SQLite。SQLite 仍是唯一权威数据源；远程网关只是有时限的传输队列，不保存整套 Tracekeep 数据库，默认也不复制完整对话。
 
@@ -100,7 +104,7 @@ Web Dashboard 适合一次查看多条记录、检查来源、搜索、合并重
 - **本地优先：** `tracekeepd` 只监听 `127.0.0.1`，SQLite 数据留在用户电脑上。
 - **本地认证：** Windows 版生成 256 位令牌并使用 Windows DPAPI 保护；浏览器使用 HttpOnly、SameSite Session Cookie。
 - **不信任导入内容：** 导入的文字、命令和 URL 始终只是惰性数据。Restricted 内容不会进入普通搜索、脱敏导出、日志或截图。
-- **不需要付费 Provider：** 记录、审核、状态管理、备份和 FTS5 搜索不需要 AI API Key。Tracekeep 不会静默启用按量付费 API 或云托管。
+- **不需要付费 Provider：** 记录、审核、开放事项跟踪、备份和 FTS5 搜索不需要 AI API Key。Tracekeep 不会静默启用按量付费 API 或云托管。
 - **绿色安装：** 不申请管理员权限、不修改注册表、不修改 Windows 防火墙。
 - **下载可校验：** Release 提供 SHA-256；当前安装包尚未使用 Authenticode 商业证书签名，Windows 可能显示安全提醒。
 
@@ -121,6 +125,12 @@ Web Dashboard 适合一次查看多条记录、检查来源、搜索、合并重
 
 ## 开发与技术资料
 
+Tracekeep 使用 Node.js、TypeScript、Fastify、React 和 SQLite。
+
+### 从 Atlas 升级
+
+Tracekeep 是原 Atlas 项目的新名称。服务和自动沉淀 Hook 优先使用新的 `TRACEKEEP_*` 环境变量和 `%LOCALAPPDATA%\Tracekeep`，同时继续识别旧的 `ATLAS_*` 变量和已有的 `%LOCALAPPDATA%\Atlas\atlas.sqlite` 数据库。运行时会同时持有旧版和新版生命周期锁，防止 Atlas 与 Tracekeep 服务并发写入同一个数据库。升级过程不会自动移动或删除旧数据目录；详情参见 [`docs/project/rename-migration.md`](docs/project/rename-migration.md)。
+
 ```powershell
 pnpm install
 pnpm check
@@ -135,10 +145,12 @@ pnpm start
 - [需求追踪](docs/quality/requirements-traceability.md)
 - [参与贡献](CONTRIBUTING.md)
 
+## 许可证与归属
+
+Tracekeep 使用 [MIT License](LICENSE)。打包依赖保留各自许可证，详见 [Third-Party Notices](THIRD-PARTY-NOTICES.md)。
+
 ## 使用 Codex 与 GPT-5.6 构建
 
 产品负责人定义了用户痛点、对话自动沉淀的交互、审核流程、隐私和费用边界与发布 Gate。Codex 与 GPT-5.6 作为协作式工程环境，参与了真实仓库检查、产品和架构质疑、范围内实现、回归测试、故障诊断、合成 UAT、隐私扫描以及 Windows 绿色版构建。
 
 产品、隐私、费用和发布决定仍由人做出。Tracekeep 通过公开提交、测试证据、能力探针和明确的声明边界记录这段协作，不把模型生成内容描述成无人负责的自动产品决策。
-
-Tracekeep 使用 [MIT License](LICENSE)。打包依赖保留各自许可证，详见 [Third-Party Notices](THIRD-PARTY-NOTICES.md)。
