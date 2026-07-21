@@ -16,9 +16,9 @@ Life rarely lets you finish one thing before the next begins. A call comes in, y
 
 **Tracekeep remembers: Where did you stop? What should you do next? Why is it worth continuing?**
 
-![Tracekeep automatically preserves an everyday insight and recalls it later with source evidence](docs/assets/tracekeep-chat-first-uat.png)
+![Tracekeep automatically preserves an everyday insight and recalls it later with source evidence](docs/assets/tracekeep-chat-first-uat-en.png)
 
-*Privacy-safe recreation of the product-owner UAT recorded before the Tracekeep rename: an ordinary conversation was automatically preserved, then recalled from a separate Codex task with source evidence. The screenshot retains the former UI label as historical test evidence. Tracekeep currently ships as a local Codex plugin; exact host layout may vary.*
+*English, privacy-safe recreation of the product-owner UAT: an ordinary conversation is preserved, then recalled with source evidence. Tracekeep currently ships as a local Codex plugin; exact host layout may vary.*
 
 ## Use Tracekeep in 30 seconds
 
@@ -97,7 +97,7 @@ See the [ChatGPT Direct mobile roadmap](docs/product/chatgpt-direct-mobile-roadm
 
 The Web Dashboard is the place to review several records together, inspect evidence, search, merge duplicates, and manage lifecycle states. It supports the conversation-first experience; it is not required before every capture or recall.
 
-![Tracekeep Today dashboard with synthetic daily-life examples](docs/assets/tracekeep-today.png)
+![Tracekeep Today dashboard with synthetic daily-life examples](docs/assets/tracekeep-today-en.png)
 
 ## Privacy, security, and cost
 
