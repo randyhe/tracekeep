@@ -1,6 +1,6 @@
 # ChatGPT Direct mobile roadmap
 
-Status: **Planned; not shipped in v0.2.1**
+Status: **Planned; not shipped in v0.3.0**
 
 ## Product outcome
 

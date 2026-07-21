@@ -87,7 +87,7 @@ Atlas does not claim automatic access to all ChatGPT or Codex history. ChatGPT E
 
 The planned mobile experience is **ChatGPT Direct**, not a phone browser remotely controlling the desktop Dashboard. A user should be able to tell Atlas to remember something, or ask what to resume, directly in the ChatGPT mobile conversation.
 
-This capability is not shipped in v0.2.1. The planned design uses a ChatGPT App with a remote HTTPS MCP gateway and OAuth 2.1. A small outbound sync agent on the user's computer transfers reviewable records to the local `atlasd`; SQLite remains the authoritative store. The gateway is a short-lived transport queue, not a cloud copy of the Atlas database, and full conversations are not copied by default.
+This capability is not shipped in v0.3.0. The planned design uses a ChatGPT App with a remote HTTPS MCP gateway and OAuth 2.1. A small outbound sync agent on the user's computer transfers reviewable records to the local `atlasd`; SQLite remains the authoritative store. The gateway is a short-lived transport queue, not a cloud copy of the Atlas database, and full conversations are not copied by default.
 
 See the [ChatGPT Direct mobile roadmap](docs/product/chatgpt-direct-mobile-roadmap.md) for the target user flow, architecture, privacy boundary, delivery phases, and release gates.
 

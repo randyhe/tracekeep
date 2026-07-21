@@ -9,7 +9,7 @@ Date: 2026-07-21
 - Loopback Web returned HTTP 200, SQLite integrity returned `ok`, and the user-level Atlas Skill health check returned `ready`.
 - The production-local database started empty: zero Today items, pending reviews, and sources.
 - Before the schema 2 activation, an online SQLite backup was created and passed `quick_check=ok`.
-- The production-local service was restarted on the v0.3.0 release candidate and reports `schemaVersion: 4` and `integrity: ok`.
+- The production-local service was restarted on the v0.3.0 build and reports `schemaVersion: 4` and `integrity: ok`.
 
 ## Delivered local Alpha core
 

@@ -2,7 +2,7 @@
 
 - Date: 2026-07-21
 - Owner: Product owner
-- Build: Atlas v0.3.0 release candidate
+- Build: Atlas v0.3.0
 - Result: **Passed**
 
 ## Scenario
