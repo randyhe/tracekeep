@@ -28,7 +28,7 @@ Life rarely lets you finish one thing before the next begins. A call comes in, y
 
 2. **Ask when you need it**
 
-   > Search Tracekeep for the method I found to avoid forgetting things in the morning, and show the source.
+   > What method did I find for avoiding forgotten items in the morning? Show the source.
 
 You can also talk naturally:
 
@@ -40,7 +40,7 @@ Find my earlier family-trip decision and show its source.
 Open the Tracekeep Dashboard.
 ```
 
-You do not have to say “remember this” every time. At the end of a meaningful completed Codex turn, Tracekeep automatically preserves useful learning references and proposes actions or decisions for Review. Explicit capture remains available when something must be saved immediately.
+You do not need to say “remember this” or prefix a message with “Tracekeep.” At the end of a meaningful completed Codex turn, Tracekeep automatically preserves useful learning references and proposes actions, decisions, or uncertain items for Review. Explicit capture remains available when something must be saved immediately.
 
 ## Install on Windows
 
@@ -63,7 +63,7 @@ Tracekeep is distributed as a portable Windows 10/11 x64 package. It requires Co
 Tracekeep is ready when all three checks pass:
 
 - **Installer:** the command window says `Tracekeep is installed and running` with no red error.
-- **Dashboard:** the browser opens Tracekeep and shows `Today`, `Capture`, `Review`, and `Search`.
+- **Dashboard:** the browser opens Tracekeep and shows `Today`, `Capture`, `Learning`, `Review`, and `Search`.
 - **Codex:** finish a meaningful test conversation; its learning note appears under **Learning**, while any proposed action appears under **Review**.
 
 After restarting Windows, double-click **`Start Tracekeep.cmd`**. Tracekeep first tries `127.0.0.1:4310` and safely falls back through ports 4311–4319. It never listens on the LAN or creates a Windows Firewall rule.
@@ -77,7 +77,7 @@ Tracekeep is designed around two everyday actions:
 - **Let the conversation settle:** when a meaningful Codex turn finishes, Tracekeep extracts the useful result automatically.
 - **Resume with context:** ask Tracekeep what remains unfinished or search earlier records with their sources.
 
-The local Stop hook observes only completed turns while Tracekeep is installed, trusted, and enabled. It does not scan every historical conversation. Tracekeep skips short social exchanges and credential-like text. For a personal turn, useful conclusions, documents, papers, and URLs become accepted Learning Notes; proposed actions and decisions remain in Review. Work-related or restricted material is never auto-accepted.
+The local Stop hook observes only completed turns while Tracekeep is installed, trusted, and enabled. It does not scan every historical conversation. Tracekeep skips short social exchanges and credential-like text. For a personal turn, useful conclusions, documents, papers, and URLs become accepted Learning Notes; proposed actions, decisions, and uncertain items remain in Review. Work-related or restricted material is never auto-accepted.
 
 Tracekeep stores structured results, bounded summaries, source identifiers, and evidence needed for recall. It does not execute imported instructions or automatically open captured URLs. If Tracekeep is temporarily offline, the plugin keeps a private local retry queue. You can pause automatic capture at any time under **Settings** without disabling explicit capture, search, or recall.
 
@@ -87,7 +87,7 @@ Tracekeep does not claim automatic access to all ChatGPT or Codex history. ChatG
 
 ### Roadmap: ChatGPT Direct on mobile
 
-The planned mobile experience is **ChatGPT Direct**, not a phone browser remotely controlling the desktop Dashboard. A user should be able to tell Tracekeep to remember something, or ask what to resume, directly in the ChatGPT mobile conversation.
+The planned mobile experience is **ChatGPT Direct**, not a phone browser remotely controlling the desktop Dashboard. A user should be able to talk naturally and let a meaningful turn settle automatically, or ask what to resume, directly in the ChatGPT mobile conversation.
 
 This capability is not shipped in v0.4.0. The planned design uses a ChatGPT App with a remote HTTPS MCP gateway and OAuth 2.1. A small outbound sync agent on the user's computer transfers reviewable records to the local `tracekeepd`; SQLite remains the authoritative store. The gateway is a short-lived transport queue, not a cloud copy of the Tracekeep database, and full conversations are not copied by default.
 
